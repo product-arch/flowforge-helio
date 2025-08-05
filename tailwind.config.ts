@@ -61,7 +61,41 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				// Flow Builder Colors
+				flow: {
+					canvas: 'hsl(var(--flow-canvas))',
+					grid: 'hsl(var(--flow-grid))'
+				},
+				node: {
+					start: 'hsl(var(--node-start))',
+					routing: 'hsl(var(--node-routing))',
+					constraint: 'hsl(var(--node-constraint))',
+					conditional: 'hsl(var(--node-conditional))',
+					audit: 'hsl(var(--node-audit))',
+					terminal: {
+						success: 'hsl(var(--node-terminal-success))',
+						error: 'hsl(var(--node-terminal-error))',
+						warning: 'hsl(var(--node-terminal-warning))'
+					}
+				},
+				connection: {
+					DEFAULT: 'hsl(var(--connection-default))',
+					active: 'hsl(var(--connection-active))',
+					error: 'hsl(var(--connection-error))'
+				},
+				status: {
+					success: 'hsl(var(--success))',
+					warning: 'hsl(var(--warning))',
+					error: 'hsl(var(--error))',
+					info: 'hsl(var(--info))'
 				}
+			},
+			backgroundImage: {
+				'gradient-primary': 'var(--gradient-primary)',
+				'gradient-success': 'var(--gradient-success)',
+				'gradient-warning': 'var(--gradient-warning)',
+				'gradient-error': 'var(--gradient-error)'
 			},
 			borderRadius: {
 				lg: 'var(--radius)',

@@ -1,0 +1,113 @@
+import React from 'react';
+import { Handle, Position, NodeProps } from '@xyflow/react';
+import { Bug, Trash2, Settings } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+import { useFlow } from '@/contexts/FlowContext';
+
+export const AuditNode: React.FC<NodeProps> = ({ id, data, selected }) => {
+  const { deleteNode, setSelectedNode, nodes } = useFlow();
+  const currentNode = nodes.find(n => n.id === id);
+
+  const eventCount = Array.isArray(data.events) ? data.events.length : 0;
+  const logLevel = String(data.logLevel || 'info');
+
+  return (
+    <TooltipProvider>
+      <div className={`
+        relative group bg-card border-2 rounded-lg p-4 shadow-lg min-w-[180px]
+        ${selected ? 'border-primary' : 'border-node-audit'}
+        hover:shadow-xl transition-all duration-200
+      `}>
+        {/* Delete Button */}
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => deleteNode(id)}
+          className="absolute -top-2 -right-2 w-6 h-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity bg-destructive text-destructive-foreground hover:bg-destructive/90"
+        >
+          <Trash2 className="w-3 h-3" />
+        </Button>
+
+        {/* Header */}
+        <div className="flex items-center gap-2 mb-3">
+          <div className="p-2 bg-node-audit/10 rounded-lg">
+            <Bug className="w-5 h-5 text-node-audit" />
+          </div>
+          <div className="flex-1">
+            <h3 className="font-semibold text-sm">Audit Node</h3>
+            <p className="text-xs text-muted-foreground">Debug & Logging</p>
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setSelectedNode(currentNode)}
+            className="w-6 h-6 p-0"
+          >
+            <Settings className="w-3 h-3" />
+          </Button>
+        </div>
+
+        {/* Content */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <span className="text-xs text-muted-foreground">Log Level:</span>
+            <Badge 
+              variant="outline" 
+              className={`text-xs ${
+                logLevel === 'error' ? 'text-status-error border-status-error' :
+                logLevel === 'warn' ? 'text-status-warning border-status-warning' :
+                'text-status-info border-status-info'
+              }`}
+            >
+              {logLevel.toUpperCase()}
+            </Badge>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-xs text-muted-foreground">Events:</span>
+            <Badge variant="secondary" className="text-xs">
+              {eventCount} logged
+            </Badge>
+          </div>
+          {data.lastExecution && (
+            <div className="text-xs text-muted-foreground">
+              Last: {new Date(String(data.lastExecution)).toLocaleTimeString()}
+            </div>
+          )}
+        </div>
+
+        {/* Handles */}
+        <Handle
+          type="target"
+          position={Position.Left}
+          className="w-3 h-3 bg-node-audit border-2 border-background"
+        />
+        <Handle
+          type="source"
+          position={Position.Right}
+          className="w-3 h-3 bg-node-audit border-2 border-background"
+        />
+
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div className="absolute inset-0 pointer-events-none" />
+          </TooltipTrigger>
+          <TooltipContent>
+            <div className="text-sm">
+              <div className="font-medium">Audit Node</div>
+              <div className="text-muted-foreground">
+                Log events and debug information for troubleshooting
+              </div>
+            </div>
+          </TooltipContent>
+        </Tooltip>
+      </div>
+    </TooltipProvider>
+  );
+};
