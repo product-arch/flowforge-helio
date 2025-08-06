@@ -18,6 +18,13 @@ import { ConstraintNode } from './nodes/ConstraintNode';
 import { ConditionalNode } from './nodes/ConditionalNode';
 import { TerminalNode } from './nodes/TerminalNode';
 import { AuditNode } from './nodes/AuditNode';
+import { FilterNode } from './nodes/FilterNode';
+import { SwitchNode } from './nodes/SwitchNode';
+import { RateLimitNode } from './nodes/RateLimitNode';
+import { DelayNode } from './nodes/DelayNode';
+import { ThrottleNode } from './nodes/ThrottleNode';
+import { SMSNode } from './nodes/SMSNode';
+import { WhatsAppNode } from './nodes/WhatsAppNode';
 import { CustomEdge } from './edges/CustomEdge';
 import { ZoomControls } from './ZoomControls';
 
@@ -28,6 +35,13 @@ const nodeTypes = {
   conditional: ConditionalNode,
   terminal: TerminalNode,
   audit: AuditNode,
+  filter: FilterNode,
+  switch: SwitchNode,
+  ratelimit: RateLimitNode,
+  delay: DelayNode,
+  throttle: ThrottleNode,
+  sms: SMSNode,
+  whatsapp: WhatsAppNode,
 };
 
 const edgeTypes = {

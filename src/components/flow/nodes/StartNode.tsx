@@ -38,25 +38,31 @@ export const StartNode: React.FC<NodeProps> = ({ id, data, selected }) => {
           </div>
           <div>
             <h3 className="font-semibold text-sm">Start Node</h3>
-            <p className="text-xs text-muted-foreground">Entry Point</p>
+            <p className="text-xs text-muted-foreground">{String(data.channel || 'SMS')}</p>
           </div>
         </div>
 
-        {/* Content */}
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-muted-foreground">Channel:</span>
-            <Badge variant="secondary" className="text-xs">
-              {String(data.channel || 'SMS')}
-            </Badge>
+        {/* Configuration Info */}
+        <div className="space-y-2 mb-3">
+          <div className="bg-accent/30 rounded p-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-medium">Channel</span>
+              <span className="text-xs text-muted-foreground">{String(data.channel || 'SMS')}</span>
+            </div>
           </div>
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-muted-foreground">App ID:</span>
-            <span className="text-xs font-mono">{String(data.appId || 'N/A')}</span>
+          <div className="bg-accent/30 rounded p-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-medium">App ID</span>
+              <span className="text-xs font-mono text-muted-foreground truncate max-w-20">
+                {String(data.appId || 'HELO_001')}
+              </span>
+            </div>
           </div>
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-muted-foreground">Business Unit:</span>
-            <span className="text-xs">{String(data.businessUnit || 'N/A')}</span>
+          <div className="bg-accent/30 rounded p-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-medium">Business Unit</span>
+              <span className="text-xs text-muted-foreground">{String(data.businessUnit || 'Marketing')}</span>
+            </div>
           </div>
         </div>
 

@@ -15,7 +15,23 @@ import {
   Bug,
   Star,
   ChevronLeft,
-  ChevronRight as ChevronRightIcon
+  ChevronRight as ChevronRightIcon,
+  Database,
+  Filter,
+  Clock,
+  MessageSquare,
+  Shuffle,
+  Users,
+  Target,
+  Zap,
+  AlertTriangle,
+  Settings,
+  Webhook,
+  Timer,
+  BarChart3,
+  Phone,
+  Mail,
+  MessageCircle
 } from 'lucide-react';
 import {
   Tooltip,
@@ -35,6 +51,7 @@ interface NodeType {
 }
 
 const nodeTypes: NodeType[] = [
+  // Core Flow Nodes
   {
     id: 'start',
     label: 'Start Node',
@@ -52,13 +69,15 @@ const nodeTypes: NodeType[] = [
     category: 'Core',
   },
   {
-    id: 'constraint',
-    label: 'Constraint Node',
-    icon: Shield,
-    color: 'text-node-constraint',
-    description: 'TPS, cost, and time-based limits',
-    category: 'Control',
+    id: 'terminal',
+    label: 'Terminal Node',
+    icon: Square,
+    color: 'text-node-terminal-success',
+    description: 'Final state endpoint (sent, dropped, etc.)',
+    category: 'Core',
   },
+
+  // Logic & Control Nodes
   {
     id: 'conditional',
     label: 'Conditional Node',
@@ -68,20 +87,158 @@ const nodeTypes: NodeType[] = [
     category: 'Logic',
   },
   {
-    id: 'terminal',
-    label: 'Terminal Node',
-    icon: Square,
-    color: 'text-node-terminal-success',
-    description: 'Final state endpoint (sent, dropped, etc.)',
-    category: 'Core',
+    id: 'filter',
+    label: 'Filter Node',
+    icon: Filter,
+    color: 'text-node-filter',
+    description: 'Filter messages based on criteria',
+    category: 'Logic',
   },
+  {
+    id: 'switch',
+    label: 'Switch Node',
+    icon: Shuffle,
+    color: 'text-node-switch',
+    description: 'Multi-path routing based on conditions',
+    category: 'Logic',
+  },
+
+  // Constraint & Control Nodes
+  {
+    id: 'constraint',
+    label: 'Constraint Node',
+    icon: Shield,
+    color: 'text-node-constraint',
+    description: 'TPS, cost, and time-based limits',
+    category: 'Control',
+  },
+  {
+    id: 'ratelimit',
+    label: 'Rate Limit Node',
+    icon: Timer,
+    color: 'text-node-ratelimit',
+    description: 'Control message flow rate',
+    category: 'Control',
+  },
+  {
+    id: 'delay',
+    label: 'Delay Node',
+    icon: Clock,
+    color: 'text-node-delay',
+    description: 'Add time delays in message flow',
+    category: 'Control',
+  },
+  {
+    id: 'throttle',
+    label: 'Throttle Node',
+    icon: Zap,
+    color: 'text-node-throttle',
+    description: 'Limit concurrent message processing',
+    category: 'Control',
+  },
+
+  // Channel Specific Nodes
+  {
+    id: 'sms',
+    label: 'SMS Node',
+    icon: MessageSquare,
+    color: 'text-node-sms',
+    description: 'SMS-specific routing and configuration',
+    category: 'Channel',
+  },
+  {
+    id: 'whatsapp',
+    label: 'WhatsApp Node',
+    icon: MessageCircle,
+    color: 'text-node-whatsapp',
+    description: 'WhatsApp-specific routing and configuration',
+    category: 'Channel',
+  },
+  {
+    id: 'email',
+    label: 'Email Node',
+    icon: Mail,
+    color: 'text-node-email',
+    description: 'Email-specific routing and configuration',
+    category: 'Channel',
+  },
+  {
+    id: 'voice',
+    label: 'Voice Node',
+    icon: Phone,
+    color: 'text-node-voice',
+    description: 'Voice call routing and configuration',
+    category: 'Channel',
+  },
+
+  // Monitoring & Analytics Nodes
   {
     id: 'audit',
     label: 'Audit Node',
     icon: Bug,
     color: 'text-node-audit',
     description: 'Debug and logging checkpoint',
-    category: 'Debug',
+    category: 'Monitoring',
+  },
+  {
+    id: 'analytics',
+    label: 'Analytics Node',
+    icon: BarChart3,
+    color: 'text-node-analytics',
+    description: 'Collect metrics and performance data',
+    category: 'Monitoring',
+  },
+  {
+    id: 'alert',
+    label: 'Alert Node',
+    icon: AlertTriangle,
+    color: 'text-node-alert',
+    description: 'Send alerts and notifications',
+    category: 'Monitoring',
+  },
+
+  // Integration Nodes
+  {
+    id: 'webhook',
+    label: 'Webhook Node',
+    icon: Webhook,
+    color: 'text-node-webhook',
+    description: 'Send data to external systems',
+    category: 'Integration',
+  },
+  {
+    id: 'database',
+    label: 'Database Node',
+    icon: Database,
+    color: 'text-node-database',
+    description: 'Store or retrieve data',
+    category: 'Integration',
+  },
+  {
+    id: 'transform',
+    label: 'Transform Node',
+    icon: Settings,
+    color: 'text-node-transform',
+    description: 'Transform message data and format',
+    category: 'Integration',
+  },
+
+  // Vendor & Targeting Nodes
+  {
+    id: 'vendor',
+    label: 'Vendor Node',
+    icon: Target,
+    color: 'text-node-vendor',
+    description: 'Specific vendor configuration',
+    category: 'Vendor',
+  },
+  {
+    id: 'loadbalancer',
+    label: 'Load Balancer Node',
+    icon: Users,
+    color: 'text-node-loadbalancer',
+    description: 'Distribute load across vendors',
+    category: 'Vendor',
   },
 ];
 

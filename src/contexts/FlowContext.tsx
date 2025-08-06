@@ -136,30 +136,143 @@ function getDefaultNodeData(type: string) {
       return {
         strategy: 'weightedSplit',
         vendors: [],
-        fallbackEnabled: false
+        fallbackEnabled: false,
+        label: 'Routing Logic'
       };
     case 'constraint':
       return {
         maxTPS: 1000,
         maxCost: 0.05,
-        timeWindow: { start: '00:00', end: '23:59' }
+        timeWindow: { start: '00:00', end: '23:59' },
+        label: 'TPS: 1000/s'
       };
     case 'conditional':
       return {
         conditions: [],
-        operator: 'AND'
+        operator: 'AND',
+        label: 'If-Then Logic'
       };
     case 'terminal':
       return {
         state: 'sent',
-        reason: ''
+        reason: '',
+        label: 'Sent'
       };
     case 'audit':
       return {
         logLevel: 'info',
-        events: []
+        events: [],
+        label: 'Debug Log'
+      };
+    case 'filter':
+      return {
+        criteria: [],
+        action: 'allow',
+        label: 'Message Filter'
+      };
+    case 'switch':
+      return {
+        cases: [],
+        defaultPath: null,
+        label: 'Multi-Path Switch'
+      };
+    case 'ratelimit':
+      return {
+        maxRate: 100,
+        timeWindow: 60,
+        strategy: 'sliding',
+        label: 'Rate: 100/min'
+      };
+    case 'delay':
+      return {
+        duration: 1000,
+        unit: 'ms',
+        label: 'Delay: 1s'
+      };
+    case 'throttle':
+      return {
+        maxConcurrent: 10,
+        queueSize: 100,
+        label: 'Max: 10 concurrent'
+      };
+    case 'sms':
+      return {
+        senderId: '',
+        messageType: 'transactional',
+        encoding: 'utf8',
+        label: 'SMS Channel'
+      };
+    case 'whatsapp':
+      return {
+        businessId: '',
+        templateType: 'text',
+        botName: '',
+        label: 'WhatsApp Channel'
+      };
+    case 'email':
+      return {
+        fromAddress: '',
+        messageType: 'transactional',
+        template: '',
+        label: 'Email Channel'
+      };
+    case 'voice':
+      return {
+        callerId: '',
+        voiceType: 'text-to-speech',
+        language: 'en',
+        label: 'Voice Channel'
+      };
+    case 'analytics':
+      return {
+        metrics: ['delivery_rate', 'latency'],
+        interval: '1m',
+        label: 'Analytics Tracker'
+      };
+    case 'alert':
+      return {
+        conditions: [],
+        recipients: [],
+        severity: 'medium',
+        label: 'Alert System'
+      };
+    case 'webhook':
+      return {
+        url: '',
+        method: 'POST',
+        headers: {},
+        label: 'Webhook Call'
+      };
+    case 'database':
+      return {
+        operation: 'insert',
+        table: '',
+        fields: [],
+        label: 'Database Op'
+      };
+    case 'transform':
+      return {
+        transformations: [],
+        outputFormat: 'json',
+        label: 'Data Transform'
+      };
+    case 'vendor':
+      return {
+        vendorId: '',
+        priority: 1,
+        config: {},
+        label: 'Vendor Config'
+      };
+    case 'loadbalancer':
+      return {
+        algorithm: 'round_robin',
+        healthCheck: true,
+        targets: [],
+        label: 'Load Balancer'
       };
     default:
-      return {};
+      return {
+        label: 'Unknown Node'
+      };
   }
 }

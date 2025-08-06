@@ -42,48 +42,39 @@ export const RoutingNode: React.FC<NodeProps> = ({ id, data, selected }) => {
           </div>
           <div className="flex-1">
             <h3 className="font-semibold text-sm">Routing Node</h3>
-            <p className="text-xs text-muted-foreground">Vendor Selection</p>
+            <p className="text-xs text-muted-foreground">{String(data.strategy || 'weightedSplit')}</p>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setSelectedNode(currentNode)}
-            className="w-6 h-6 p-0"
-          >
-            <Settings className="w-3 h-3" />
-          </Button>
         </div>
 
-        {/* Status Indicator */}
-        <div className="flex items-center gap-2 mb-3">
-          <div className={`w-2 h-2 rounded-full ${
-            hasConfig ? 'bg-status-success' : 'bg-status-warning'
-          }`} />
-          <span className="text-xs text-muted-foreground">
-            {hasConfig ? 'Configured' : 'Needs Configuration'}
-          </span>
-        </div>
-
-        {/* Content */}
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-muted-foreground">Strategy:</span>
-            <Badge variant={data.strategy ? "default" : "secondary"} className="text-xs">
-              {String(data.strategy || 'Not Set')}
-            </Badge>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-muted-foreground">Vendors:</span>
-            <Badge variant={vendorCount > 0 ? "default" : "secondary"} className="text-xs">
-              {vendorCount} vendors
-            </Badge>
-          </div>
-          {data.fallbackEnabled && (
+        {/* Configuration Info */}
+        <div className="space-y-2 mb-3">
+          <div className="bg-accent/30 rounded p-2">
             <div className="flex items-center justify-between">
-              <span className="text-xs text-muted-foreground">Fallback:</span>
-              <Badge variant="outline" className="text-xs text-status-success">
-                Enabled
-              </Badge>
+              <span className="text-xs font-medium">Strategy</span>
+              <span className="text-xs text-muted-foreground capitalize">
+                {String(data.strategy || 'weightedSplit')}
+              </span>
+            </div>
+          </div>
+
+          <div className="bg-accent/30 rounded p-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-medium">Vendors</span>
+              <span className="text-xs text-muted-foreground">
+                {(Array.isArray(data.vendors) ? data.vendors.length : 0)} configured
+              </span>
+            </div>
+            {Array.isArray(data.vendors) && data.vendors.slice(0, 2).map((vendor: any, index: number) => (
+              <div key={index} className="flex items-center justify-between mt-1">
+                <span className="text-xs truncate max-w-16">{vendor.name}</span>
+                <span className="text-xs text-muted-foreground">{vendor.weight}%</span>
+              </div>
+            ))}
+          </div>
+
+          {data.fallbackEnabled && (
+            <div className="bg-green-50 border border-green-200 rounded p-1">
+              <span className="text-xs text-green-700 font-medium">✓ Fallback Enabled</span>
             </div>
           )}
         </div>
