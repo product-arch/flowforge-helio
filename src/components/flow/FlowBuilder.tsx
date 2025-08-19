@@ -9,7 +9,7 @@ import {
 } from '@xyflow/react';
 import { useFlow } from '@/contexts/FlowContext';
 import { NodePalette } from './NodePalette';
-import { ConfigurationPanel } from './ConfigurationPanel';
+import { ConfigurationModal } from './ConfigurationModal';
 import { SimulationPanel } from './SimulationPanel';
 import { FlowNavbar } from './FlowNavbar';
 import { StartNode } from './nodes/StartNode';
@@ -57,6 +57,9 @@ export const FlowBuilder: React.FC = () => {
     onConnect,
     setSelectedNode
   } = useFlow();
+  
+  const [configModalOpen, setConfigModalOpen] = React.useState(false);
+  const [configNodeId, setConfigNodeId] = React.useState<string | null>(null);
 
   const { setViewport } = useReactFlow();
 
@@ -67,6 +70,16 @@ export const FlowBuilder: React.FC = () => {
   const onPaneClick = useCallback(() => {
     setSelectedNode(null);
   }, [setSelectedNode]);
+
+  const openConfigModal = useCallback((nodeId: string) => {
+    setConfigNodeId(nodeId);
+    setConfigModalOpen(true);
+  }, []);
+
+  const closeConfigModal = useCallback(() => {
+    setConfigModalOpen(false);
+    setConfigNodeId(null);
+  }, []);
 
   const defaultEdgeOptions = useMemo(() => ({
     type: 'custom',
@@ -81,9 +94,15 @@ export const FlowBuilder: React.FC = () => {
       <div className="flex-1 flex overflow-hidden">
         <NodePalette />
         
-        <div className="flex-1 relative">
+        <div className={`flex-1 relative ${configModalOpen ? 'blur-sm' : ''} transition-all duration-200`}>
           <ReactFlow
-            nodes={nodes}
+            nodes={nodes.map(node => ({
+              ...node,
+              data: {
+                ...node.data,
+                onConfigClick: () => openConfigModal(node.id)
+              }
+            }))}
             edges={edges}
             onNodesChange={onNodesChange}
             onEdgesChange={onEdgesChange}
@@ -116,11 +135,17 @@ export const FlowBuilder: React.FC = () => {
             </Panel>
           </ReactFlow>
         </div>
-        
-        <ConfigurationPanel />
       </div>
       
       <SimulationPanel />
+      
+      {configNodeId && (
+        <ConfigurationModal
+          isOpen={configModalOpen}
+          onClose={closeConfigModal}
+          nodeId={configNodeId}
+        />
+      )}
     </div>
   );
 };
