@@ -81,16 +81,10 @@ export const TerminalNode: React.FC<NodeProps> = ({ id, data, selected }) => {
           )}
         </div>
 
-        {/* Handle */}
-        <Handle
-          type="target"
-          position={Position.Left}
-          className={`w-3 h-3 border-2 border-background ${
-            state === 'sent' ? 'bg-node-terminal-success' :
-            state === 'dropped' ? 'bg-node-terminal-error' :
-            'bg-node-terminal-warning'
-          }`}
-        />
+        {/* Invisible Connection Handle for input only */}
+        <Handle type="target" position={Position.Left} id="left" className="w-3 h-3 opacity-0" />
+        <Handle type="target" position={Position.Top} id="top" className="w-3 h-3 opacity-0" />
+        <Handle type="target" position={Position.Bottom} id="bottom" className="w-3 h-3 opacity-0" />
 
         <Tooltip>
           <TooltipTrigger asChild>

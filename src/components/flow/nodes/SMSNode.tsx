@@ -89,17 +89,13 @@ export const SMSNode: React.FC<SMSNodeProps> = ({ id, data, selected }) => {
         </div>
       </div>
 
-      {/* Connection Handles */}
-      <Handle
-        type="target"
-        position={Position.Left}
-        className="w-3 h-3 border-2 border-node-sms bg-background"
-      />
-      <Handle
-        type="source"
-        position={Position.Right}
-        className="w-3 h-3 border-2 border-node-sms bg-background"
-      />
+      {/* Invisible Connection Handles for full connectivity */}
+      <Handle type="target" position={Position.Left} id="left" className="w-3 h-3 opacity-0" />
+      <Handle type="target" position={Position.Top} id="top-in" className="w-3 h-3 opacity-0" />
+      <Handle type="target" position={Position.Bottom} id="bottom-in" className="w-3 h-3 opacity-0" />
+      <Handle type="source" position={Position.Right} id="right" className="w-3 h-3 opacity-0" />
+      <Handle type="source" position={Position.Top} id="top-out" className="w-3 h-3 opacity-0" />
+      <Handle type="source" position={Position.Bottom} id="bottom-out" className="w-3 h-3 opacity-0" />
     </div>
   );
 };

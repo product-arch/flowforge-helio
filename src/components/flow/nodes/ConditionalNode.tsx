@@ -80,26 +80,14 @@ export const ConditionalNode: React.FC<NodeProps> = ({ id, data, selected }) => 
           </div>
         </div>
 
-        {/* Handles */}
-        <Handle
-          type="target"
-          position={Position.Left}
-          className="w-3 h-3 bg-node-conditional border-2 border-background"
-        />
-        <Handle
-          type="source"
-          position={Position.Right}
-          id="true"
-          style={{ top: '60%' }}
-          className="w-3 h-3 bg-status-success border-2 border-background"
-        />
-        <Handle
-          type="source"
-          position={Position.Right}
-          id="false"
-          style={{ top: '80%' }}
-          className="w-3 h-3 bg-status-error border-2 border-background"
-        />
+        {/* Invisible Connection Handles for full connectivity */}
+        <Handle type="target" position={Position.Left} id="left" className="w-3 h-3 opacity-0" />
+        <Handle type="target" position={Position.Top} id="top-in" className="w-3 h-3 opacity-0" />
+        <Handle type="target" position={Position.Bottom} id="bottom-in" className="w-3 h-3 opacity-0" />
+        <Handle type="source" position={Position.Right} id="true" className="w-3 h-3 opacity-0" style={{ top: '40%' }} />
+        <Handle type="source" position={Position.Right} id="false" className="w-3 h-3 opacity-0" style={{ top: '60%' }} />
+        <Handle type="source" position={Position.Top} id="top-out" className="w-3 h-3 opacity-0" />
+        <Handle type="source" position={Position.Bottom} id="bottom-out" className="w-3 h-3 opacity-0" />
 
         {/* Labels for True/False outputs */}
         <div className="absolute right-4 top-1/2 transform translate-x-full text-xs text-muted-foreground">
