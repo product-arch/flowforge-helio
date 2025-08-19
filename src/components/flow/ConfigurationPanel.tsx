@@ -24,14 +24,24 @@ export const ConfigurationPanel: React.FC = () => {
   const [collapsed, setCollapsed] = useState(false);
   const { toast } = useToast();
 
-  // Don't show configuration for start nodes
+  // Auto-collapse when no node is selected or start node is selected
   if (!selectedNode || selectedNode.type === 'start') {
     return (
-      <div className="w-80 bg-card border-l border-border flex items-center justify-center text-muted-foreground">
-        <div className="text-center">
-          <Settings className="w-12 h-12 mx-auto mb-2 opacity-50" />
-          <p>{selectedNode?.type === 'start' ? 'Start node is not configurable' : 'Select a node to configure'}</p>
-        </div>
+      <div className="w-12 bg-card border-l border-border flex flex-col items-center py-4">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => {
+            // Only show expand option if there's a configurable node selected
+            if (selectedNode && selectedNode.type !== 'start') {
+              setCollapsed(false);
+            }
+          }}
+          disabled={!selectedNode || selectedNode.type === 'start'}
+          className={!selectedNode || selectedNode.type === 'start' ? 'opacity-30' : ''}
+        >
+          <ChevronLeft className="w-4 h-4" />
+        </Button>
       </div>
     );
   }
