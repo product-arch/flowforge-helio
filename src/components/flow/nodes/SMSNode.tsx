@@ -28,7 +28,7 @@ export const SMSNode: React.FC<SMSNodeProps> = ({ id, data, selected }) => {
   return (
     <div className={`
       relative bg-card border-2 rounded-lg p-3 min-w-[160px] transition-all duration-200
-      ${selected ? 'border-primary shadow-lg' : 'border-node-sms shadow-sm'}
+      ${selected ? 'border-primary shadow-primary/20' : 'border-primary/50'}
       hover:shadow-md group
     `}>
       {/* Delete Button */}
@@ -43,11 +43,11 @@ export const SMSNode: React.FC<SMSNodeProps> = ({ id, data, selected }) => {
 
       {/* Node Header */}
       <div className="flex items-center gap-2 mb-3">
-        <div className="p-1.5 rounded-md bg-node-sms/10">
-          <MessageSquare className="w-4 h-4 text-node-sms" />
+        <div className="p-1.5 rounded-md bg-primary/10">
+          <MessageSquare className="w-4 h-4 text-primary" />
         </div>
         <div className="flex-1 min-w-0">
-          <div className="text-sm font-medium truncate">SMS Channel</div>
+          <div className="text-sm font-medium truncate text-primary">SMS Channel</div>
           <div className="text-xs text-muted-foreground truncate">
             {data.senderId || 'No Sender ID'}
           </div>
@@ -69,7 +69,7 @@ export const SMSNode: React.FC<SMSNodeProps> = ({ id, data, selected }) => {
         {/* Sender ID Block */}
         <div className="bg-accent/30 rounded p-2">
           <div className="flex items-center gap-2">
-            <Phone className="w-3 h-3 text-node-sms" />
+            <Phone className="w-3 h-3 text-primary" />
             <span className="text-xs font-medium">Sender ID</span>
             {data.senderId && <CheckCircle className="w-3 h-3 text-green-500" />}
           </div>

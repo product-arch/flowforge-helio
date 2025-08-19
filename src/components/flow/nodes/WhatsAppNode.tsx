@@ -28,7 +28,7 @@ export const WhatsAppNode: React.FC<WhatsAppNodeProps> = ({ id, data, selected }
   return (
     <div className={`
       relative bg-card border-2 rounded-lg p-3 min-w-[160px] transition-all duration-200
-      ${selected ? 'border-primary shadow-lg' : 'border-node-whatsapp shadow-sm'}
+      ${selected ? 'border-primary shadow-primary/20' : 'border-primary/50'}
       hover:shadow-md group
     `}>
       {/* Delete Button */}
@@ -43,11 +43,11 @@ export const WhatsAppNode: React.FC<WhatsAppNodeProps> = ({ id, data, selected }
 
       {/* Node Header */}
       <div className="flex items-center gap-2 mb-3">
-        <div className="p-1.5 rounded-md bg-node-whatsapp/10">
-          <MessageCircle className="w-4 h-4 text-node-whatsapp" />
+        <div className="p-1.5 rounded-md bg-primary/10">
+          <MessageCircle className="w-4 h-4 text-primary" />
         </div>
         <div className="flex-1 min-w-0">
-          <div className="text-sm font-medium truncate">WhatsApp</div>
+          <div className="text-sm font-medium truncate text-primary">WhatsApp</div>
           <div className="text-xs text-muted-foreground truncate">
             {data.botName || 'Business API'}
           </div>
@@ -69,7 +69,7 @@ export const WhatsAppNode: React.FC<WhatsAppNodeProps> = ({ id, data, selected }
         {/* Business ID Block */}
         <div className="bg-accent/30 rounded p-2">
           <div className="flex items-center gap-2">
-            <Hash className="w-3 h-3 text-node-whatsapp" />
+            <Hash className="w-3 h-3 text-primary" />
             <span className="text-xs font-medium">Business ID</span>
             {data.businessId && <CheckCircle className="w-3 h-3 text-green-500" />}
           </div>
@@ -81,7 +81,7 @@ export const WhatsAppNode: React.FC<WhatsAppNodeProps> = ({ id, data, selected }
         {/* Bot Name Block */}
         <div className="bg-accent/30 rounded p-2">
           <div className="flex items-center gap-2">
-            <Bot className="w-3 h-3 text-node-whatsapp" />
+            <Bot className="w-3 h-3 text-primary" />
             <span className="text-xs font-medium">Bot Name</span>
           </div>
           <div className="text-xs text-muted-foreground mt-1 truncate">

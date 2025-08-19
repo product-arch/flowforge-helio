@@ -22,7 +22,7 @@ export const ConditionalNode: React.FC<NodeProps> = ({ id, data, selected }) => 
     <TooltipProvider>
       <div className={`
         relative group bg-card border-2 rounded-lg p-4 shadow-lg min-w-[200px]
-        ${selected ? 'border-primary' : 'border-node-conditional'}
+        ${selected ? 'border-primary shadow-primary/20' : 'border-primary/50'}
         hover:shadow-xl transition-all duration-200
       `}>
         {/* Delete Button */}
