@@ -15,6 +15,7 @@ import {
 import { Switch } from '@/components/ui/switch';
 import { Slider } from '@/components/ui/slider';
 import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Plus, Trash2, X } from 'lucide-react';
 import { useFlow } from '@/contexts/FlowContext';
 import { useToast } from '@/hooks/use-toast';
