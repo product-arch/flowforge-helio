@@ -28,7 +28,7 @@ export const VoiceNode: React.FC<NodeProps> = ({ id, data, selected }) => {
     <TooltipProvider>
       <div className={`
         relative group bg-card border-2 rounded-lg p-3 shadow-lg min-w-[160px] max-w-[200px]
-        ${selected ? 'border-primary' : 'border-node-voice'}
+        ${selected ? 'border-primary shadow-primary/20' : 'border-primary/50'}
         hover:shadow-xl transition-all duration-200
       `}>
         {/* Delete Button */}
@@ -43,11 +43,11 @@ export const VoiceNode: React.FC<NodeProps> = ({ id, data, selected }) => {
 
         {/* Header */}
         <div className="flex items-center gap-2 mb-3">
-          <div className="p-2 bg-node-voice/10 rounded-lg">
-            <Phone className="w-4 h-4 text-node-voice" />
+          <div className="p-2 bg-primary/10 rounded-lg">
+            <Phone className="w-4 h-4 text-primary" />
           </div>
           <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-sm truncate">Voice</h3>
+            <h3 className="font-semibold text-sm text-primary truncate">Voice</h3>
             <p className="text-xs text-muted-foreground truncate">
               {callerId || 'No caller ID'}
             </p>
@@ -67,7 +67,7 @@ export const VoiceNode: React.FC<NodeProps> = ({ id, data, selected }) => {
 
           <div className="bg-accent/30 rounded p-2">
             <div className="flex items-center gap-2">
-              <Phone className="w-3 h-3 text-node-voice" />
+              <Phone className="w-3 h-3 text-primary" />
               <span className="text-xs font-medium">Caller ID</span>
               {callerId && <CheckCircle className="w-3 h-3 text-green-500" />}
             </div>

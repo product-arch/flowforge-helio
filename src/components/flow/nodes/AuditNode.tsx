@@ -37,8 +37,8 @@ export const AuditNode: React.FC<NodeProps> = ({ id, data, selected }) => {
 
         {/* Header */}
         <div className="flex items-center gap-2 mb-3">
-          <div className="p-2 bg-node-audit/10 rounded-lg">
-            <Bug className="w-5 h-5 text-node-audit" />
+          <div className="p-2 bg-primary/10 rounded-lg">
+            <Bug className="w-5 h-5 text-primary" />
           </div>
           <div className="flex-1">
             <h3 className="font-semibold text-sm">Audit Node</h3>

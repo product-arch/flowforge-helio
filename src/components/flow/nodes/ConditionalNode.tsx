@@ -37,8 +37,8 @@ export const ConditionalNode: React.FC<NodeProps> = ({ id, data, selected }) => 
 
         {/* Header */}
         <div className="flex items-center gap-2 mb-3">
-          <div className="p-2 bg-node-conditional/10 rounded-lg">
-            <GitMerge className="w-5 h-5 text-node-conditional" />
+          <div className="p-2 bg-primary/10 rounded-lg">
+            <GitMerge className="w-5 h-5 text-primary" />
           </div>
           <div className="flex-1">
             <h3 className="font-semibold text-sm">Conditional Node</h3>
