@@ -40,6 +40,22 @@
     --node-terminal-error: 0 84.2% 60.2%;
     --node-terminal-warning: 43 96% 56%;
     --node-audit: 271 81% 56%;
+    --node-sms: 142 76% 36%;
+    --node-whatsapp: 158 64% 52%;
+    --node-email: 217 91% 60%;
+    --node-voice: 25 95% 53%;
+    --node-rcs: 271 81% 56%;
+    --node-switch: 217 91% 60%;
+    --node-filter: 271 81% 56%;
+    --node-control: 43 96% 56%;
+    --node-vendor: 217 91% 60%;
+    --node-loadbalancer: 271 81% 56%;
+    --node-analytics: 217 91% 60%;
+    --node-alert: 0 84.2% 60.2%;
+    --node-webhook: 217 91% 60%;
+    --node-database: 142 76% 36%;
+    --node-transform: 43 96% 56%;
+    --node-api: 217 91% 60%;
     --connection-default: 217 91% 60%;
     --connection-active: 142 76% 36%;
     --connection-error: 0 84.2% 60.2%;
@@ -89,22 +105,22 @@
     --node-terminal-error: 0 84.2% 60.2%;
     --node-terminal-warning: 43 96% 56%;
     --node-audit: 271 81% 56%;
-    --node-filter: 271 81% 56%;
-    --node-switch: 142 76% 36%;
-    --node-ratelimit: 0 84.2% 60.2%;
-    --node-delay: 38 92% 50%;
-    --node-throttle: 217 91% 60%;
     --node-sms: 142 76% 36%;
-    --node-whatsapp: 142 76% 36%;
+    --node-whatsapp: 158 64% 52%;
     --node-email: 217 91% 60%;
-    --node-voice: 38 92% 50%;
-    --node-analytics: 271 81% 56%;
+    --node-voice: 25 95% 53%;
+    --node-rcs: 271 81% 56%;
+    --node-switch: 217 91% 60%;
+    --node-filter: 271 81% 56%;
+    --node-control: 43 96% 56%;
+    --node-vendor: 217 91% 60%;
+    --node-loadbalancer: 271 81% 56%;
+    --node-analytics: 217 91% 60%;
     --node-alert: 0 84.2% 60.2%;
     --node-webhook: 217 91% 60%;
     --node-database: 142 76% 36%;
-    --node-transform: 38 92% 50%;
-    --node-vendor: 217 91% 60%;
-    --node-loadbalancer: 271 81% 56%;
+    --node-transform: 43 96% 56%;
+    --node-api: 217 91% 60%;
   }
 
   /* Theme Variants */

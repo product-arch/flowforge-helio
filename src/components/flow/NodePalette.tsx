@@ -68,24 +68,6 @@ interface NodeType {
 }
 
 const nodeTypes: NodeType[] = [
-  // Core Flow Nodes
-  {
-    id: 'start',
-    label: 'Start',
-    icon: Play,
-    color: 'text-node-start',
-    description: 'Entry point with channel and app metadata',
-    category: 'Core',
-  },
-  {
-    id: 'terminal',
-    label: 'Terminal',
-    icon: Square,
-    color: 'text-node-terminal-success',
-    description: 'Final state endpoint (sent, dropped, etc.)',
-    category: 'Core',
-  },
-
   // Routing Atomic Blocks
   {
     id: 'leastcost',
@@ -401,16 +383,16 @@ export const NodePalette: React.FC = () => {
           <ChevronRightIcon className="w-4 h-4" />
         </Button>
         <div className="space-y-2">
-          {nodeTypes.slice(0, 4).map((node) => (
+          {nodeTypes.slice(0, 6).map((node) => (
             <TooltipProvider key={node.id}>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <div
                     draggable
                     onDragStart={(e) => onDragStart(e, node.id)}
-                    className="w-8 h-8 bg-accent/50 border border-border rounded-md flex items-center justify-center cursor-move hover:bg-accent transition-colors"
+                    className="w-8 h-8 bg-card border border-border rounded-lg flex items-center justify-center cursor-move hover:bg-accent/50 transition-colors shadow-sm"
                   >
-                    <node.icon className={`w-4 h-4 ${node.color}`} />
+                    <node.icon className={`w-4 h-4 text-primary`} />
                   </div>
                 </TooltipTrigger>
                 <TooltipContent side="right">
@@ -457,11 +439,11 @@ export const NodePalette: React.FC = () => {
                 <Star className="w-4 h-4 mr-1" />
                 Favorites
               </h3>
-              <div className="space-y-2">
+              <div className="grid grid-cols-3 gap-2">
                 {filteredNodes
                   .filter(node => favorites.has(node.id))
                   .map((node) => (
-                    <NodeCard 
+                    <NodeChip 
                       key={`fav-${node.id}`}
                       node={node} 
                       isFavorite={true}
@@ -498,15 +480,17 @@ export const NodePalette: React.FC = () => {
                       transition={{ duration: 0.2 }}
                       className="space-y-2 overflow-hidden"
                     >
-                      {categoryNodes.map((node) => (
-                        <NodeCard
-                          key={node.id}
-                          node={node}
-                          isFavorite={favorites.has(node.id)}
-                          onToggleFavorite={toggleFavorite}
-                          onDragStart={onDragStart}
-                        />
-                      ))}
+                      <div className="grid grid-cols-3 gap-2">
+                        {categoryNodes.map((node) => (
+                          <NodeChip
+                            key={node.id}
+                            node={node}
+                            isFavorite={favorites.has(node.id)}
+                            onToggleFavorite={toggleFavorite}
+                            onDragStart={onDragStart}
+                          />
+                        ))}
+                      </div>
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -526,62 +510,52 @@ interface NodeCardProps {
   onDragStart: (event: React.DragEvent, nodeType: string) => void;
 }
 
-const NodeCard: React.FC<NodeCardProps> = ({ 
+const NodeChip: React.FC<NodeCardProps> = ({ 
   node, 
   isFavorite, 
   onToggleFavorite, 
   onDragStart 
 }) => {
   return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <div
-          draggable
-          onDragStart={(e) => onDragStart(e, node.id)}
-          className="group relative p-3 bg-accent/30 hover:bg-accent/50 border border-border rounded-lg cursor-move transition-all duration-200 hover:shadow-md"
-        >
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className={`p-1.5 rounded-md bg-background/50`}>
-                <node.icon className={`w-4 h-4 ${node.color}`} />
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <div
+            draggable
+            onDragStart={(e) => onDragStart(e, node.id)}
+            className="group relative bg-card border border-border rounded-lg p-3 cursor-move hover:border-primary/50 hover:shadow-md transition-all duration-200 aspect-square flex flex-col items-center justify-center"
+          >
+            <div className="relative">
+              <div className="p-2 rounded-lg bg-primary/10 mb-2">
+                <node.icon className="w-5 h-5 text-primary" />
               </div>
-              <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium truncate">{node.label}</div>
-                <div className="text-xs text-muted-foreground truncate">
-                  {node.description}
-                </div>
-              </div>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onToggleFavorite(node.id);
+                }}
+                className="absolute -top-1 -right-1 opacity-0 group-hover:opacity-100 transition-opacity bg-background border border-border rounded-full p-1"
+              >
+                <Star 
+                  className={`w-3 h-3 ${isFavorite ? 'fill-yellow-400 text-yellow-400' : 'text-muted-foreground'}`} 
+                />
+              </button>
             </div>
-            
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={(e) => {
-                e.stopPropagation();
-                onToggleFavorite(node.id);
-              }}
-              className="opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 p-0"
-            >
-              <Star className={`w-3 h-3 ${isFavorite ? 'fill-yellow-400 text-yellow-400' : ''}`} />
-            </Button>
+            <div className="text-center">
+              <h4 className="font-medium text-xs truncate max-w-full">{node.label}</h4>
+            </div>
           </div>
-          
-          <Badge variant="secondary" className="mt-2 text-xs">
-            {node.category}
-          </Badge>
-        </div>
-      </TooltipTrigger>
-      <TooltipContent side="right">
-        <div className="max-w-xs">
-          <div className="font-medium">{node.label}</div>
-          <div className="text-sm text-muted-foreground mt-1">
-            {node.description}
+        </TooltipTrigger>
+        <TooltipContent>
+          <div className="text-sm max-w-xs">
+            <div className="font-medium">{node.label}</div>
+            <div className="text-muted-foreground mt-1">{node.description}</div>
+            <Badge variant="secondary" className="text-xs mt-2">
+              {node.category}
+            </Badge>
           </div>
-          <div className="text-xs text-muted-foreground mt-2">
-            Drag to canvas to add
-          </div>
-        </div>
-      </TooltipContent>
-    </Tooltip>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   );
 };
