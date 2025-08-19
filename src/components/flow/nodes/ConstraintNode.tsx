@@ -12,17 +12,18 @@ import {
 import { useFlow } from '@/contexts/FlowContext';
 
 export const ConstraintNode: React.FC<NodeProps> = ({ id, data, selected }) => {
-  const { deleteNode, setSelectedNode, nodes } = useFlow();
-  const currentNode = nodes.find(n => n.id === id);
+  const { deleteNode } = useFlow();
 
-  const hasConstraints = data.maxTPS || data.maxCost || data.timeWindow;
+  // Check if node has configuration
+  const hasConfiguration = data.maxTPS || data.maxCost || data.timeWindow;
 
   return (
     <TooltipProvider>
       <div className={`
-        relative group bg-card border-2 rounded-lg p-4 shadow-lg min-w-[200px]
-        ${selected ? 'border-primary' : 'border-node-constraint'}
-        hover:shadow-xl transition-all duration-200
+        relative group bg-card border-2 rounded-lg shadow-lg transition-all duration-200
+        ${selected ? 'border-primary shadow-primary/20' : 'border-primary/50'}
+        hover:shadow-xl
+        ${hasConfiguration ? 'p-3 min-w-[160px] max-w-[200px]' : 'p-2 w-[120px]'}
       `}>
         {/* Delete Button */}
         <Button
@@ -35,61 +36,67 @@ export const ConstraintNode: React.FC<NodeProps> = ({ id, data, selected }) => {
         </Button>
 
         {/* Header */}
-        <div className="flex items-center gap-2 mb-3">
-          <div className="p-2 bg-node-constraint/10 rounded-lg">
-            <Shield className="w-5 h-5 text-node-constraint" />
+        <div className="flex items-center gap-2 mb-2">
+          <div className={`${hasConfiguration ? 'p-2' : 'p-1.5'} bg-primary/10 rounded-lg`}>
+            <Shield className={`${hasConfiguration ? 'w-4 h-4' : 'w-3 h-3'} text-primary`} />
           </div>
-          <div className="flex-1">
-            <h3 className="font-semibold text-sm">Constraint Node</h3>
-            <p className="text-xs text-muted-foreground">Rate & Cost Limits</p>
-          </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setSelectedNode(currentNode)}
-            className="w-6 h-6 p-0"
-          >
-            <Settings className="w-3 h-3" />
-          </Button>
+          {hasConfiguration && (
+            <div className="flex-1 min-w-0">
+              <h3 className="font-semibold text-sm text-primary truncate">Constraint</h3>
+              <p className="text-xs text-muted-foreground truncate">
+                Rate & Cost Limits
+              </p>
+            </div>
+          )}
+          {!hasConfiguration && (
+            <div className="flex-1 text-center">
+              <h3 className="font-medium text-xs text-primary">Constraint</h3>
+            </div>
+          )}
         </div>
 
-        {/* Status Indicator */}
-        <div className="flex items-center gap-2 mb-3">
-          <div className={`w-2 h-2 rounded-full ${
-            hasConstraints ? 'bg-status-success' : 'bg-status-warning'
-          }`} />
-          <span className="text-xs text-muted-foreground">
-            {hasConstraints ? 'Active Constraints' : 'No Constraints'}
-          </span>
-        </div>
+        {/* Configuration Blocks - Only show when configured */}
+        {hasConfiguration && (
+          <div className="space-y-2 mb-3">
+            {data.maxTPS && (
+              <div className="bg-accent/30 rounded p-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-medium">Max TPS</span>
+                  <Badge variant="outline" className="text-xs">
+                    {String(data.maxTPS)}
+                  </Badge>
+                </div>
+              </div>
+            )}
+            {data.maxCost && (
+              <div className="bg-accent/30 rounded p-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-medium">Max Cost</span>
+                  <Badge variant="outline" className="text-xs">
+                    ₹{String(data.maxCost)}
+                  </Badge>
+                </div>
+              </div>
+            )}
+            {data.timeWindow && typeof data.timeWindow === 'object' && data.timeWindow !== null && (
+              <div className="bg-accent/30 rounded p-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-medium">Time Window</span>
+                  <Badge variant="outline" className="text-xs">
+                    {String((data.timeWindow as any).start || '00:00')}-{String((data.timeWindow as any).end || '23:59')}
+                  </Badge>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
-        {/* Content */}
-        <div className="space-y-2">
-          {data.maxTPS && (
-            <div className="flex items-center justify-between">
-              <span className="text-xs text-muted-foreground">Max TPS:</span>
-              <Badge variant="outline" className="text-xs">
-                {String(data.maxTPS)}
-              </Badge>
-            </div>
-          )}
-          {data.maxCost && (
-            <div className="flex items-center justify-between">
-              <span className="text-xs text-muted-foreground">Max Cost:</span>
-              <Badge variant="outline" className="text-xs">
-                ₹{String(data.maxCost)}
-              </Badge>
-            </div>
-          )}
-          {data.timeWindow && typeof data.timeWindow === 'object' && data.timeWindow !== null && (
-            <div className="flex items-center justify-between">
-              <span className="text-xs text-muted-foreground">Time Window:</span>
-              <Badge variant="outline" className="text-xs">
-                {String((data.timeWindow as any).start || '00:00')}-{String((data.timeWindow as any).end || '23:59')}
-              </Badge>
-            </div>
-          )}
-        </div>
+        {/* Unconfigured state notice */}
+        {!hasConfiguration && (
+          <div className="text-center mb-2">
+            <span className="text-xs text-muted-foreground">Not configured</span>
+          </div>
+        )}
 
         {/* Invisible Connection Handles for full connectivity */}
         <Handle type="target" position={Position.Left} id="left" className="w-3 h-3 opacity-0" />

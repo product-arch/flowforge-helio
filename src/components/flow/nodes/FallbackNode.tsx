@@ -17,13 +17,17 @@ export const FallbackNode: React.FC<NodeProps> = ({ id, data, selected }) => {
   const triggers = (data.triggers as string[]) || [];
   const fallbackVendor = (data.fallbackVendor as string) || '';
   const maxRetries = (data.maxRetries as number) || 3;
+  
+  // Check if node has configuration
+  const hasConfiguration = fallbackVendor;
 
   return (
     <TooltipProvider>
       <div className={`
-        relative group bg-card border-2 rounded-lg p-3 shadow-lg min-w-[160px] max-w-[200px]
-        ${selected ? 'border-primary' : 'border-node-routing'}
-        hover:shadow-xl transition-all duration-200
+        relative group bg-card border-2 rounded-lg shadow-lg transition-all duration-200
+        ${selected ? 'border-primary shadow-primary/20' : 'border-primary/50'}
+        hover:shadow-xl
+        ${hasConfiguration ? 'p-3 min-w-[160px] max-w-[200px]' : 'p-2 w-[120px]'}
       `}>
         {/* Delete Button */}
         <Button
@@ -36,51 +40,63 @@ export const FallbackNode: React.FC<NodeProps> = ({ id, data, selected }) => {
         </Button>
 
         {/* Header */}
-        <div className="flex items-center gap-2 mb-3">
-          <div className="p-2 bg-node-routing/10 rounded-lg">
-            <RotateCcw className="w-4 h-4 text-node-routing" />
+        <div className="flex items-center gap-2 mb-2">
+          <div className={`${hasConfiguration ? 'p-2' : 'p-1.5'} bg-primary/10 rounded-lg`}>
+            <RotateCcw className={`${hasConfiguration ? 'w-4 h-4' : 'w-3 h-3'} text-primary`} />
           </div>
-          <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-sm truncate">Fallback</h3>
-            <p className="text-xs text-muted-foreground">Backup Route</p>
-          </div>
-        </div>
-
-        {/* Configuration Blocks */}
-        <div className="space-y-2 mb-3">
-          <div className="bg-accent/30 rounded p-2">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-medium">Fallback Vendor</span>
-              <span className="text-xs text-muted-foreground truncate max-w-16">
-                {fallbackVendor || 'Not set'}
-              </span>
+          {hasConfiguration && (
+            <div className="flex-1 min-w-0">
+              <h3 className="font-semibold text-sm text-primary truncate">Fallback</h3>
+              <p className="text-xs text-muted-foreground truncate">
+                {fallbackVendor}
+              </p>
             </div>
-          </div>
-
-          <div className="bg-accent/30 rounded p-2">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-medium">Max Retries</span>
-              <Badge variant="outline" className="text-xs">
-                {maxRetries}
-              </Badge>
-            </div>
-          </div>
-
-          <div className="bg-accent/30 rounded p-2">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-medium">Triggers</span>
-              <span className="text-xs text-muted-foreground">
-                {triggers.length || 0} set
-              </span>
-            </div>
-          </div>
-
-          {!fallbackVendor && (
-            <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded p-1">
-              <span className="text-xs text-yellow-700 dark:text-yellow-400 font-medium">⚠ No fallback vendor</span>
+          )}
+          {!hasConfiguration && (
+            <div className="flex-1 text-center">
+              <h3 className="font-medium text-xs text-primary">Fallback</h3>
             </div>
           )}
         </div>
+
+        {/* Configuration Blocks - Only show when configured */}
+        {hasConfiguration && (
+          <div className="space-y-2 mb-3">
+            <div className="bg-accent/30 rounded p-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-medium">Vendor</span>
+                <span className="text-xs text-muted-foreground truncate max-w-16">
+                  {fallbackVendor}
+                </span>
+              </div>
+            </div>
+
+            <div className="bg-accent/30 rounded p-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-medium">Max Retries</span>
+                <Badge variant="outline" className="text-xs">
+                  {maxRetries}
+                </Badge>
+              </div>
+            </div>
+
+            <div className="bg-accent/30 rounded p-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-medium">Triggers</span>
+                <span className="text-xs text-muted-foreground">
+                  {triggers.length || 0} set
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Unconfigured state notice */}
+        {!hasConfiguration && (
+          <div className="text-center mb-2">
+            <span className="text-xs text-muted-foreground">Not configured</span>
+          </div>
+        )}
 
         {/* Invisible Connection Handles for full connectivity */}
         <Handle type="target" position={Position.Left} id="left" className="w-3 h-3 opacity-0" />

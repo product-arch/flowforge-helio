@@ -12,18 +12,20 @@ import {
 import { useFlow } from '@/contexts/FlowContext';
 
 export const ConditionalNode: React.FC<NodeProps> = ({ id, data, selected }) => {
-  const { deleteNode, setSelectedNode, nodes } = useFlow();
-  const currentNode = nodes.find(n => n.id === id);
+  const { deleteNode } = useFlow();
 
   const conditionCount = Array.isArray(data.conditions) ? data.conditions.length : 0;
-  const hasConditions = conditionCount > 0;
+  
+  // Check if node has configuration
+  const hasConfiguration = conditionCount > 0;
 
   return (
     <TooltipProvider>
       <div className={`
-        relative group bg-card border-2 rounded-lg p-4 shadow-lg min-w-[200px]
+        relative group bg-card border-2 rounded-lg shadow-lg transition-all duration-200
         ${selected ? 'border-primary shadow-primary/20' : 'border-primary/50'}
-        hover:shadow-xl transition-all duration-200
+        hover:shadow-xl
+        ${hasConfiguration ? 'p-3 min-w-[160px] max-w-[200px]' : 'p-2 w-[120px]'}
       `}>
         {/* Delete Button */}
         <Button
@@ -36,49 +38,54 @@ export const ConditionalNode: React.FC<NodeProps> = ({ id, data, selected }) => 
         </Button>
 
         {/* Header */}
-        <div className="flex items-center gap-2 mb-3">
-          <div className="p-2 bg-primary/10 rounded-lg">
-            <GitMerge className="w-5 h-5 text-primary" />
+        <div className="flex items-center gap-2 mb-2">
+          <div className={`${hasConfiguration ? 'p-2' : 'p-1.5'} bg-primary/10 rounded-lg`}>
+            <GitMerge className={`${hasConfiguration ? 'w-4 h-4' : 'w-3 h-3'} text-primary`} />
           </div>
-          <div className="flex-1">
-            <h3 className="font-semibold text-sm">Conditional Node</h3>
-            <p className="text-xs text-muted-foreground">If-Else Logic</p>
-          </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setSelectedNode(currentNode)}
-            className="w-6 h-6 p-0"
-          >
-            <Settings className="w-3 h-3" />
-          </Button>
+          {hasConfiguration && (
+            <div className="flex-1 min-w-0">
+              <h3 className="font-semibold text-sm text-primary truncate">Conditional</h3>
+              <p className="text-xs text-muted-foreground truncate">
+                {conditionCount} rule{conditionCount > 1 ? 's' : ''}
+              </p>
+            </div>
+          )}
+          {!hasConfiguration && (
+            <div className="flex-1 text-center">
+              <h3 className="font-medium text-xs text-primary">Conditional</h3>
+            </div>
+          )}
         </div>
 
-        {/* Status Indicator */}
-        <div className="flex items-center gap-2 mb-3">
-          <div className={`w-2 h-2 rounded-full ${
-            hasConditions ? 'bg-status-success' : 'bg-status-warning'
-          }`} />
-          <span className="text-xs text-muted-foreground">
-            {hasConditions ? 'Configured' : 'No Conditions'}
-          </span>
-        </div>
+        {/* Configuration Blocks - Only show when configured */}
+        {hasConfiguration && (
+          <div className="space-y-2 mb-3">
+            <div className="bg-accent/30 rounded p-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-medium">Conditions</span>
+                <Badge variant="default" className="text-xs">
+                  {conditionCount} rules
+                </Badge>
+              </div>
+            </div>
+            
+            <div className="bg-accent/30 rounded p-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-medium">Operator</span>
+                <Badge variant="outline" className="text-xs">
+                  {String(data.operator || 'AND')}
+                </Badge>
+              </div>
+            </div>
+          </div>
+        )}
 
-        {/* Content */}
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-muted-foreground">Conditions:</span>
-            <Badge variant={hasConditions ? "default" : "secondary"} className="text-xs">
-              {conditionCount} rules
-            </Badge>
+        {/* Unconfigured state notice */}
+        {!hasConfiguration && (
+          <div className="text-center mb-2">
+            <span className="text-xs text-muted-foreground">Not configured</span>
           </div>
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-muted-foreground">Operator:</span>
-            <Badge variant="outline" className="text-xs">
-              {String(data.operator || 'AND')}
-            </Badge>
-          </div>
-        </div>
+        )}
 
         {/* Invisible Connection Handles for full connectivity */}
         <Handle type="target" position={Position.Left} id="left" className="w-3 h-3 opacity-0" />

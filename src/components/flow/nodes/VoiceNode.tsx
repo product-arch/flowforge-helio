@@ -17,6 +17,9 @@ export const VoiceNode: React.FC<NodeProps> = ({ id, data, selected }) => {
   const callerId = (data.callerId as string) || '';
   const voiceType = (data.voiceType as string) || 'text-to-speech';
   const language = (data.language as string) || 'en';
+  
+  // Check if node has any configuration
+  const hasConfiguration = callerId;
 
   const voiceTypeColors = {
     'text-to-speech': 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400',
@@ -27,9 +30,10 @@ export const VoiceNode: React.FC<NodeProps> = ({ id, data, selected }) => {
   return (
     <TooltipProvider>
       <div className={`
-        relative group bg-card border-2 rounded-lg p-3 shadow-lg min-w-[160px] max-w-[200px]
+        relative group bg-card border-2 rounded-lg shadow-lg transition-all duration-200
         ${selected ? 'border-primary shadow-primary/20' : 'border-primary/50'}
-        hover:shadow-xl transition-all duration-200
+        hover:shadow-xl
+        ${hasConfiguration ? 'p-3 min-w-[160px] max-w-[200px]' : 'p-2 w-[120px]'}
       `}>
         {/* Delete Button */}
         <Button
@@ -42,55 +46,68 @@ export const VoiceNode: React.FC<NodeProps> = ({ id, data, selected }) => {
         </Button>
 
         {/* Header */}
-        <div className="flex items-center gap-2 mb-3">
-          <div className="p-2 bg-primary/10 rounded-lg">
-            <Phone className="w-4 h-4 text-primary" />
+        <div className="flex items-center gap-2 mb-2">
+          <div className={`${hasConfiguration ? 'p-2' : 'p-1.5'} bg-primary/10 rounded-lg`}>
+            <Phone className={`${hasConfiguration ? 'w-4 h-4' : 'w-3 h-3'} text-primary`} />
           </div>
-          <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-sm text-primary truncate">Voice</h3>
-            <p className="text-xs text-muted-foreground truncate">
-              {callerId || 'No caller ID'}
-            </p>
-          </div>
-        </div>
-
-        {/* Configuration Blocks */}
-        <div className="space-y-2 mb-3">
-          <div className="bg-accent/30 rounded p-2">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-medium">Type</span>
-              <Badge className={`text-xs ${voiceTypeColors[voiceType as keyof typeof voiceTypeColors] || voiceTypeColors['text-to-speech']}`}>
-                {(voiceType as string).replace('-', ' ')}
-              </Badge>
+          {hasConfiguration && (
+            <div className="flex-1 min-w-0">
+              <h3 className="font-semibold text-sm text-primary truncate">Voice</h3>
+              <p className="text-xs text-muted-foreground truncate">
+                {callerId}
+              </p>
             </div>
-          </div>
-
-          <div className="bg-accent/30 rounded p-2">
-            <div className="flex items-center gap-2">
-              <Phone className="w-3 h-3 text-primary" />
-              <span className="text-xs font-medium">Caller ID</span>
-              {callerId && <CheckCircle className="w-3 h-3 text-green-500" />}
-            </div>
-            <div className="text-xs text-muted-foreground mt-1 truncate">
-              {callerId || 'Not configured'}
-            </div>
-          </div>
-
-          <div className="bg-accent/30 rounded p-2">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-medium">Language</span>
-              <span className="text-xs text-muted-foreground uppercase">
-                {language}
-              </span>
-            </div>
-          </div>
-
-          {!callerId && (
-            <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded p-1">
-              <span className="text-xs text-yellow-700 dark:text-yellow-400 font-medium">⚠ Configure caller ID</span>
+          )}
+          {!hasConfiguration && (
+            <div className="flex-1 text-center">
+              <h3 className="font-medium text-xs text-primary">Voice</h3>
             </div>
           )}
         </div>
+
+        {/* Configuration Blocks - Only show when configured */}
+        {hasConfiguration && (
+          <div className="space-y-2 mb-3">
+            <div className="bg-accent/30 rounded p-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-medium">Type</span>
+                <Badge 
+                  variant="secondary" 
+                  className={`text-xs ${voiceTypeColors[voiceType as keyof typeof voiceTypeColors] || voiceTypeColors['text-to-speech']}`}
+                >
+                  {(voiceType as string).replace('-', ' ')}
+                </Badge>
+              </div>
+            </div>
+
+            <div className="bg-accent/30 rounded p-2">
+              <div className="flex items-center gap-2">
+                <Phone className="w-3 h-3 text-primary" />
+                <span className="text-xs font-medium">Caller ID</span>
+                <CheckCircle className="w-3 h-3 text-green-500" />
+              </div>
+              <div className="text-xs text-muted-foreground mt-1 truncate">
+                {callerId}
+              </div>
+            </div>
+
+            <div className="bg-accent/30 rounded p-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-medium">Language</span>
+                <span className="text-xs text-muted-foreground uppercase">
+                  {language}
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Unconfigured state notice */}
+        {!hasConfiguration && (
+          <div className="text-center mb-2">
+            <span className="text-xs text-muted-foreground">Not configured</span>
+          </div>
+        )}
 
         {/* Invisible Connection Handles for full connectivity */}
         <Handle type="target" position={Position.Left} id="left" className="w-3 h-3 opacity-0" />

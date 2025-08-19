@@ -22,15 +22,16 @@ export const FilterNode: React.FC<FilterNodeProps> = ({ id, data, selected }) =>
   const { deleteNode } = useFlow();
 
   const criteriaCount = data.criteria?.length || 0;
-  const displayText = criteriaCount > 0 
-    ? `Filter: ${criteriaCount} rule${criteriaCount > 1 ? 's' : ''}`
-    : 'Message Filter';
+  
+  // Check if node has configuration
+  const hasConfiguration = criteriaCount > 0;
 
   return (
     <div className={`
-      relative bg-card border-2 rounded-lg p-3 min-w-[140px] transition-all duration-200
-      ${selected ? 'border-primary shadow-lg' : 'border-node-filter shadow-sm'}
-      hover:shadow-md group
+      relative bg-card border-2 rounded-lg shadow-lg transition-all duration-200 group
+      ${selected ? 'border-primary shadow-primary/20' : 'border-primary/50'}
+      hover:shadow-xl
+      ${hasConfiguration ? 'p-3 min-w-[160px] max-w-[200px]' : 'p-2 w-[120px]'}
     `}>
       {/* Delete Button */}
       <Button
@@ -44,55 +45,73 @@ export const FilterNode: React.FC<FilterNodeProps> = ({ id, data, selected }) =>
 
       {/* Node Header */}
       <div className="flex items-center gap-2 mb-2">
-        <div className="p-1.5 rounded-md bg-node-filter/10">
-          <Filter className="w-4 h-4 text-node-filter" />
+        <div className={`${hasConfiguration ? 'p-2' : 'p-1.5'} bg-primary/10 rounded-lg`}>
+          <Filter className={`${hasConfiguration ? 'w-4 h-4' : 'w-3 h-3'} text-primary`} />
         </div>
-        <div className="flex-1 min-w-0">
-          <div className="text-sm font-medium truncate">{displayText}</div>
-          <div className="text-xs text-muted-foreground capitalize">
-            Action: {data.action || 'allow'}
+        {hasConfiguration && (
+          <div className="flex-1 min-w-0">
+            <h3 className="font-semibold text-sm text-primary truncate">Filter</h3>
+            <p className="text-xs text-muted-foreground truncate">
+              {criteriaCount} rule{criteriaCount > 1 ? 's' : ''}
+            </p>
           </div>
-        </div>
+        )}
+        {!hasConfiguration && (
+          <div className="flex-1 text-center">
+            <h3 className="font-medium text-xs text-primary">Filter</h3>
+          </div>
+        )}
       </div>
 
-      {/* Node Body - Configuration Blocks */}
-      <div className="space-y-2">
-        {criteriaCount > 0 && (
-          <div className="text-xs text-muted-foreground">
+      {/* Configuration Blocks - Only show when configured */}
+      {hasConfiguration && (
+        <div className="space-y-2 mb-3">
+          <div className="bg-accent/30 rounded p-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-medium">Action</span>
+              <span className="text-xs text-muted-foreground capitalize">
+                {data.action || 'allow'}
+              </span>
+            </div>
+          </div>
+
+          <div className="bg-accent/30 rounded p-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-medium">Rules</span>
+              <span className="text-xs text-muted-foreground">
+                {criteriaCount} configured
+              </span>
+            </div>
             {data.criteria.slice(0, 2).map((criterion, index) => (
-              <div key={index} className="flex items-center gap-1 bg-accent/50 rounded px-2 py-1 mb-1">
-                <span className="font-medium">{criterion.field}</span>
+              <div key={index} className="flex items-center gap-1 mt-1 text-xs">
+                <span className="font-medium truncate max-w-12">{criterion.field}</span>
                 <span className="text-muted-foreground">{criterion.operator}</span>
                 <span className="truncate max-w-12">{criterion.value}</span>
               </div>
             ))}
             {criteriaCount > 2 && (
-              <div className="text-center text-muted-foreground">
+              <div className="text-center text-muted-foreground text-xs mt-1">
                 +{criteriaCount - 2} more
               </div>
             )}
           </div>
-        )}
-        
-        {criteriaCount === 0 && (
-          <div className="text-xs text-muted-foreground text-center py-2">
-            <Plus className="w-3 h-3 mx-auto mb-1" />
-            Add filter criteria
-          </div>
-        )}
-      </div>
+        </div>
+      )}
 
-      {/* Connection Handles */}
-      <Handle
-        type="target"
-        position={Position.Left}
-        className="w-3 h-3 border-2 border-node-filter bg-background"
-      />
-      <Handle
-        type="source"
-        position={Position.Right}
-        className="w-3 h-3 border-2 border-node-filter bg-background"
-      />
+      {/* Unconfigured state notice */}
+      {!hasConfiguration && (
+        <div className="text-center mb-2">
+          <span className="text-xs text-muted-foreground">Not configured</span>
+        </div>
+      )}
+
+      {/* Invisible Connection Handles for full connectivity */}
+      <Handle type="target" position={Position.Left} id="left" className="w-3 h-3 opacity-0" />
+      <Handle type="target" position={Position.Top} id="top-in" className="w-3 h-3 opacity-0" />
+      <Handle type="target" position={Position.Bottom} id="bottom-in" className="w-3 h-3 opacity-0" />
+      <Handle type="source" position={Position.Right} id="right" className="w-3 h-3 opacity-0" />
+      <Handle type="source" position={Position.Top} id="top-out" className="w-3 h-3 opacity-0" />
+      <Handle type="source" position={Position.Bottom} id="bottom-out" className="w-3 h-3 opacity-0" />
     </div>
   );
 };

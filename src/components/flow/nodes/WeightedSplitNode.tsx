@@ -17,13 +17,17 @@ export const WeightedSplitNode: React.FC<NodeProps> = ({ id, data, selected }) =
   const weights = Array.isArray(data.weights) ? data.weights : [];
   const totalWeight = weights.reduce((sum: number, w: any) => sum + (w.weight || 0), 0);
   const isValidTotal = totalWeight === 100;
+  
+  // Check if node has configuration
+  const hasConfiguration = weights.length > 0;
 
   return (
     <TooltipProvider>
       <div className={`
-        relative group bg-card border-2 rounded-lg p-3 shadow-lg min-w-[160px] max-w-[200px]
-        ${selected ? 'border-primary' : 'border-node-routing'}
-        hover:shadow-xl transition-all duration-200
+        relative group bg-card border-2 rounded-lg shadow-lg transition-all duration-200
+        ${selected ? 'border-primary shadow-primary/20' : 'border-primary/50'}
+        hover:shadow-xl
+        ${hasConfiguration ? 'p-3 min-w-[160px] max-w-[200px]' : 'p-2 w-[120px]'}
       `}>
         {/* Delete Button */}
         <Button
@@ -36,48 +40,60 @@ export const WeightedSplitNode: React.FC<NodeProps> = ({ id, data, selected }) =
         </Button>
 
         {/* Header */}
-        <div className="flex items-center gap-2 mb-3">
-          <div className="p-2 bg-node-routing/10 rounded-lg">
-            <Percent className="w-4 h-4 text-node-routing" />
+        <div className="flex items-center gap-2 mb-2">
+          <div className={`${hasConfiguration ? 'p-2' : 'p-1.5'} bg-primary/10 rounded-lg`}>
+            <Percent className={`${hasConfiguration ? 'w-4 h-4' : 'w-3 h-3'} text-primary`} />
           </div>
-          <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-sm truncate">Weighted Split</h3>
-            <p className="text-xs text-muted-foreground">% Distribution</p>
-          </div>
+          {hasConfiguration && (
+            <div className="flex-1 min-w-0">
+              <h3 className="font-semibold text-sm text-primary truncate">Weighted Split</h3>
+              <p className="text-xs text-muted-foreground truncate">
+                {totalWeight}% total
+              </p>
+            </div>
+          )}
+          {!hasConfiguration && (
+            <div className="flex-1 text-center">
+              <h3 className="font-medium text-xs text-primary">Weighted Split</h3>
+            </div>
+          )}
         </div>
 
-        {/* Configuration Blocks */}
-        <div className="space-y-2 mb-3">
-          <div className="bg-accent/30 rounded p-2">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-medium">Total Weight</span>
-              <Badge variant={isValidTotal ? "default" : "destructive"} className="text-xs">
-                {totalWeight}%
-              </Badge>
-            </div>
-          </div>
-
-          {weights.slice(0, 2).map((weight: any, index: number) => (
-            <div key={index} className="bg-accent/30 rounded p-2">
+        {/* Configuration Blocks - Only show when configured */}
+        {hasConfiguration && (
+          <div className="space-y-2 mb-3">
+            <div className="bg-accent/30 rounded p-2">
               <div className="flex items-center justify-between">
-                <span className="text-xs truncate max-w-16">{weight.vendor || `Vendor ${index + 1}`}</span>
-                <span className="text-xs text-muted-foreground">{weight.weight || 0}%</span>
+                <span className="text-xs font-medium">Total Weight</span>
+                <Badge variant={isValidTotal ? "default" : "destructive"} className="text-xs">
+                  {totalWeight}%
+                </Badge>
               </div>
             </div>
-          ))}
 
-          {weights.length > 2 && (
-            <div className="text-xs text-muted-foreground text-center">
-              +{weights.length - 2} more
-            </div>
-          )}
+            {weights.slice(0, 2).map((weight: any, index: number) => (
+              <div key={index} className="bg-accent/30 rounded p-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs truncate max-w-16">{weight.vendor || `Vendor ${index + 1}`}</span>
+                  <span className="text-xs text-muted-foreground">{weight.weight || 0}%</span>
+                </div>
+              </div>
+            ))}
 
-          {weights.length === 0 && (
-            <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded p-1">
-              <span className="text-xs text-yellow-700 dark:text-yellow-400 font-medium">⚠ No weights configured</span>
-            </div>
-          )}
-        </div>
+            {weights.length > 2 && (
+              <div className="text-xs text-muted-foreground text-center">
+                +{weights.length - 2} more
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Unconfigured state notice */}
+        {!hasConfiguration && (
+          <div className="text-center mb-2">
+            <span className="text-xs text-muted-foreground">Not configured</span>
+          </div>
+        )}
 
         {/* Invisible Connection Handles for full connectivity */}
         <Handle type="target" position={Position.Left} id="left" className="w-3 h-3 opacity-0" />
