@@ -31,7 +31,7 @@
 
     /* Flow Builder Specific Colors */
     --flow-canvas: 210 15% 97%;
-    --flow-grid: 210 15% 90%;
+    --flow-grid: 210 20% 85%;
     --node-start: 142 76% 36%;
     --node-routing: 217 91% 60%;
     --node-constraint: 38 92% 50%;
@@ -96,7 +96,7 @@
     --ring: 217 91% 60%;
 
     --flow-canvas: 220 13% 12%;
-    --flow-grid: 220 13% 18%;
+    --flow-grid: 220 13% 25%;
     --node-start: 142 76% 36%;
     --node-routing: 217 91% 60%;
     --node-constraint: 38 92% 50%;
