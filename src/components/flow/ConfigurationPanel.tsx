@@ -24,12 +24,13 @@ export const ConfigurationPanel: React.FC = () => {
   const [collapsed, setCollapsed] = useState(false);
   const { toast } = useToast();
 
-  if (!selectedNode) {
+  // Don't show configuration for start nodes
+  if (!selectedNode || selectedNode.type === 'start') {
     return (
       <div className="w-80 bg-card border-l border-border flex items-center justify-center text-muted-foreground">
         <div className="text-center">
           <Settings className="w-12 h-12 mx-auto mb-2 opacity-50" />
-          <p>Select a node to configure</p>
+          <p>{selectedNode?.type === 'start' ? 'Start node is not configurable' : 'Select a node to configure'}</p>
         </div>
       </div>
     );
@@ -114,12 +115,6 @@ export const ConfigurationPanel: React.FC = () => {
             )}
             {selectedNode.type === 'audit' && (
               <AuditConfiguration 
-                node={selectedNode} 
-                onUpdate={handleUpdateData} 
-              />
-            )}
-            {selectedNode.type === 'start' && (
-              <StartConfiguration 
                 node={selectedNode} 
                 onUpdate={handleUpdateData} 
               />
@@ -1376,37 +1371,6 @@ const AuditConfiguration: React.FC<{ node: any; onUpdate: (data: any) => void }>
               </SelectContent>
             </Select>
           </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
-};
-
-const StartConfiguration: React.FC<{ node: any; onUpdate: (data: any) => void }> = ({
-  node,
-}) => {
-  return (
-    <div className="space-y-4">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-sm">Start Node Info</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <div>
-            <Label>Channel</Label>
-            <Input value={node.data.channel || 'SMS'} disabled />
-          </div>
-          <div>
-            <Label>App ID</Label>
-            <Input value={node.data.appId || 'N/A'} disabled />
-          </div>
-          <div>
-            <Label>Business Unit</Label>
-            <Input value={node.data.businessUnit || 'N/A'} disabled />
-          </div>
-          <p className="text-xs text-muted-foreground">
-            Start node configuration is read-only and inherited from the campaign.
-          </p>
         </CardContent>
       </Card>
     </div>
