@@ -1,6 +1,6 @@
 import React from 'react';
 import { Handle, Position } from '@xyflow/react';
-import { Timer, X, Activity } from 'lucide-react';
+import { Timer, X, Activity, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useFlow } from '@/contexts/FlowContext';
 
@@ -11,12 +11,14 @@ interface RateLimitNodeProps {
     maxRate: number;
     timeWindow: number;
     strategy: 'sliding' | 'fixed';
+    onConfigClick?: (nodeId: string) => void;
   };
   selected?: boolean;
 }
 
 export const RateLimitNode: React.FC<RateLimitNodeProps> = ({ id, data, selected }) => {
   const { deleteNode } = useFlow();
+  const onConfigClick = data.onConfigClick as ((nodeId: string) => void) | undefined;
 
   const displayText = data.maxRate 
     ? `${data.maxRate}/${data.timeWindow}s`
@@ -36,6 +38,16 @@ export const RateLimitNode: React.FC<RateLimitNodeProps> = ({ id, data, selected
         className="absolute -top-2 -right-2 h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-full"
       >
         <X className="h-3 w-3" />
+      </Button>
+
+      {/* Config Button */}
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => onConfigClick?.(id)}
+        className="absolute -bottom-2 -right-2 w-6 h-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity bg-primary text-primary-foreground hover:bg-primary/90 rounded-full"
+      >
+        <Plus className="w-3 h-3" />
       </Button>
 
       {/* Node Header */}

@@ -24,6 +24,13 @@ import { VoiceNode } from './nodes/VoiceNode';
 import { RCSNode } from './nodes/RCSNode';
 import { ConditionalNode } from './nodes/ConditionalNode';
 import { AuditNode } from './nodes/AuditNode';
+import { DelayNode } from './nodes/DelayNode';
+import { FilterNode } from './nodes/FilterNode';
+import { RateLimitNode } from './nodes/RateLimitNode';
+import { SwitchNode } from './nodes/SwitchNode';
+import { ThrottleNode } from './nodes/ThrottleNode';
+import { RoutingNode } from './nodes/RoutingNode';
+import { ConstraintNode } from './nodes/ConstraintNode';
 import { CustomEdge } from './edges/CustomEdge';
 import { ZoomControls } from './ZoomControls';
 
@@ -40,6 +47,13 @@ const nodeTypes = {
   rcs: RCSNode,
   conditional: ConditionalNode,
   audit: AuditNode,
+  delay: DelayNode,
+  filter: FilterNode,
+  ratelimit: RateLimitNode,
+  switch: SwitchNode,
+  throttle: ThrottleNode,
+  routing: RoutingNode,
+  constraint: ConstraintNode,
 };
 
 const edgeTypes = {

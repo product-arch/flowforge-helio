@@ -1,6 +1,6 @@
 import React from 'react';
 import { Handle, Position, NodeProps } from '@xyflow/react';
-import { Percent, Trash2 } from 'lucide-react';
+import { Percent, Trash2, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -13,6 +13,7 @@ import { useFlow } from '@/contexts/FlowContext';
 
 export const WeightedSplitNode: React.FC<NodeProps> = ({ id, data, selected }) => {
   const { deleteNode } = useFlow();
+  const onConfigClick = data.onConfigClick as ((nodeId: string) => void) | undefined;
 
   const weights = Array.isArray(data.weights) ? data.weights : [];
   const totalWeight = weights.reduce((sum: number, w: any) => sum + (w.weight || 0), 0);
@@ -37,6 +38,16 @@ export const WeightedSplitNode: React.FC<NodeProps> = ({ id, data, selected }) =
           className="absolute -top-2 -right-2 w-6 h-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity bg-destructive text-destructive-foreground hover:bg-destructive/90"
         >
           <Trash2 className="w-3 h-3" />
+        </Button>
+
+        {/* Config Button */}
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => onConfigClick?.(id)}
+          className="absolute -bottom-2 -right-2 w-6 h-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity bg-primary text-primary-foreground hover:bg-primary/90 rounded-full"
+        >
+          <Plus className="w-3 h-3" />
         </Button>
 
         {/* Header */}

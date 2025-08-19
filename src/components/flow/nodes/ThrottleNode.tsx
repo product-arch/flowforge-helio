@@ -1,6 +1,6 @@
 import React from 'react';
 import { Handle, Position } from '@xyflow/react';
-import { Zap, X, Users } from 'lucide-react';
+import { Zap, X, Users, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useFlow } from '@/contexts/FlowContext';
 
@@ -10,12 +10,14 @@ interface ThrottleNodeProps {
     label: string;
     maxConcurrent: number;
     queueSize: number;
+    onConfigClick?: (nodeId: string) => void;
   };
   selected?: boolean;
 }
 
 export const ThrottleNode: React.FC<ThrottleNodeProps> = ({ id, data, selected }) => {
   const { deleteNode } = useFlow();
+  const onConfigClick = data.onConfigClick as ((nodeId: string) => void) | undefined;
 
   const currentConcurrent = Math.floor(Math.random() * (data.maxConcurrent || 10));
   const currentQueue = Math.floor(Math.random() * (data.queueSize || 100));

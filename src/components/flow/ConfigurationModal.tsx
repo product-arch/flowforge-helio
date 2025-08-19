@@ -450,6 +450,23 @@ const SMSConfiguration: React.FC<{ node: any; onUpdate: (data: any) => void }> =
               <SelectContent>
                 <SelectItem value="transactional">Transactional</SelectItem>
                 <SelectItem value="promotional">Promotional</SelectItem>
+                <SelectItem value="utility">Utility</SelectItem>
+                <SelectItem value="authentication">Authentication</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label>Encoding</Label>
+            <Select
+              value={node.data.encoding || 'utf8'}
+              onValueChange={(value) => onUpdate({ ...node.data, encoding: value })}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="utf8">UTF-8</SelectItem>
+                <SelectItem value="unicode">Unicode</SelectItem>
               </SelectContent>
             </Select>
           </div>
