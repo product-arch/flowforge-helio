@@ -132,69 +132,42 @@ export const FlowProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
 function getDefaultNodeData(type: string) {
   switch (type) {
-    case 'routing':
+    // Routing Nodes
+    case 'leastcost':
       return {
-        strategy: 'weightedSplit',
-        vendors: [],
+        costThreshold: 0.05,
+        vendorCosts: [],
+        fallbackVendor: '',
+        label: 'Least Cost Route'
+      };
+    case 'weightedsplit':
+      return {
+        weights: [],
+        totalWeight: 0,
         fallbackEnabled: false,
-        label: 'Routing Logic'
+        label: 'Weighted Split'
       };
-    case 'constraint':
+    case 'fallback':
       return {
-        maxTPS: 1000,
-        maxCost: 0.05,
-        timeWindow: { start: '00:00', end: '23:59' },
-        label: 'TPS: 1000/s'
+        triggers: ['timeout', '5xxError'],
+        fallbackVendor: '',
+        maxRetries: 3,
+        label: 'Fallback Route'
       };
-    case 'conditional':
+    case 'priorityroute':
       return {
-        conditions: [],
-        operator: 'AND',
-        label: 'If-Then Logic'
+        vendors: [],
+        strictPriority: true,
+        label: 'Priority Route'
       };
-    case 'terminal':
+    case 'spillover':
       return {
-        state: 'sent',
-        reason: '',
-        label: 'Sent'
+        vendors: [],
+        capacityLimits: [],
+        label: 'Spillover Route'
       };
-    case 'audit':
-      return {
-        logLevel: 'info',
-        events: [],
-        label: 'Debug Log'
-      };
-    case 'filter':
-      return {
-        criteria: [],
-        action: 'allow',
-        label: 'Message Filter'
-      };
-    case 'switch':
-      return {
-        cases: [],
-        defaultPath: null,
-        label: 'Multi-Path Switch'
-      };
-    case 'ratelimit':
-      return {
-        maxRate: 100,
-        timeWindow: 60,
-        strategy: 'sliding',
-        label: 'Rate: 100/min'
-      };
-    case 'delay':
-      return {
-        duration: 1000,
-        unit: 'ms',
-        label: 'Delay: 1s'
-      };
-    case 'throttle':
-      return {
-        maxConcurrent: 10,
-        queueSize: 100,
-        label: 'Max: 10 concurrent'
-      };
+
+    // Channel Nodes
     case 'sms':
       return {
         senderId: '',
@@ -223,6 +196,122 @@ function getDefaultNodeData(type: string) {
         language: 'en',
         label: 'Voice Channel'
       };
+    case 'rcs':
+      return {
+        botName: '',
+        agentId: '',
+        messageType: 'text',
+        label: 'RCS Channel'
+      };
+
+    // Control Nodes
+    case 'converge':
+      return {
+        inputCount: 2,
+        strategy: 'merge',
+        label: 'Converge Point'
+      };
+    case 'diverge':
+      return {
+        outputCount: 2,
+        strategy: 'split',
+        label: 'Diverge Point'
+      };
+    case 'timer':
+      return {
+        duration: 5000,
+        unit: 'ms',
+        action: 'delay',
+        label: 'Timer Control'
+      };
+    case 'doevent':
+      return {
+        eventType: 'custom',
+        eventData: {},
+        async: false,
+        label: 'Do Event'
+      };
+
+    // Logic Nodes
+    case 'conditional':
+      return {
+        conditions: [],
+        operator: 'AND',
+        label: 'If-Then Logic'
+      };
+    case 'switch':
+      return {
+        cases: [],
+        defaultPath: null,
+        label: 'Multi-Path Switch'
+      };
+    case 'filter':
+      return {
+        criteria: [],
+        action: 'allow',
+        label: 'Message Filter'
+      };
+
+    // Constraint Nodes
+    case 'tpslimit':
+      return {
+        maxTPS: 1000,
+        timeWindow: 60,
+        action: 'queue',
+        label: 'TPS Limit'
+      };
+    case 'costcap':
+      return {
+        maxCost: 0.05,
+        currency: 'INR',
+        action: 'reject',
+        label: 'Cost Cap'
+      };
+    case 'timewindow':
+      return {
+        startTime: '00:00',
+        endTime: '23:59',
+        timezone: 'UTC',
+        label: 'Time Window'
+      };
+    case 'geofence':
+      return {
+        allowedRegions: [],
+        blockedRegions: [],
+        action: 'reject',
+        label: 'Geo Fence'
+      };
+
+    // Vendor Nodes
+    case 'vendor':
+      return {
+        vendorId: '',
+        priority: 1,
+        config: {},
+        label: 'Vendor Config'
+      };
+    case 'loadbalancer':
+      return {
+        algorithm: 'round_robin',
+        healthCheck: true,
+        targets: [],
+        label: 'Load Balancer'
+      };
+    case 'healthcheck':
+      return {
+        interval: 30,
+        timeout: 5,
+        retries: 3,
+        label: 'Health Check'
+      };
+
+    // Monitoring Nodes
+    case 'audit':
+      return {
+        logLevel: 'info',
+        events: [],
+        label: 'Debug Log'
+      };
     case 'analytics':
       return {
         metrics: ['delivery_rate', 'latency'],
@@ -236,6 +325,8 @@ function getDefaultNodeData(type: string) {
         severity: 'medium',
         label: 'Alert System'
       };
+
+    // Integration Nodes
     case 'webhook':
       return {
         url: '',
@@ -256,19 +347,20 @@ function getDefaultNodeData(type: string) {
         outputFormat: 'json',
         label: 'Data Transform'
       };
-    case 'vendor':
+    case 'api':
       return {
-        vendorId: '',
-        priority: 1,
-        config: {},
-        label: 'Vendor Config'
+        url: '',
+        method: 'GET',
+        headers: {},
+        label: 'API Call'
       };
-    case 'loadbalancer':
+
+    // Core Nodes
+    case 'terminal':
       return {
-        algorithm: 'round_robin',
-        healthCheck: true,
-        targets: [],
-        label: 'Load Balancer'
+        state: 'sent',
+        reason: '',
+        label: 'Sent'
       };
     default:
       return {

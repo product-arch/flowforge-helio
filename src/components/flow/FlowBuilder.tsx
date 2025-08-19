@@ -13,35 +13,33 @@ import { ConfigurationPanel } from './ConfigurationPanel';
 import { SimulationPanel } from './SimulationPanel';
 import { FlowNavbar } from './FlowNavbar';
 import { StartNode } from './nodes/StartNode';
-import { RoutingNode } from './nodes/RoutingNode';
-import { ConstraintNode } from './nodes/ConstraintNode';
-import { ConditionalNode } from './nodes/ConditionalNode';
 import { TerminalNode } from './nodes/TerminalNode';
-import { AuditNode } from './nodes/AuditNode';
-import { FilterNode } from './nodes/FilterNode';
-import { SwitchNode } from './nodes/SwitchNode';
-import { RateLimitNode } from './nodes/RateLimitNode';
-import { DelayNode } from './nodes/DelayNode';
-import { ThrottleNode } from './nodes/ThrottleNode';
+import { LeastCostNode } from './nodes/LeastCostNode';
+import { WeightedSplitNode } from './nodes/WeightedSplitNode';
+import { FallbackNode } from './nodes/FallbackNode';
 import { SMSNode } from './nodes/SMSNode';
 import { WhatsAppNode } from './nodes/WhatsAppNode';
+import { EmailNode } from './nodes/EmailNode';
+import { VoiceNode } from './nodes/VoiceNode';
+import { RCSNode } from './nodes/RCSNode';
+import { ConditionalNode } from './nodes/ConditionalNode';
+import { AuditNode } from './nodes/AuditNode';
 import { CustomEdge } from './edges/CustomEdge';
 import { ZoomControls } from './ZoomControls';
 
 const nodeTypes = {
   start: StartNode,
-  routing: RoutingNode,
-  constraint: ConstraintNode,
-  conditional: ConditionalNode,
   terminal: TerminalNode,
-  audit: AuditNode,
-  filter: FilterNode,
-  switch: SwitchNode,
-  ratelimit: RateLimitNode,
-  delay: DelayNode,
-  throttle: ThrottleNode,
+  leastcost: LeastCostNode,
+  weightedsplit: WeightedSplitNode,
+  fallback: FallbackNode,
   sms: SMSNode,
   whatsapp: WhatsAppNode,
+  email: EmailNode,
+  voice: VoiceNode,
+  rcs: RCSNode,
+  conditional: ConditionalNode,
+  audit: AuditNode,
 };
 
 const edgeTypes = {
