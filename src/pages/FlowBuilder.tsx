@@ -1,5 +1,5 @@
 import React, { useRef, useCallback, DragEvent } from 'react';
-import { ReactFlowProvider } from '@xyflow/react';
+import { ReactFlowProvider, useReactFlow } from '@xyflow/react';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { FlowProvider, useFlow } from '@/contexts/FlowContext';
 import { FlowBuilder as FlowBuilderComponent } from '@/components/flow/FlowBuilder';
@@ -7,6 +7,7 @@ import { FlowBuilder as FlowBuilderComponent } from '@/components/flow/FlowBuild
 const FlowBuilderWithDragDrop: React.FC = () => {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const { addNode } = useFlow();
+  const { screenToFlowPosition } = useReactFlow();
 
   const onDragOver = useCallback((event: DragEvent) => {
     event.preventDefault();
@@ -23,17 +24,15 @@ const FlowBuilderWithDragDrop: React.FC = () => {
         return;
       }
 
-      const reactFlowBounds = reactFlowWrapper.current?.getBoundingClientRect();
-      if (!reactFlowBounds) return;
-
-      const position = {
-        x: event.clientX - reactFlowBounds.left - 100, // Offset for node center
-        y: event.clientY - reactFlowBounds.top - 50,
-      };
+      // Convert screen coordinates to flow coordinates for precise placement
+      const position = screenToFlowPosition({
+        x: event.clientX,
+        y: event.clientY,
+      });
 
       addNode(type, position);
     },
-    [addNode]
+    [addNode, screenToFlowPosition]
   );
 
   return (
