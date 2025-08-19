@@ -14,9 +14,9 @@ import { useFlow } from '@/contexts/FlowContext';
 export const FallbackNode: React.FC<NodeProps> = ({ id, data, selected }) => {
   const { deleteNode } = useFlow();
 
-  const triggers = data.triggers || [];
-  const fallbackVendor = data.fallbackVendor || '';
-  const maxRetries = data.maxRetries || 3;
+  const triggers = (data.triggers as string[]) || [];
+  const fallbackVendor = (data.fallbackVendor as string) || '';
+  const maxRetries = (data.maxRetries as number) || 3;
 
   return (
     <TooltipProvider>

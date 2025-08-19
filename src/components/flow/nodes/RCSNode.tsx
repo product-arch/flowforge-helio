@@ -14,9 +14,9 @@ import { useFlow } from '@/contexts/FlowContext';
 export const RCSNode: React.FC<NodeProps> = ({ id, data, selected }) => {
   const { deleteNode } = useFlow();
 
-  const botName = data.botName || '';
-  const agentId = data.agentId || '';
-  const messageType = data.messageType || 'text';
+  const botName = (data.botName as string) || '';
+  const agentId = (data.agentId as string) || '';
+  const messageType = (data.messageType as string) || 'text';
 
   const messageTypeColors = {
     text: 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400',

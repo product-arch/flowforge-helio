@@ -14,9 +14,9 @@ import { useFlow } from '@/contexts/FlowContext';
 export const EmailNode: React.FC<NodeProps> = ({ id, data, selected }) => {
   const { deleteNode } = useFlow();
 
-  const fromAddress = data.fromAddress || '';
-  const messageType = data.messageType || 'transactional';
-  const template = data.template || '';
+  const fromAddress = (data.fromAddress as string) || '';
+  const messageType = (data.messageType as string) || 'transactional';
+  const template = (data.template as string) || '';
 
   const messageTypeColors = {
     transactional: 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400',

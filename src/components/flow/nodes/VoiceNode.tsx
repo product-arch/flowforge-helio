@@ -14,9 +14,9 @@ import { useFlow } from '@/contexts/FlowContext';
 export const VoiceNode: React.FC<NodeProps> = ({ id, data, selected }) => {
   const { deleteNode } = useFlow();
 
-  const callerId = data.callerId || '';
-  const voiceType = data.voiceType || 'text-to-speech';
-  const language = data.language || 'en';
+  const callerId = (data.callerId as string) || '';
+  const voiceType = (data.voiceType as string) || 'text-to-speech';
+  const language = (data.language as string) || 'en';
 
   const voiceTypeColors = {
     'text-to-speech': 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400',
@@ -60,7 +60,7 @@ export const VoiceNode: React.FC<NodeProps> = ({ id, data, selected }) => {
             <div className="flex items-center justify-between">
               <span className="text-xs font-medium">Type</span>
               <Badge className={`text-xs ${voiceTypeColors[voiceType as keyof typeof voiceTypeColors] || voiceTypeColors['text-to-speech']}`}>
-                {voiceType.replace('-', ' ')}
+                {(voiceType as string).replace('-', ' ')}
               </Badge>
             </div>
           </div>

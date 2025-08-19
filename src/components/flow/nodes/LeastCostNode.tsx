@@ -15,7 +15,8 @@ export const LeastCostNode: React.FC<NodeProps> = ({ id, data, selected }) => {
   const { deleteNode, setSelectedNode } = useFlow();
 
   const costThreshold = (data.costThreshold as number) || 0.05;
-  const hasVendorCosts = data.vendorCosts && Array.isArray(data.vendorCosts) && data.vendorCosts.length > 0;
+  const vendorCosts = (data.vendorCosts as any[]) || [];
+  const hasVendorCosts = Array.isArray(vendorCosts) && vendorCosts.length > 0;
 
   return (
     <TooltipProvider>
@@ -60,7 +61,7 @@ export const LeastCostNode: React.FC<NodeProps> = ({ id, data, selected }) => {
             <div className="flex items-center justify-between">
               <span className="text-xs font-medium">Vendors</span>
               <span className="text-xs text-muted-foreground">
-                {hasVendorCosts ? data.vendorCosts.length : 0} configured
+                {hasVendorCosts ? vendorCosts.length : 0} configured
               </span>
             </div>
           </div>
