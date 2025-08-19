@@ -42,6 +42,7 @@ const themes: Array<{ value: Theme; label: string; color: string }> = [
   { value: 'orange', label: 'Energy Orange', color: 'bg-orange-500' },
   { value: 'rose', label: 'Warm Rose', color: 'bg-rose-500' },
   { value: 'indigo', label: 'Deep Indigo', color: 'bg-indigo-500' },
+  { value: 'solarized-osaka', label: 'Solarized Osaka', color: 'bg-teal-600' },
 ];
 
 const mockCampaigns = [
