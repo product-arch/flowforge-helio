@@ -76,6 +76,11 @@ export const FlowProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const deleteNode = useCallback((nodeId: string) => {
+    // Prevent deletion of start node
+    if (nodeId === 'start-1') {
+      return;
+    }
+    
     setNodes((nds) => nds.filter((node) => node.id !== nodeId));
     setEdges((eds) => eds.filter((edge) => edge.source !== nodeId && edge.target !== nodeId));
     if (selectedNode?.id === nodeId) {
