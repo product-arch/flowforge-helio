@@ -15,18 +15,18 @@ export const StartNode: React.FC<NodeProps> = ({ id, data, selected }) => {
   return (
     <TooltipProvider>
       <div className={`
-        relative bg-gradient-to-br from-muted/20 to-muted/10 
-        border-2 rounded-full p-6 shadow-lg w-32 h-20 
-        ${selected ? 'border-primary shadow-primary/20' : 'border-muted-foreground/30'}
+        relative bg-gradient-to-br from-primary/20 to-primary/10 
+        border-2 rounded-full p-4 shadow-lg w-40 h-16 
+        ${selected ? 'border-primary shadow-primary/20' : 'border-primary/50'}
         hover:shadow-xl hover:scale-105 transition-all duration-300
         flex items-center justify-center
       `}>
         {/* Icon and Label */}
         <div className="flex flex-col items-center gap-1">
-          <div className="p-2 bg-muted/30 rounded-full">
-            <Play className="w-4 h-4 text-muted-foreground fill-muted-foreground" />
+          <div className="p-1.5 bg-primary/20 rounded-full">
+            <Play className="w-3 h-3 text-primary fill-primary" />
           </div>
-          <span className="text-xs font-semibold text-muted-foreground">START</span>
+          <span className="text-xs font-semibold text-primary">START</span>
         </div>
 
         {/* Invisible Handles for connectivity */}
@@ -34,19 +34,19 @@ export const StartNode: React.FC<NodeProps> = ({ id, data, selected }) => {
           type="source"
           position={Position.Right}
           id="right"
-          className="w-3 h-3 opacity-0 pointer-events-none"
+          className="w-3 h-3 opacity-0"
         />
         <Handle
           type="source"
           position={Position.Bottom}
           id="bottom"
-          className="w-3 h-3 opacity-0 pointer-events-none"
+          className="w-3 h-3 opacity-0"
         />
         <Handle
           type="source"
           position={Position.Top}
           id="top"
-          className="w-3 h-3 opacity-0 pointer-events-none"
+          className="w-3 h-3 opacity-0"
         />
 
         <Tooltip>
