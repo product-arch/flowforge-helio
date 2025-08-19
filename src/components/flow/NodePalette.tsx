@@ -503,14 +503,14 @@ export const NodePalette: React.FC = () => {
   );
 };
 
-interface NodeCardProps {
+interface NodeChipProps {
   node: NodeType;
   isFavorite: boolean;
   onToggleFavorite: (nodeId: string) => void;
   onDragStart: (event: React.DragEvent, nodeType: string) => void;
 }
 
-const NodeChip: React.FC<NodeCardProps> = ({ 
+const NodeChip: React.FC<NodeChipProps> = ({ 
   node, 
   isFavorite, 
   onToggleFavorite, 
