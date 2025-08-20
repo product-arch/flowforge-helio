@@ -1,6 +1,6 @@
 import React from 'react';
 import { Handle, Position, NodeProps } from '@xyflow/react';
-import { AlertTriangle, Trash2, Plus } from 'lucide-react';
+import { AlertTriangle, Trash2, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useFlow } from '@/contexts/FlowContext';
@@ -55,7 +55,7 @@ export const AlertNode: React.FC<NodeProps> = ({ id, data, selected }) => {
         onClick={() => onConfigClick?.(id)}
         className="absolute -bottom-2 -right-2 w-6 h-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity bg-primary text-primary-foreground hover:bg-primary/90 rounded-full"
       >
-        <Plus className="w-3 h-3" />
+        <Settings className="w-3 h-3" />
       </Button>
 
       {/* Header */}

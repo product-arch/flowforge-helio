@@ -1,6 +1,6 @@
 import React from 'react';
 import { Handle, Position, NodeProps } from '@xyflow/react';
-import { Settings, Trash2, Plus } from 'lucide-react';
+import { Settings as SettingsIcon, Trash2, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useFlow } from '@/contexts/FlowContext';
@@ -47,13 +47,13 @@ export const TransformNode: React.FC<NodeProps> = ({ id, data, selected }) => {
         onClick={() => onConfigClick?.(id)}
         className="absolute -bottom-2 -right-2 w-6 h-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity bg-primary text-primary-foreground hover:bg-primary/90 rounded-full"
       >
-        <Plus className="w-3 h-3" />
+        <Settings className="w-3 h-3" />
       </Button>
 
       {/* Header */}
       <div className="flex items-center gap-2 mb-2">
         <div className={`${hasConfiguration ? 'p-1.5' : 'p-1'} rounded-md bg-primary/10`}>
-          <Settings className={`${hasConfiguration ? 'w-4 h-4' : 'w-3 h-3'} text-primary`} />
+          <SettingsIcon className={`${hasConfiguration ? 'w-4 h-4' : 'w-3 h-3'} text-primary`} />
         </div>
         {hasConfiguration && (
           <div className="flex-1 min-w-0">
