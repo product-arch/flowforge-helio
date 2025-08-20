@@ -11,6 +11,11 @@ const VENDORS = [
   { id: 'msg91', name: 'MSG91', logo: '🔵', type: 'sms' },
 ];
 
+interface FallbackConfig {
+  channel: string;
+  vendors: string[];
+}
+
 export const SMSNode: React.FC<NodeProps> = ({ id, data, selected }) => {
   const { deleteNode } = useFlow();
   const onConfigClick = data.onConfigClick as ((nodeId: string) => void) | undefined;
@@ -18,9 +23,11 @@ export const SMSNode: React.FC<NodeProps> = ({ id, data, selected }) => {
   const senderId = (data.senderId as string) || '';
   const messageType = (data.messageType as string) || 'transactional';
   const encoding = (data.encoding as string) || 'utf8';
+  const selectedVendors = (data.selectedVendors as string[]) || [];
+  const fallback = data.fallback as FallbackConfig | undefined;
   
   // Check if node has any configuration
-  const hasConfiguration = senderId;
+  const hasConfiguration = selectedVendors.length > 0 || senderId;
 
   const messageTypeColors = {
     transactional: 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400',
@@ -79,16 +86,15 @@ export const SMSNode: React.FC<NodeProps> = ({ id, data, selected }) => {
       {/* Configuration Details - Only show when configured */}
       {hasConfiguration && (
         <div className="space-y-2 mb-3">
-          {Array.isArray(data.selectedVendors) && data.selectedVendors.length > 0 && (
+          {Array.isArray(selectedVendors) && selectedVendors.length > 0 && (
             <div className="bg-accent/30 rounded p-2">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-medium">Vendors</span>
                 <span className="text-xs text-muted-foreground">
-                  {data.selectedVendors.length} selected
-                </span>
+                  {selectedVendors.length} selected</span>
               </div>
               <div className="flex flex-wrap gap-1 mt-1">
-                {data.selectedVendors.slice(0, 3).map((vendorId: string) => {
+                {selectedVendors.slice(0, 3).map((vendorId: string) => {
                   const vendor = VENDORS.find(v => v.id === vendorId);
                   return vendor ? (
                     <span key={vendorId} className="text-xs bg-primary/10 px-1 py-0.5 rounded">
@@ -96,8 +102,8 @@ export const SMSNode: React.FC<NodeProps> = ({ id, data, selected }) => {
                     </span>
                   ) : null;
                 })}
-                {data.selectedVendors.length > 3 && (
-                  <span className="text-xs text-muted-foreground">+{data.selectedVendors.length - 3}</span>
+                {selectedVendors.length > 3 && (
+                  <span className="text-xs text-muted-foreground">+{selectedVendors.length - 3}</span>
                 )}
               </div>
             </div>
@@ -116,10 +122,10 @@ export const SMSNode: React.FC<NodeProps> = ({ id, data, selected }) => {
             </div>
           </div>
 
-          {data.fallback && data.fallback.channel && (
+          {fallback && fallback.channel && (
             <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded p-1">
               <span className="text-xs text-blue-700 dark:text-blue-400 font-medium">
-                ↻ Fallback: {data.fallback.channel.toUpperCase()}
+                ↻ Fallback: {fallback.channel.toUpperCase()}
               </span>
             </div>
           )}
