@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { 
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -25,6 +25,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { Separator } from '@/components/ui/separator';
 
 interface ConfigurationModalProps {
   isOpen: boolean;
@@ -32,22 +33,100 @@ interface ConfigurationModalProps {
   nodeId: string;
 }
 
-export const ConfigurationModal: React.FC<ConfigurationModalProps> = ({ 
-  isOpen, 
-  onClose, 
-  nodeId 
+interface Vendor {
+  id: string;
+  name: string;
+  logo: string;
+  type: 'sms' | 'email' | 'voice' | 'whatsapp' | 'rcs';
+}
+
+const VENDORS: Vendor[] = [
+  { id: 'twilio', name: 'Twilio', logo: '🔴', type: 'sms' },
+  { id: 'textlocal', name: 'TextLocal', logo: '🟢', type: 'sms' },
+  { id: 'msg91', name: 'MSG91', logo: '🔵', type: 'sms' },
+  { id: 'sendgrid', name: 'SendGrid', logo: '🟦', type: 'email' },
+  { id: 'mailgun', name: 'Mailgun', logo: '🟨', type: 'email' },
+  { id: 'ses', name: 'AWS SES', logo: '🟧', type: 'email' },
+  { id: 'plivo', name: 'Plivo', logo: '🟣', type: 'voice' },
+  { id: 'exotel', name: 'Exotel', logo: '⚫', type: 'voice' },
+  { id: 'whatsapp-business', name: 'WhatsApp Business', logo: '🟢', type: 'whatsapp' },
+  { id: 'gupshup', name: 'Gupshup', logo: '🔵', type: 'whatsapp' },
+  { id: 'google-rcs', name: 'Google RCS', logo: '🔴', type: 'rcs' },
+  { id: 'samsung-rcs', name: 'Samsung RCS', logo: '🔵', type: 'rcs' },
+];
+
+interface FallbackConfig {
+  channel: string;
+  vendors: string[];
+}
+
+export const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
+  isOpen,
+  onClose,
+  nodeId
 }) => {
   const { nodes, updateNodeData } = useFlow();
   const { toast } = useToast();
 
   const selectedNode = nodes.find(node => node.id === nodeId);
+  const [selectedVendors, setSelectedVendors] = useState<string[]>((selectedNode?.data?.selectedVendors as string[]) || []);
+  const [fallbackConfig, setFallbackConfig] = useState<FallbackConfig | null>((selectedNode?.data?.fallback as FallbackConfig) || null);
 
   if (!selectedNode) {
     return null;
   }
 
+  const getChannelVendors = (channelType: string) => {
+    const channelMap: Record<string, string> = {
+      'sms': 'sms',
+      'whatsapp': 'whatsapp', 
+      'email': 'email',
+      'voice': 'voice',
+      'rcs': 'rcs'
+    };
+    return VENDORS.filter(vendor => vendor.type === channelMap[channelType]);
+  };
+  
+  const toggleVendor = (vendorId: string) => {
+    setSelectedVendors(prev =>
+      prev.includes(vendorId) 
+        ? prev.filter(id => id !== vendorId)
+        : [...prev, vendorId]
+    );
+  };
+  
+  const addFallback = () => {
+    setFallbackConfig({ channel: '', vendors: [] });
+  };
+  
+  const removeFallback = () => {
+    setFallbackConfig(null);
+  };
+  
+  const updateFallbackChannel = (channel: string) => {
+    setFallbackConfig(prev => prev ? { ...prev, channel, vendors: [] } : null);
+  };
+  
+  const toggleFallbackVendor = (vendorId: string) => {
+    setFallbackConfig(prev => {
+      if (!prev) return null;
+      return {
+        ...prev,
+        vendors: prev.vendors.includes(vendorId) 
+          ? prev.vendors.filter(id => id !== vendorId)
+          : [...prev.vendors, vendorId]
+      };
+    });
+  };
+
   const handleUpdateData = (newData: any) => {
-    updateNodeData(selectedNode.id, newData);
+    const updatedData = {
+      ...selectedNode.data,
+      ...newData,
+      selectedVendors,
+      fallback: fallbackConfig,
+    };
+    updateNodeData(selectedNode.id, updatedData);
     toast({
       title: "Node Updated",
       description: "Configuration saved successfully.",
@@ -100,7 +179,7 @@ export const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[80vh] overflow-hidden flex flex-col">
+      <DialogContent className="max-w-3xl max-h-[80vh] overflow-hidden flex flex-col">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             Configuration
@@ -119,7 +198,113 @@ export const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.2 }}
+              className="space-y-6"
             >
+              {/* Vendor Selection for Channel Nodes */}
+              {['sms', 'email', 'voice', 'whatsapp', 'rcs'].includes(selectedNode.type || '') && (
+                <div className="space-y-4">
+                  <div>
+                    <Label className="text-sm font-medium">Select Vendors</Label>
+                    <p className="text-xs text-muted-foreground mb-3">Choose one or more vendors for this channel</p>
+                    <div className="grid grid-cols-2 gap-3">
+                      {getChannelVendors(selectedNode.type || '').map(vendor => (
+                        <div 
+                          key={vendor.id}
+                          className={`border rounded-lg p-3 cursor-pointer transition-colors ${
+                            selectedVendors.includes(vendor.id) 
+                              ? 'border-primary bg-primary/5' 
+                              : 'border-border hover:border-primary/50'
+                          }`}
+                          onClick={() => toggleVendor(vendor.id)}
+                        >
+                          <div className="flex items-center gap-2">
+                            <span className="text-lg">{vendor.logo}</span>
+                            <span className="font-medium text-sm">{vendor.name}</span>
+                            {selectedVendors.includes(vendor.id) && (
+                              <Badge variant="default" className="ml-auto text-xs">Selected</Badge>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <Separator />
+
+                  {/* Fallback Configuration */}
+                  <div>
+                    <div className="flex items-center justify-between mb-3">
+                      <div>
+                        <Label className="text-sm font-medium">Fallback Channel</Label>
+                        <p className="text-xs text-muted-foreground">Configure backup channel if primary fails</p>
+                      </div>
+                      {!fallbackConfig ? (
+                        <Button variant="outline" size="sm" onClick={addFallback}>
+                          <Plus className="w-4 h-4 mr-1" />
+                          Add Fallback
+                        </Button>
+                      ) : (
+                        <Button variant="outline" size="sm" onClick={removeFallback}>
+                          <Trash2 className="w-4 h-4 mr-1" />
+                          Remove
+                        </Button>
+                      )}
+                    </div>
+
+                    {fallbackConfig && (
+                      <div className="space-y-3 border rounded-lg p-4 bg-accent/20">
+                        <div>
+                          <Label className="text-xs">Fallback Channel</Label>
+                          <Select value={fallbackConfig.channel} onValueChange={updateFallbackChannel}>
+                            <SelectTrigger className="mt-1">
+                              <SelectValue placeholder="Select fallback channel" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {['sms', 'email', 'voice', 'whatsapp', 'rcs']
+                                .filter(ch => ch !== selectedNode.type)
+                                .map(channel => (
+                                  <SelectItem key={channel} value={channel}>
+                                    {channel.toUpperCase()}
+                                  </SelectItem>
+                                ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        {fallbackConfig.channel && (
+                          <div>
+                            <Label className="text-xs">Fallback Vendors</Label>
+                            <div className="grid grid-cols-2 gap-2 mt-2">
+                              {getChannelVendors(fallbackConfig.channel).map(vendor => (
+                                <div 
+                                  key={vendor.id}
+                                  className={`border rounded-lg p-2 cursor-pointer transition-colors ${
+                                    fallbackConfig.vendors.includes(vendor.id) 
+                                      ? 'border-primary bg-primary/5' 
+                                      : 'border-border hover:border-primary/50'
+                                  }`}
+                                  onClick={() => toggleFallbackVendor(vendor.id)}
+                                >
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-sm">{vendor.logo}</span>
+                                    <span className="text-xs font-medium">{vendor.name}</span>
+                                    {fallbackConfig.vendors.includes(vendor.id) && (
+                                      <Badge variant="secondary" className="ml-auto text-xs px-1 py-0">✓</Badge>
+                                    )}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  <Separator />
+                </div>
+              )}
+
               {renderConfiguration()}
             </motion.div>
           </AnimatePresence>
@@ -516,19 +701,19 @@ const EmailConfiguration: React.FC<{ node: any; onUpdate: (data: any) => void }>
         </CardHeader>
         <CardContent className="space-y-3">
           <div>
-            <Label>From Address</Label>
+            <Label>From Email</Label>
             <Input
-              value={node.data.fromAddress || ''}
-              onChange={(e) => onUpdate({ ...node.data, fromAddress: e.target.value })}
-              placeholder="Enter sender email"
+              value={node.data.fromEmail || ''}
+              onChange={(e) => onUpdate({ ...node.data, fromEmail: e.target.value })}
+              placeholder="noreply@example.com"
             />
           </div>
           <div>
-            <Label>Template</Label>
+            <Label>Template ID</Label>
             <Input
-              value={node.data.template || ''}
-              onChange={(e) => onUpdate({ ...node.data, template: e.target.value })}
-              placeholder="Enter template name"
+              value={node.data.templateId || ''}
+              onChange={(e) => onUpdate({ ...node.data, templateId: e.target.value })}
+              placeholder="Enter template ID"
             />
           </div>
         </CardContent>
@@ -553,6 +738,21 @@ const VoiceConfiguration: React.FC<{ node: any; onUpdate: (data: any) => void }>
               placeholder="Enter caller ID"
             />
           </div>
+          <div>
+            <Label>Voice Type</Label>
+            <Select
+              value={node.data.voiceType || 'automated'}
+              onValueChange={(value) => onUpdate({ ...node.data, voiceType: value })}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="automated">Automated</SelectItem>
+                <SelectItem value="human">Human</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </CardContent>
       </Card>
     </div>
@@ -568,20 +768,58 @@ const RCSConfiguration: React.FC<{ node: any; onUpdate: (data: any) => void }> =
         </CardHeader>
         <CardContent className="space-y-3">
           <div>
-            <Label>Bot Name</Label>
+            <Label>Bot ID</Label>
             <Input
-              value={node.data.botName || ''}
-              onChange={(e) => onUpdate({ ...node.data, botName: e.target.value })}
-              placeholder="Enter bot name"
+              value={node.data.botId || ''}
+              onChange={(e) => onUpdate({ ...node.data, botId: e.target.value })}
+              placeholder="Enter bot ID"
             />
           </div>
           <div>
-            <Label>Agent ID</Label>
+            <Label>Agent Name</Label>
             <Input
-              value={node.data.agentId || ''}
-              onChange={(e) => onUpdate({ ...node.data, agentId: e.target.value })}
-              placeholder="Enter agent ID"
+              value={node.data.agentName || ''}
+              onChange={(e) => onUpdate({ ...node.data, agentName: e.target.value })}
+              placeholder="Enter agent name"
             />
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
+const AuditConfiguration: React.FC<{ node: any; onUpdate: (data: any) => void }> = ({ node, onUpdate }) => {
+  return (
+    <div className="space-y-4">
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-sm">Audit Configuration</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div>
+            <Label>Log Level</Label>
+            <Select
+              value={node.data.logLevel || 'info'}
+              onValueChange={(value) => onUpdate({ ...node.data, logLevel: value })}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="debug">Debug</SelectItem>
+                <SelectItem value="info">Info</SelectItem>
+                <SelectItem value="warn">Warning</SelectItem>
+                <SelectItem value="error">Error</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              checked={node.data.capturePayload || false}
+              onCheckedChange={(checked) => onUpdate({ ...node.data, capturePayload: checked })}
+            />
+            <Label>Capture Payload</Label>
           </div>
         </CardContent>
       </Card>
@@ -590,86 +828,23 @@ const RCSConfiguration: React.FC<{ node: any; onUpdate: (data: any) => void }> =
 };
 
 const LeastCostConfiguration: React.FC<{ node: any; onUpdate: (data: any) => void }> = ({ node, onUpdate }) => {
-  const [vendorCosts, setVendorCosts] = useState(node.data.vendorCosts || []);
-
-  const addVendorCost = () => {
-    const newVendorCost = {
-      id: `vendor-${Date.now()}`,
-      vendorId: '',
-      cost: 0
-    };
-    const updatedVendorCosts = [...vendorCosts, newVendorCost];
-    setVendorCosts(updatedVendorCosts);
-    onUpdate({ ...node.data, vendorCosts: updatedVendorCosts });
-  };
-
   return (
     <div className="space-y-4">
       <Card>
         <CardHeader>
-          <CardTitle className="text-sm">Cost Threshold</CardTitle>
+          <CardTitle className="text-sm">Least Cost Configuration</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           <div>
-            <Label>Max Cost (₹)</Label>
+            <Label>Cost Threshold (₹)</Label>
             <Input
               type="number"
               step="0.001"
               value={node.data.costThreshold || ''}
               onChange={(e) => onUpdate({ ...node.data, costThreshold: parseFloat(e.target.value) })}
-              placeholder="0.05"
+              placeholder="0.050"
             />
           </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-sm flex items-center justify-between">
-            Vendor Costs
-            <Button size="sm" onClick={addVendorCost}>
-              <Plus className="w-4 h-4 mr-1" />
-              Add
-            </Button>
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {vendorCosts.map((vendor: any, index: number) => (
-            <div key={vendor.id} className="p-3 border border-border rounded-lg space-y-2">
-              <Select
-                value={vendor.vendorId}
-                onValueChange={(value) => {
-                  const updated = vendorCosts.map((v: any, i: number) =>
-                    i === index ? { ...v, vendorId: value } : v
-                  );
-                  setVendorCosts(updated);
-                  onUpdate({ ...node.data, vendorCosts: updated });
-                }}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select vendor" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="gupshup">Gupshup</SelectItem>
-                  <SelectItem value="karix">Karix</SelectItem>
-                  <SelectItem value="kaleyra">Kaleyra</SelectItem>
-                </SelectContent>
-              </Select>
-              <Input
-                type="number"
-                step="0.001"
-                value={vendor.cost}
-                onChange={(e) => {
-                  const updated = vendorCosts.map((v: any, i: number) =>
-                    i === index ? { ...v, cost: parseFloat(e.target.value) } : v
-                  );
-                  setVendorCosts(updated);
-                  onUpdate({ ...node.data, vendorCosts: updated });
-                }}
-                placeholder="Cost per message"
-              />
-            </div>
-          ))}
         </CardContent>
       </Card>
     </div>
@@ -677,28 +852,61 @@ const LeastCostConfiguration: React.FC<{ node: any; onUpdate: (data: any) => voi
 };
 
 const WeightedSplitConfiguration: React.FC<{ node: any; onUpdate: (data: any) => void }> = ({ node, onUpdate }) => {
+  const [weights, setWeights] = useState(node.data.weights || []);
+
+  const addWeight = () => {
+    const newWeight = { vendor: '', weight: 0 };
+    const updatedWeights = [...weights, newWeight];
+    setWeights(updatedWeights);
+    onUpdate({ ...node.data, weights: updatedWeights });
+  };
+
   return (
     <div className="space-y-4">
       <Card>
         <CardHeader>
-          <CardTitle className="text-sm">Weighted Split Configuration</CardTitle>
+          <CardTitle className="text-sm flex items-center justify-between">
+            Weighted Split Configuration
+            <Button size="sm" onClick={addWeight}>
+              <Plus className="w-4 h-4 mr-1" />
+              Add
+            </Button>
+          </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          <div>
-            <Label>Split Strategy</Label>
-            <Select
-              value={node.data.strategy || 'percentage'}
-              onValueChange={(value) => onUpdate({ ...node.data, strategy: value })}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="percentage">Percentage</SelectItem>
-                <SelectItem value="ratio">Ratio</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          {weights.map((weight: any, index: number) => (
+            <div key={index} className="p-3 border border-border rounded-lg space-y-2">
+              <div>
+                <Label className="text-xs">Vendor</Label>
+                <Input
+                  value={weight.vendor}
+                  onChange={(e) => {
+                    const updated = weights.map((w: any, i: number) =>
+                      i === index ? { ...w, vendor: e.target.value } : w
+                    );
+                    setWeights(updated);
+                    onUpdate({ ...node.data, weights: updated });
+                  }}
+                  placeholder="Vendor name"
+                />
+              </div>
+              <div>
+                <Label className="text-xs">Weight (%)</Label>
+                <Input
+                  type="number"
+                  value={weight.weight}
+                  onChange={(e) => {
+                    const updated = weights.map((w: any, i: number) =>
+                      i === index ? { ...w, weight: parseInt(e.target.value) } : w
+                    );
+                    setWeights(updated);
+                    onUpdate({ ...node.data, weights: updated });
+                  }}
+                  placeholder="0"
+                />
+              </div>
+            </div>
+          ))}
         </CardContent>
       </Card>
     </div>
@@ -714,20 +922,22 @@ const FallbackConfiguration: React.FC<{ node: any; onUpdate: (data: any) => void
         </CardHeader>
         <CardContent className="space-y-3">
           <div>
-            <Label>Trigger Condition</Label>
-            <Select
-              value={node.data.trigger || 'failure'}
-              onValueChange={(value) => onUpdate({ ...node.data, trigger: value })}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="failure">On Failure</SelectItem>
-                <SelectItem value="timeout">On Timeout</SelectItem>
-                <SelectItem value="error">On Error</SelectItem>
-              </SelectContent>
-            </Select>
+            <Label>Retry Count</Label>
+            <Input
+              type="number"
+              value={node.data.retryCount || ''}
+              onChange={(e) => onUpdate({ ...node.data, retryCount: parseInt(e.target.value) })}
+              placeholder="3"
+            />
+          </div>
+          <div>
+            <Label>Retry Delay (seconds)</Label>
+            <Input
+              type="number"
+              value={node.data.retryDelay || ''}
+              onChange={(e) => onUpdate({ ...node.data, retryDelay: parseInt(e.target.value) })}
+              placeholder="5"
+            />
           </div>
         </CardContent>
       </Card>
@@ -744,27 +954,20 @@ const FilterConfiguration: React.FC<{ node: any; onUpdate: (data: any) => void }
         </CardHeader>
         <CardContent className="space-y-3">
           <div>
-            <Label>Filter Action</Label>
+            <Label>Filter Field</Label>
             <Select
-              value={node.data.action || 'allow'}
-              onValueChange={(value) => onUpdate({ ...node.data, action: value })}
+              value={node.data.filterField || ''}
+              onValueChange={(value) => onUpdate({ ...node.data, filterField: value })}
             >
               <SelectTrigger>
-                <SelectValue />
+                <SelectValue placeholder="Select field" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="allow">Allow</SelectItem>
-                <SelectItem value="block">Block</SelectItem>
+                <SelectItem value="messageType">Message Type</SelectItem>
+                <SelectItem value="userType">User Type</SelectItem>
+                <SelectItem value="cost">Cost</SelectItem>
               </SelectContent>
             </Select>
-          </div>
-          <div>
-            <Label>Filter Criteria</Label>
-            <Input
-              value={node.data.criteria || ''}
-              onChange={(e) => onUpdate({ ...node.data, criteria: e.target.value })}
-              placeholder="Enter filter criteria"
-            />
           </div>
         </CardContent>
       </Card>
@@ -781,11 +984,11 @@ const SwitchConfiguration: React.FC<{ node: any; onUpdate: (data: any) => void }
         </CardHeader>
         <CardContent className="space-y-3">
           <div>
-            <Label>Default Path</Label>
+            <Label>Switch Variable</Label>
             <Input
-              value={node.data.defaultPath || ''}
-              onChange={(e) => onUpdate({ ...node.data, defaultPath: e.target.value })}
-              placeholder="Enter default path"
+              value={node.data.switchVariable || ''}
+              onChange={(e) => onUpdate({ ...node.data, switchVariable: e.target.value })}
+              placeholder="Enter variable name"
             />
           </div>
         </CardContent>
@@ -803,11 +1006,11 @@ const RateLimitConfiguration: React.FC<{ node: any; onUpdate: (data: any) => voi
         </CardHeader>
         <CardContent className="space-y-3">
           <div>
-            <Label>Max Rate (TPS)</Label>
+            <Label>Max Requests</Label>
             <Input
               type="number"
-              value={node.data.maxRate || ''}
-              onChange={(e) => onUpdate({ ...node.data, maxRate: parseInt(e.target.value) })}
+              value={node.data.maxRequests || ''}
+              onChange={(e) => onUpdate({ ...node.data, maxRequests: parseInt(e.target.value) })}
               placeholder="100"
             />
           </div>
@@ -835,30 +1038,13 @@ const DelayConfiguration: React.FC<{ node: any; onUpdate: (data: any) => void }>
         </CardHeader>
         <CardContent className="space-y-3">
           <div>
-            <Label>Duration</Label>
+            <Label>Delay (seconds)</Label>
             <Input
               type="number"
-              value={node.data.duration || ''}
-              onChange={(e) => onUpdate({ ...node.data, duration: parseInt(e.target.value) })}
+              value={node.data.delay || ''}
+              onChange={(e) => onUpdate({ ...node.data, delay: parseInt(e.target.value) })}
               placeholder="5"
             />
-          </div>
-          <div>
-            <Label>Unit</Label>
-            <Select
-              value={node.data.unit || 's'}
-              onValueChange={(value) => onUpdate({ ...node.data, unit: value })}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="ms">Milliseconds</SelectItem>
-                <SelectItem value="s">Seconds</SelectItem>
-                <SelectItem value="m">Minutes</SelectItem>
-                <SelectItem value="h">Hours</SelectItem>
-              </SelectContent>
-            </Select>
           </div>
         </CardContent>
       </Card>
@@ -875,53 +1061,13 @@ const ThrottleConfiguration: React.FC<{ node: any; onUpdate: (data: any) => void
         </CardHeader>
         <CardContent className="space-y-3">
           <div>
-            <Label>Max Rate</Label>
+            <Label>Throttle Rate (req/sec)</Label>
             <Input
               type="number"
-              value={node.data.maxRate || ''}
-              onChange={(e) => onUpdate({ ...node.data, maxRate: parseInt(e.target.value) })}
-              placeholder="100"
-            />
-          </div>
-          <div>
-            <Label>Burst Size</Label>
-            <Input
-              type="number"
-              value={node.data.burstSize || ''}
-              onChange={(e) => onUpdate({ ...node.data, burstSize: parseInt(e.target.value) })}
+              value={node.data.throttleRate || ''}
+              onChange={(e) => onUpdate({ ...node.data, throttleRate: parseInt(e.target.value) })}
               placeholder="10"
             />
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
-};
-
-const AuditConfiguration: React.FC<{ node: any; onUpdate: (data: any) => void }> = ({ node, onUpdate }) => {
-  return (
-    <div className="space-y-4">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-sm">Audit Configuration</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <div>
-            <Label>Logging Level</Label>
-            <Select
-              value={node.data.loggingLevel || 'info'}
-              onValueChange={(value) => onUpdate({ ...node.data, loggingLevel: value })}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="debug">Debug</SelectItem>
-                <SelectItem value="info">Info</SelectItem>
-                <SelectItem value="warn">Warning</SelectItem>
-                <SelectItem value="error">Error</SelectItem>
-              </SelectContent>
-            </Select>
           </div>
         </CardContent>
       </Card>

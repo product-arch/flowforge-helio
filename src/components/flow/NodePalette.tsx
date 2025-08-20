@@ -246,31 +246,6 @@ const nodeTypes: NodeType[] = [
     category: 'Constraints',
   },
 
-  // Vendor Blocks
-  {
-    id: 'vendor',
-    label: 'Vendor',
-    icon: Target,
-    color: 'text-primary',
-    description: 'Specific vendor configuration',
-    category: 'Vendors',
-  },
-  {
-    id: 'loadbalancer',
-    label: 'Load Balancer',
-    icon: Users,
-    color: 'text-primary',
-    description: 'Distribute load across multiple vendors',
-    category: 'Vendors',
-  },
-  {
-    id: 'healthcheck',
-    label: 'Health Check',
-    icon: Check,
-    color: 'text-primary',
-    description: 'Monitor vendor availability and status',
-    category: 'Vendors',
-  },
 
   // Monitoring Blocks
   {

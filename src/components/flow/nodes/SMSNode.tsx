@@ -3,13 +3,13 @@ import { Handle, Position, NodeProps } from '@xyflow/react';
 import { MessageSquare, Phone, Trash2, CheckCircle, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
 import { useFlow } from '@/contexts/FlowContext';
+
+const VENDORS = [
+  { id: 'twilio', name: 'Twilio', logo: '🔴', type: 'sms' },
+  { id: 'textlocal', name: 'TextLocal', logo: '🟢', type: 'sms' },
+  { id: 'msg91', name: 'MSG91', logo: '🔵', type: 'sms' },
+];
 
 export const SMSNode: React.FC<NodeProps> = ({ id, data, selected }) => {
   const { deleteNode } = useFlow();
@@ -79,17 +79,29 @@ export const SMSNode: React.FC<NodeProps> = ({ id, data, selected }) => {
       {/* Configuration Details - Only show when configured */}
       {hasConfiguration && (
         <div className="space-y-2 mb-3">
-          {/* Sender ID Block */}
-          <div className="bg-accent/30 rounded p-2">
-            <div className="flex items-center gap-2">
-              <Phone className="w-3 h-3 text-primary" />
-              <span className="text-xs font-medium">Sender ID</span>
-              <CheckCircle className="w-3 h-3 text-green-500" />
+          {Array.isArray(data.selectedVendors) && data.selectedVendors.length > 0 && (
+            <div className="bg-accent/30 rounded p-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-medium">Vendors</span>
+                <span className="text-xs text-muted-foreground">
+                  {data.selectedVendors.length} selected
+                </span>
+              </div>
+              <div className="flex flex-wrap gap-1 mt-1">
+                {data.selectedVendors.slice(0, 3).map((vendorId: string) => {
+                  const vendor = VENDORS.find(v => v.id === vendorId);
+                  return vendor ? (
+                    <span key={vendorId} className="text-xs bg-primary/10 px-1 py-0.5 rounded">
+                      {vendor.logo} {vendor.name}
+                    </span>
+                  ) : null;
+                })}
+                {data.selectedVendors.length > 3 && (
+                  <span className="text-xs text-muted-foreground">+{data.selectedVendors.length - 3}</span>
+                )}
+              </div>
             </div>
-            <div className="text-xs text-muted-foreground mt-1 truncate">
-              {senderId}
-            </div>
-          </div>
+          )}
 
           {/* Message Type Block */}
           <div className="bg-accent/30 rounded p-2">
@@ -104,15 +116,13 @@ export const SMSNode: React.FC<NodeProps> = ({ id, data, selected }) => {
             </div>
           </div>
 
-          {/* Encoding Block */}
-          <div className="bg-accent/30 rounded p-2">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-medium">Encoding</span>
-              <span className="text-xs text-muted-foreground uppercase">
-                {encoding}
+          {data.fallback && data.fallback.channel && (
+            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded p-1">
+              <span className="text-xs text-blue-700 dark:text-blue-400 font-medium">
+                ↻ Fallback: {data.fallback.channel.toUpperCase()}
               </span>
             </div>
-          </div>
+          )}
         </div>
       )}
 
