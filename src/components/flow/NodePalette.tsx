@@ -212,39 +212,6 @@ const nodeTypes: NodeType[] = [
     category: 'Logic',
   },
 
-  // Constraint Blocks
-  {
-    id: 'tpslimit',
-    label: 'TPS Limit',
-    icon: Gauge,
-    color: 'text-primary',
-    description: 'Transactions per second limitation',
-    category: 'Constraints',
-  },
-  {
-    id: 'costcap',
-    label: 'Cost Cap',
-    icon: DollarSign,
-    color: 'text-primary',
-    description: 'Maximum cost per message limit',
-    category: 'Constraints',
-  },
-  {
-    id: 'timewindow',
-    label: 'Time Window',
-    icon: Calendar,
-    color: 'text-primary',
-    description: 'Active hours and timezone restrictions',
-    category: 'Constraints',
-  },
-  {
-    id: 'geofence',
-    label: 'Geo Fence',
-    icon: MapPin,
-    color: 'text-primary',
-    description: 'Geographic routing restrictions',
-    category: 'Constraints',
-  },
 
 
   // Monitoring Blocks

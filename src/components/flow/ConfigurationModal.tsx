@@ -138,10 +138,15 @@ export const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
     switch (selectedNode.type) {
       case 'routing':
         return <RoutingConfiguration node={selectedNode} onUpdate={handleUpdateData} />;
-      case 'constraint':
-        return <ConstraintConfiguration node={selectedNode} onUpdate={handleUpdateData} />;
       case 'conditional':
         return <ConditionalConfiguration node={selectedNode} onUpdate={handleUpdateData} />;
+      case 'converge':
+      case 'diverge':
+      case 'timer':
+      case 'doevent':
+      case 'switch':
+      case 'filter':
+        return <ControlsLogicConfiguration node={selectedNode} onUpdate={handleUpdateData} />;
       case 'terminal':
         return <TerminalConfiguration node={selectedNode} onUpdate={handleUpdateData} />;
       case 'audit':
@@ -172,6 +177,18 @@ export const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
         return <DelayConfiguration node={selectedNode} onUpdate={handleUpdateData} />;
       case 'throttle':
         return <ThrottleConfiguration node={selectedNode} onUpdate={handleUpdateData} />;
+      case 'webhook':
+        return <IntegrationMonitoringConfiguration node={selectedNode} onUpdate={handleUpdateData} />;
+      case 'database':
+        return <IntegrationMonitoringConfiguration node={selectedNode} onUpdate={handleUpdateData} />;
+      case 'transform':
+        return <IntegrationMonitoringConfiguration node={selectedNode} onUpdate={handleUpdateData} />;
+      case 'api':
+        return <IntegrationMonitoringConfiguration node={selectedNode} onUpdate={handleUpdateData} />;
+      case 'analytics':
+        return <IntegrationMonitoringConfiguration node={selectedNode} onUpdate={handleUpdateData} />;
+      case 'alert':
+        return <IntegrationMonitoringConfiguration node={selectedNode} onUpdate={handleUpdateData} />;
       default:
         return <div className="text-center text-muted-foreground">No configuration available for this node type.</div>;
     }
@@ -469,41 +486,6 @@ const RoutingConfiguration: React.FC<{ node: any; onUpdate: (data: any) => void 
   );
 };
 
-const ConstraintConfiguration: React.FC<{ node: any; onUpdate: (data: any) => void }> = ({
-  node,
-  onUpdate,
-}) => {
-  return (
-    <div className="space-y-4">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-sm">Rate Limits</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <div>
-            <Label>Max TPS</Label>
-            <Input
-              type="number"
-              value={node.data.maxTPS || ''}
-              onChange={(e) => onUpdate({ ...node.data, maxTPS: parseInt(e.target.value) })}
-              placeholder="1000"
-            />
-          </div>
-          <div>
-            <Label>Max Cost per Message (₹)</Label>
-            <Input
-              type="number"
-              step="0.01"
-              value={node.data.maxCost || ''}
-              onChange={(e) => onUpdate({ ...node.data, maxCost: parseFloat(e.target.value) })}
-              placeholder="0.05"
-            />
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
-};
 
 const ConditionalConfiguration: React.FC<{ node: any; onUpdate: (data: any) => void }> = ({
   node,
@@ -1069,6 +1051,366 @@ const ThrottleConfiguration: React.FC<{ node: any; onUpdate: (data: any) => void
               placeholder="10"
             />
           </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
+const ControlsLogicConfiguration: React.FC<{ node: any; onUpdate: (data: any) => void }> = ({ node, onUpdate }) => {
+  return (
+    <div className="space-y-4">
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-sm">{node.type.charAt(0).toUpperCase() + node.type.slice(1)} Configuration</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {/* Basic Configuration */}
+          <div>
+            <Label>Description</Label>
+            <Textarea
+              value={node.data.description || ''}
+              onChange={(e) => onUpdate({ ...node.data, description: e.target.value })}
+              placeholder="Enter description..."
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Constraints Configuration */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-sm">Constraints</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {/* TPS Limit */}
+          <div>
+            <Label>Max TPS (Transactions Per Second)</Label>
+            <Input
+              type="number"
+              placeholder="100"
+              value={node.data.maxTPS || ''}
+              onChange={(e) => onUpdate({ ...node.data, maxTPS: Number(e.target.value) || undefined })}
+            />
+          </div>
+
+          {/* Cost Cap */}
+          <div>
+            <Label>Max Cost (₹)</Label>
+            <Input
+              type="number"
+              step="0.01"
+              placeholder="10.00"
+              value={node.data.maxCost || ''}
+              onChange={(e) => onUpdate({ ...node.data, maxCost: Number(e.target.value) || undefined })}
+            />
+          </div>
+
+          {/* Time Window */}
+          <div>
+            <Label>Time Window</Label>
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <Label htmlFor="timeWindowStart">Start Time</Label>
+                <Input
+                  id="timeWindowStart"
+                  type="time"
+                  value={node.data.timeWindow?.start || ''}
+                  onChange={(e) => onUpdate({ 
+                    ...node.data, 
+                    timeWindow: { ...node.data.timeWindow, start: e.target.value }
+                  })}
+                />
+              </div>
+              <div>
+                <Label htmlFor="timeWindowEnd">End Time</Label>
+                <Input
+                  id="timeWindowEnd"
+                  type="time"
+                  value={node.data.timeWindow?.end || ''}
+                  onChange={(e) => onUpdate({ 
+                    ...node.data, 
+                    timeWindow: { ...node.data.timeWindow, end: e.target.value }
+                  })}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Geo Fence */}
+          <div>
+            <Label>Geographic Restrictions</Label>
+            <Select
+              value={node.data.geoFence || ''}
+              onValueChange={(value) => onUpdate({ ...node.data, geoFence: value })}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select geographic restriction" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">No Restrictions</SelectItem>
+                <SelectItem value="domestic">Domestic Only</SelectItem>
+                <SelectItem value="international">International Only</SelectItem>
+                <SelectItem value="specific">Specific Countries</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {node.data.geoFence === 'specific' && (
+            <div>
+              <Label>Allowed Countries</Label>
+              <Input
+                placeholder="IN, US, UK (comma separated)"
+                value={node.data.allowedCountries || ''}
+                onChange={(e) => onUpdate({ ...node.data, allowedCountries: e.target.value })}
+              />
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
+const IntegrationMonitoringConfiguration: React.FC<{ node: any; onUpdate: (data: any) => void }> = ({ node, onUpdate }) => {
+  const getNodeSpecificConfig = () => {
+    switch (node.type) {
+      case 'webhook':
+        return (
+          <>
+            <div>
+              <Label>URL</Label>
+              <Input
+                value={node.data.url || ''}
+                onChange={(e) => onUpdate({ ...node.data, url: e.target.value })}
+                placeholder="https://api.example.com/webhook"
+              />
+            </div>
+            <div>
+              <Label>Method</Label>
+              <Select
+                value={node.data.method || 'POST'}
+                onValueChange={(value) => onUpdate({ ...node.data, method: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="GET">GET</SelectItem>
+                  <SelectItem value="POST">POST</SelectItem>
+                  <SelectItem value="PUT">PUT</SelectItem>
+                  <SelectItem value="DELETE">DELETE</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </>
+        );
+      case 'database':
+        return (
+          <>
+            <div>
+              <Label>Connection String</Label>
+              <Input
+                value={node.data.connectionString || ''}
+                onChange={(e) => onUpdate({ ...node.data, connectionString: e.target.value })}
+                placeholder="mongodb://localhost:27017/mydb"
+              />
+            </div>
+            <div>
+              <Label>Operation</Label>
+              <Select
+                value={node.data.operation || 'select'}
+                onValueChange={(value) => onUpdate({ ...node.data, operation: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="select">SELECT</SelectItem>
+                  <SelectItem value="insert">INSERT</SelectItem>
+                  <SelectItem value="update">UPDATE</SelectItem>
+                  <SelectItem value="delete">DELETE</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Table/Collection</Label>
+              <Input
+                value={node.data.table || ''}
+                onChange={(e) => onUpdate({ ...node.data, table: e.target.value })}
+                placeholder="users"
+              />
+            </div>
+          </>
+        );
+      case 'transform':
+        return (
+          <>
+            <div>
+              <Label>Transform Type</Label>
+              <Select
+                value={node.data.transformType || 'format'}
+                onValueChange={(value) => onUpdate({ ...node.data, transformType: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="format">Format</SelectItem>
+                  <SelectItem value="validate">Validate</SelectItem>
+                  <SelectItem value="enrich">Enrich</SelectItem>
+                  <SelectItem value="filter">Filter</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Script</Label>
+              <Textarea
+                value={node.data.script || ''}
+                onChange={(e) => onUpdate({ ...node.data, script: e.target.value })}
+                placeholder="Enter transformation script..."
+              />
+            </div>
+          </>
+        );
+      case 'api':
+        return (
+          <>
+            <div>
+              <Label>Endpoint</Label>
+              <Input
+                value={node.data.endpoint || ''}
+                onChange={(e) => onUpdate({ ...node.data, endpoint: e.target.value })}
+                placeholder="https://api.example.com/v1/users"
+              />
+            </div>
+            <div>
+              <Label>Method</Label>
+              <Select
+                value={node.data.method || 'GET'}
+                onValueChange={(value) => onUpdate({ ...node.data, method: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="GET">GET</SelectItem>
+                  <SelectItem value="POST">POST</SelectItem>
+                  <SelectItem value="PUT">PUT</SelectItem>
+                  <SelectItem value="DELETE">DELETE</SelectItem>
+                  <SelectItem value="PATCH">PATCH</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Authentication</Label>
+              <Select
+                value={node.data.authentication || 'none'}
+                onValueChange={(value) => onUpdate({ ...node.data, authentication: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">None</SelectItem>
+                  <SelectItem value="basic">Basic Auth</SelectItem>
+                  <SelectItem value="bearer">Bearer Token</SelectItem>
+                  <SelectItem value="apikey">API Key</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </>
+        );
+      case 'analytics':
+        return (
+          <>
+            <div>
+              <Label>Dashboard</Label>
+              <Input
+                value={node.data.dashboard || ''}
+                onChange={(e) => onUpdate({ ...node.data, dashboard: e.target.value })}
+                placeholder="Main Analytics Dashboard"
+              />
+            </div>
+            <div>
+              <Label>Reporting Interval</Label>
+              <Select
+                value={node.data.reportingInterval || 'hourly'}
+                onValueChange={(value) => onUpdate({ ...node.data, reportingInterval: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="realtime">Real-time</SelectItem>
+                  <SelectItem value="minutely">Every Minute</SelectItem>
+                  <SelectItem value="hourly">Hourly</SelectItem>
+                  <SelectItem value="daily">Daily</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </>
+        );
+      case 'alert':
+        return (
+          <>
+            <div>
+              <Label>Alert Type</Label>
+              <Select
+                value={node.data.alertType || 'threshold'}
+                onValueChange={(value) => onUpdate({ ...node.data, alertType: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="threshold">Threshold</SelectItem>
+                  <SelectItem value="anomaly">Anomaly</SelectItem>
+                  <SelectItem value="error">Error</SelectItem>
+                  <SelectItem value="status">Status</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Severity</Label>
+              <Select
+                value={node.data.severity || 'medium'}
+                onValueChange={(value) => onUpdate({ ...node.data, severity: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="low">Low</SelectItem>
+                  <SelectItem value="medium">Medium</SelectItem>
+                  <SelectItem value="high">High</SelectItem>
+                  <SelectItem value="critical">Critical</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Condition</Label>
+              <Input
+                value={node.data.condition || ''}
+                onChange={(e) => onUpdate({ ...node.data, condition: e.target.value })}
+                placeholder="error_rate > 5%"
+              />
+            </div>
+          </>
+        );
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-sm">{node.type.charAt(0).toUpperCase() + node.type.slice(1)} Configuration</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {getNodeSpecificConfig()}
         </CardContent>
       </Card>
     </div>

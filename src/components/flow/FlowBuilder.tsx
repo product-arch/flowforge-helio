@@ -30,7 +30,12 @@ import { RateLimitNode } from './nodes/RateLimitNode';
 import { SwitchNode } from './nodes/SwitchNode';
 import { ThrottleNode } from './nodes/ThrottleNode';
 import { RoutingNode } from './nodes/RoutingNode';
-import { ConstraintNode } from './nodes/ConstraintNode';
+import { WebhookNode } from './nodes/WebhookNode';
+import { DatabaseNode } from './nodes/DatabaseNode';
+import { TransformNode } from './nodes/TransformNode';
+import { APICallNode } from './nodes/APICallNode';
+import { AnalyticsNode } from './nodes/AnalyticsNode';
+import { AlertNode } from './nodes/AlertNode';
 import { CustomEdge } from './edges/CustomEdge';
 import { ZoomControls } from './ZoomControls';
 
@@ -53,7 +58,12 @@ const nodeTypes = {
   switch: SwitchNode,
   throttle: ThrottleNode,
   routing: RoutingNode,
-  constraint: ConstraintNode,
+  webhook: WebhookNode,
+  database: DatabaseNode,
+  transform: TransformNode,
+  api: APICallNode,
+  analytics: AnalyticsNode,
+  alert: AlertNode,
 };
 
 const edgeTypes = {
