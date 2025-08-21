@@ -38,6 +38,10 @@ import { AnalyticsNode } from './nodes/AnalyticsNode';
 import { AlertNode } from './nodes/AlertNode';
 import { CustomEdge } from './edges/CustomEdge';
 import { ZoomControls } from './ZoomControls';
+import { ConvergeNode } from './nodes/ConvergeNode';
+import { DivergeNode } from './nodes/DivergeNode';
+import { TimerNode } from './nodes/TimerNode';
+import { DoEventNode } from './nodes/DoEventNode';
 
 const nodeTypes = {
   start: StartNode,
@@ -64,6 +68,10 @@ const nodeTypes = {
   api: APICallNode,
   analytics: AnalyticsNode,
   alert: AlertNode,
+  converge: ConvergeNode,
+  diverge: DivergeNode,
+  timer: TimerNode,
+  doevent: DoEventNode,
 };
 
 const edgeTypes = {
