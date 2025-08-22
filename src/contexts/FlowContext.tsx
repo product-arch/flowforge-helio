@@ -14,6 +14,7 @@ interface FlowContextType {
   addNode: (type: string, position: { x: number; y: number }) => void;
   deleteNode: (nodeId: string) => void;
   updateNodeData: (nodeId: string, data: any) => void;
+  updateNode: (nodeId: string, data: any) => void;
   setSimulationMode: (mode: boolean) => void;
   runSimulation: (testParams: any) => void;
 }
@@ -131,6 +132,34 @@ export const FlowProvider: React.FC<{ children: React.ReactNode }> = ({ children
     );
   }, []);
 
+  const updateNode = useCallback((nodeId: string, data: any) => {
+    setNodes((nds) =>
+      nds.map((node) => {
+        if (node.id === nodeId) {
+          const updatedNode = { ...node, data: { ...node.data, ...data } };
+          
+          // If updating a channel node with vendors, update its routing node too
+          if (['sms', 'whatsapp', 'email', 'rcs', 'voice'].includes(node.type || '') && data.vendors) {
+            const routingNodeId = `routing-${nodeId}`;
+            const vendorNames = data.vendors.map((vendor: any) => vendor.name || vendor.id || vendor);
+            
+            // Update the routing node with channel vendors
+            setNodes((currentNodes) =>
+              currentNodes.map((n) =>
+                n.id === routingNodeId
+                  ? { ...n, data: { ...n.data, channelVendors: vendorNames } }
+                  : n
+              )
+            );
+          }
+          
+          return updatedNode;
+        }
+        return node;
+      })
+    );
+  }, []);
+
   const runSimulation = useCallback((testParams: any) => {
     // Simulate routing logic
     const results = [
@@ -160,6 +189,7 @@ export const FlowProvider: React.FC<{ children: React.ReactNode }> = ({ children
       addNode,
       deleteNode,
       updateNodeData,
+      updateNode,
       setSimulationMode,
       runSimulation,
     }}>

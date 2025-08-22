@@ -33,13 +33,17 @@ export const VendorRoutingNode: React.FC<NodeProps> = ({ id, data, selected }) =
   const configType = (data.configType as string) || 'default';
   const parentChannelId = data.parentChannelId as string;
   
-  // Check if parent channel is configured
+  // Get parent channel and its vendors
   const { nodes } = useFlow();
   const parentChannel = nodes.find(node => node.id === parentChannelId);
-  const channelConfigured = parentChannel?.data?.vendors && Array.isArray(parentChannel.data.vendors) && parentChannel.data.vendors.length > 0;
+  const channelVendors = parentChannel?.data?.vendors || [];
+  const channelConfigured = Array.isArray(channelVendors) && channelVendors.length > 0;
+  
+  // Auto-read vendor names from parent channel
+  const vendorNames = Array.isArray(channelVendors) ? channelVendors.map((vendor: any) => vendor.name || vendor.id || vendor) : [];
   
   // Check if node has configuration
-  const hasConfiguration = routingConfig && selectedVendors.length > 0;
+  const hasConfiguration = routingConfig && vendorNames.length > 0;
 
   return (
     <TooltipProvider>
