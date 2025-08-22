@@ -4,7 +4,7 @@ import { MessageSquare, Phone, Trash2, CheckCircle, Settings } from 'lucide-reac
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useFlow } from '@/contexts/FlowContext';
-import { VendorRoutingSubBlock } from '../VendorRoutingSubBlock';
+
 
 const VENDORS = [
   { id: 'twilio', name: 'Twilio', logo: '🔴', type: 'sms' },
@@ -141,18 +141,6 @@ export const SMSNode: React.FC<NodeProps> = ({ id, data, selected }) => {
         </div>
       )}
 
-      {/* Vendor Routing Sub-Block */}
-      {hasConfiguration && (
-        <VendorRoutingSubBlock
-          vendors={VENDORS}
-          selectedVendors={selectedVendors}
-          routingConfig={routingConfig}
-          onConfigChange={(config) => {
-            // This would be handled by the parent flow context
-            console.log('Routing config changed:', config);
-          }}
-        />
-      )}
 
       {/* Invisible Connection Handles for full connectivity */}
       <Handle type="target" position={Position.Left} id="left" className="w-3 h-3 opacity-0" />

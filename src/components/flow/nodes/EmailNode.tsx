@@ -4,7 +4,7 @@ import { Mail, Trash2, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useFlow } from '@/contexts/FlowContext';
-import { VendorRoutingSubBlock } from '../VendorRoutingSubBlock';
+
 
 const VENDORS = [
   { id: 'sendgrid', name: 'SendGrid', logo: '🟦', type: 'email' },
@@ -142,17 +142,6 @@ export const EmailNode: React.FC<NodeProps> = ({ id, data, selected }) => {
         </div>
       )}
 
-      {/* Vendor Routing Sub-Block */}
-      {hasConfiguration && (
-        <VendorRoutingSubBlock
-          vendors={VENDORS}
-          selectedVendors={selectedVendors}
-          routingConfig={routingConfig}
-          onConfigChange={(config) => {
-            console.log('Email routing config changed:', config);
-          }}
-        />
-      )}
 
       {/* Invisible Connection Handles for full connectivity */}
       <Handle type="target" position={Position.Left} id="left" className="w-3 h-3 opacity-0" />

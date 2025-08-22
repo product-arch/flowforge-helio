@@ -1,6 +1,6 @@
 import React from 'react';
 import { Handle, Position, NodeProps } from '@xyflow/react';
-import { GitBranch, Trash2, Settings, Plus } from 'lucide-react';
+import { GitBranch, Trash2, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -11,14 +11,29 @@ import {
 } from '@/components/ui/tooltip';
 import { useFlow } from '@/contexts/FlowContext';
 
-export const RoutingNode: React.FC<NodeProps> = ({ id, data, selected }) => {
+interface RoutingConfig {
+  mode: 'priority' | 'weighted' | 'fixed';
+  vendors: Array<{
+    id: string;
+    weight: number;
+    tpsCap?: number;
+    costCap?: number;
+    priority: number;
+  }>;
+  fallbackEnabled: boolean;
+  fallbackOrder: string[];
+}
+
+export const VendorRoutingNode: React.FC<NodeProps> = ({ id, data, selected }) => {
   const { deleteNode } = useFlow();
   const onConfigClick = data.onConfigClick as ((nodeId: string) => void) | undefined;
 
-  const vendorCount = Array.isArray(data.vendors) ? data.vendors.length : 0;
+  const routingConfig = data.routingConfig as RoutingConfig | undefined;
+  const selectedVendors = (data.selectedVendors as string[]) || [];
+  const configType = (data.configType as string) || 'default';
   
   // Check if node has configuration
-  const hasConfiguration = data.strategy && vendorCount > 0;
+  const hasConfiguration = routingConfig && selectedVendors.length > 0;
 
   return (
     <TooltipProvider>
@@ -45,7 +60,7 @@ export const RoutingNode: React.FC<NodeProps> = ({ id, data, selected }) => {
           onClick={() => onConfigClick?.(id)}
           className="absolute -bottom-2 -right-2 w-6 h-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity bg-primary text-primary-foreground hover:bg-primary/90 rounded-full"
         >
-          <Plus className="w-3 h-3" />
+          <Settings className="w-3 h-3" />
         </Button>
 
         {/* Header */}
@@ -55,9 +70,9 @@ export const RoutingNode: React.FC<NodeProps> = ({ id, data, selected }) => {
           </div>
           {hasConfiguration && (
             <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-sm text-primary truncate">Routing</h3>
+              <h3 className="font-semibold text-sm text-primary truncate">Vendor Routing</h3>
               <p className="text-xs text-muted-foreground truncate">
-                {String(data.strategy || 'weightedSplit')}
+                {configType === 'custom' ? routingConfig?.mode || 'priority' : 'default'}
               </p>
             </div>
           )}
@@ -73,32 +88,47 @@ export const RoutingNode: React.FC<NodeProps> = ({ id, data, selected }) => {
           <div className="space-y-2 mb-3">
             <div className="bg-accent/30 rounded p-2">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-medium">Strategy</span>
-                <span className="text-xs text-muted-foreground capitalize">
-                  {String(data.strategy || 'weightedSplit')}
-                </span>
+                <span className="text-xs font-medium">Config Type</span>
+                <Badge variant={configType === 'custom' ? 'default' : 'secondary'} className="text-xs">
+                  {configType}
+                </Badge>
               </div>
             </div>
 
-            <div className="bg-accent/30 rounded p-2">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-medium">Vendors</span>
-                <span className="text-xs text-muted-foreground">
-                  {vendorCount} configured
-                </span>
-              </div>
-              {Array.isArray(data.vendors) && data.vendors.slice(0, 2).map((vendor: any, index: number) => (
-                <div key={index} className="flex items-center justify-between mt-1">
-                  <span className="text-xs truncate max-w-16">{vendor.name}</span>
-                  <span className="text-xs text-muted-foreground">{vendor.weight}%</span>
+            {configType === 'custom' && routingConfig && (
+              <>
+                <div className="bg-accent/30 rounded p-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-medium">Strategy</span>
+                    <span className="text-xs text-muted-foreground capitalize">
+                      {routingConfig.mode}
+                    </span>
+                  </div>
                 </div>
-              ))}
-            </div>
 
-            {data.fallbackEnabled && (
-              <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded p-1">
-                <span className="text-xs text-green-700 dark:text-green-400 font-medium">✓ Fallback Enabled</span>
-              </div>
+                <div className="bg-accent/30 rounded p-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-medium">Vendors</span>
+                    <span className="text-xs text-muted-foreground">
+                      {routingConfig.vendors.length} configured
+                    </span>
+                  </div>
+                  {routingConfig.vendors.slice(0, 2).map((vendor, index) => (
+                    <div key={index} className="flex items-center justify-between mt-1">
+                      <span className="text-xs truncate max-w-16">{vendor.id}</span>
+                      <span className="text-xs text-muted-foreground">
+                        {routingConfig.mode === 'weighted' ? `${vendor.weight}%` : `#${vendor.priority}`}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+
+                {routingConfig.fallbackEnabled && (
+                  <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded p-1">
+                    <span className="text-xs text-green-700 dark:text-green-400 font-medium">✓ Fallback Enabled</span>
+                  </div>
+                )}
+              </>
             )}
           </div>
         )}
@@ -124,7 +154,7 @@ export const RoutingNode: React.FC<NodeProps> = ({ id, data, selected }) => {
           </TooltipTrigger>
           <TooltipContent>
             <div className="text-sm">
-              <div className="font-medium">Routing Node</div>
+              <div className="font-medium">Vendor Routing Node</div>
               <div className="text-muted-foreground">
                 Configure vendor selection strategy and routing logic
               </div>

@@ -68,45 +68,13 @@ interface NodeType {
 }
 
 const nodeTypes: NodeType[] = [
-  // Routing Atomic Blocks
+  // Routing Blocks
   {
-    id: 'leastcost',
-    label: 'Least Cost Routing',
-    icon: DollarSign,
+    id: 'vendorrouting',
+    label: 'Vendor Routing',
+    icon: GitBranch,
     color: 'text-primary',
-    description: 'Route messages via cheapest available path',
-    category: 'Routing',
-  },
-  {
-    id: 'weightedsplit',
-    label: 'Weighted Split',
-    icon: Percent,
-    color: 'text-primary',
-    description: 'Distribute traffic based on custom weights',
-    category: 'Routing',
-  },
-  {
-    id: 'fallback',
-    label: 'Fallback',
-    icon: RotateCcw,
-    color: 'text-primary',
-    description: 'Secondary route when primary fails',
-    category: 'Routing',
-  },
-  {
-    id: 'priorityroute',
-    label: 'Priority Route',
-    icon: ArrowUpDown,
-    color: 'text-primary',
-    description: 'Route by vendor priority order',
-    category: 'Routing',
-  },
-  {
-    id: 'spillover',
-    label: 'Spillover',
-    icon: Layers,
-    color: 'text-primary',
-    description: 'Overflow to next vendor when capacity reached',
+    description: 'Configure vendor routing strategy and algorithms',
     category: 'Routing',
   },
 

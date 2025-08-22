@@ -136,8 +136,8 @@ export const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
 
   const renderConfiguration = () => {
     switch (selectedNode.type) {
-      case 'routing':
-        return <RoutingConfiguration node={selectedNode} onUpdate={handleUpdateData} />;
+      case 'vendorrouting':
+        return <VendorRoutingConfiguration node={selectedNode} onUpdate={handleUpdateData} />;
       case 'conditional':
         return <ConditionalConfiguration node={selectedNode} onUpdate={handleUpdateData} />;
       case 'converge':
@@ -332,6 +332,276 @@ export const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
 };
 
 // Configuration components for each node type
+const VendorRoutingConfiguration: React.FC<{ node: any; onUpdate: (data: any) => void }> = ({
+  node,
+  onUpdate,
+}) => {
+  const [configType, setConfigType] = useState(node.data.configType || 'default');
+  const [routingConfig, setRoutingConfig] = useState(node.data.routingConfig || {
+    mode: 'priority',
+    vendors: [],
+    fallbackEnabled: true,
+    fallbackOrder: []
+  });
+
+  const handleConfigTypeChange = (type: string) => {
+    setConfigType(type);
+    onUpdate({ ...node.data, configType: type });
+  };
+
+  const handleRoutingConfigChange = (config: any) => {
+    setRoutingConfig(config);
+    onUpdate({ ...node.data, routingConfig: config });
+  };
+
+  const AVAILABLE_VENDORS = [
+    { id: 'twilio', name: 'Twilio', logo: '🔴' },
+    { id: 'sendgrid', name: 'SendGrid', logo: '🟦' },
+    { id: 'plivo', name: 'Plivo', logo: '🟣' },
+    { id: 'gupshup', name: 'Gupshup', logo: '🔵' },
+    { id: 'karix', name: 'Karix', logo: '🟢' },
+    { id: 'msg91', name: 'MSG91', logo: '🟡' },
+  ];
+
+  const addVendor = () => {
+    const newVendor = {
+      id: `vendor-${Date.now()}`,
+      weight: 100 / (routingConfig.vendors.length + 1),
+      priority: routingConfig.vendors.length + 1,
+      tpsCap: 100,
+      costCap: 1000
+    };
+    
+    const updatedVendors = [...routingConfig.vendors, newVendor];
+    const updatedConfig = { ...routingConfig, vendors: updatedVendors };
+    handleRoutingConfigChange(updatedConfig);
+  };
+
+  const removeVendor = (index: number) => {
+    const updatedVendors = routingConfig.vendors.filter((_: any, i: number) => i !== index);
+    const updatedConfig = { ...routingConfig, vendors: updatedVendors };
+    handleRoutingConfigChange(updatedConfig);
+  };
+
+  const updateVendor = (index: number, field: string, value: any) => {
+    const updatedVendors = routingConfig.vendors.map((vendor: any, i: number) =>
+      i === index ? { ...vendor, [field]: value } : vendor
+    );
+    const updatedConfig = { ...routingConfig, vendors: updatedVendors };
+    handleRoutingConfigChange(updatedConfig);
+  };
+
+  return (
+    <div className="space-y-4">
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-sm">Routing Configuration Type</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="grid grid-cols-2 gap-3">
+            <div 
+              className={`border rounded-lg p-3 cursor-pointer transition-colors ${
+                configType === 'default' 
+                  ? 'border-primary bg-primary/5' 
+                  : 'border-border hover:border-primary/50'
+              }`}
+              onClick={() => handleConfigTypeChange('default')}
+            >
+              <div className="flex items-center gap-2">
+                <Badge variant={configType === 'default' ? 'default' : 'secondary'} className="text-xs">
+                  Default
+                </Badge>
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Use system default routing
+              </p>
+            </div>
+            
+            <div 
+              className={`border rounded-lg p-3 cursor-pointer transition-colors ${
+                configType === 'custom' 
+                  ? 'border-primary bg-primary/5' 
+                  : 'border-border hover:border-primary/50'
+              }`}
+              onClick={() => handleConfigTypeChange('custom')}
+            >
+              <div className="flex items-center gap-2">
+                <Badge variant={configType === 'custom' ? 'default' : 'secondary'} className="text-xs">
+                  Custom
+                </Badge>
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Configure custom routing logic
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {configType === 'custom' && (
+        <>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm">Routing Strategy</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div>
+                <Label>Mode</Label>
+                <Select
+                  value={routingConfig.mode}
+                  onValueChange={(value) => handleRoutingConfigChange({ ...routingConfig, mode: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="priority">Priority Based</SelectItem>
+                    <SelectItem value="weighted">Weighted Distribution</SelectItem>
+                    <SelectItem value="fixed">Fixed Assignment</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm flex items-center justify-between">
+                Vendor Configuration
+                <Button size="sm" onClick={addVendor}>
+                  <Plus className="w-4 h-4 mr-1" />
+                  Add Vendor
+                </Button>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {routingConfig.vendors.map((vendor: any, index: number) => (
+                <div key={vendor.id || index} className="p-3 border border-border rounded-lg space-y-3">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-xs">Vendor {index + 1}</Label>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => removeVendor(index)}
+                      className="w-6 h-6 p-0"
+                    >
+                      <X className="w-3 h-3" />
+                    </Button>
+                  </div>
+                  
+                  <div>
+                    <Label className="text-xs">Vendor</Label>
+                    <Select
+                      value={vendor.id}
+                      onValueChange={(value) => updateVendor(index, 'id', value)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select vendor" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {AVAILABLE_VENDORS.map(v => (
+                          <SelectItem key={v.id} value={v.id}>
+                            {v.logo} {v.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {routingConfig.mode === 'weighted' && (
+                    <div>
+                      <Label className="text-xs">Weight (%)</Label>
+                      <Slider
+                        value={[vendor.weight || 0]}
+                        onValueChange={([value]) => updateVendor(index, 'weight', value)}
+                        max={100}
+                        step={1}
+                        className="mt-2"
+                      />
+                      <div className="text-xs text-muted-foreground mt-1">
+                        {vendor.weight || 0}%
+                      </div>
+                    </div>
+                  )}
+
+                  {routingConfig.mode === 'priority' && (
+                    <div>
+                      <Label className="text-xs">Priority</Label>
+                      <Input
+                        type="number"
+                        value={vendor.priority || 1}
+                        onChange={(e) => updateVendor(index, 'priority', parseInt(e.target.value))}
+                        min={1}
+                        className="mt-1"
+                      />
+                    </div>
+                  )}
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <Label className="text-xs">TPS Cap</Label>
+                      <Input
+                        type="number"
+                        value={vendor.tpsCap || ''}
+                        onChange={(e) => updateVendor(index, 'tpsCap', parseInt(e.target.value))}
+                        placeholder="100"
+                        className="mt-1"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-xs">Cost Cap (₹)</Label>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        value={vendor.costCap || ''}
+                        onChange={(e) => updateVendor(index, 'costCap', parseFloat(e.target.value))}
+                        placeholder="1000"
+                        className="mt-1"
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+              
+              {routingConfig.vendors.length === 0 && (
+                <div className="text-center py-4 text-muted-foreground text-sm">
+                  No vendors configured. Click "Add Vendor" to get started.
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm">Fallback Configuration</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="flex items-center space-x-2">
+                <Switch
+                  checked={routingConfig.fallbackEnabled}
+                  onCheckedChange={(checked) => 
+                    handleRoutingConfigChange({ ...routingConfig, fallbackEnabled: checked })
+                  }
+                />
+                <Label>Enable automatic fallback</Label>
+              </div>
+              
+              {routingConfig.fallbackEnabled && (
+                <div>
+                  <Label className="text-xs">Fallback Order</Label>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Vendors will be tried in priority order if primary fails
+                  </p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </>
+      )}
+    </div>
+  );
+};
+
 const RoutingConfiguration: React.FC<{ node: any; onUpdate: (data: any) => void }> = ({
   node,
   onUpdate,

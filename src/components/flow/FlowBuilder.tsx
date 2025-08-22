@@ -29,7 +29,7 @@ import { FilterNode } from './nodes/FilterNode';
 import { RateLimitNode } from './nodes/RateLimitNode';
 import { SwitchNode } from './nodes/SwitchNode';
 import { ThrottleNode } from './nodes/ThrottleNode';
-import { RoutingNode } from './nodes/RoutingNode';
+import { VendorRoutingNode } from './nodes/VendorRoutingNode';
 import { WebhookNode } from './nodes/WebhookNode';
 import { DatabaseNode } from './nodes/DatabaseNode';
 import { TransformNode } from './nodes/TransformNode';
@@ -61,7 +61,7 @@ const nodeTypes = {
   ratelimit: RateLimitNode,
   switch: SwitchNode,
   throttle: ThrottleNode,
-  routing: RoutingNode,
+  vendorrouting: VendorRoutingNode,
   webhook: WebhookNode,
   database: DatabaseNode,
   transform: TransformNode,

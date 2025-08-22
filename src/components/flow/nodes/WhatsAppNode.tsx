@@ -4,7 +4,7 @@ import { MessageCircle, Hash, Bot, X, CheckCircle, Settings } from 'lucide-react
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useFlow } from '@/contexts/FlowContext';
-import { VendorRoutingSubBlock } from '../VendorRoutingSubBlock';
+
 
 export const WhatsAppNode: React.FC<NodeProps> = ({ id, data, selected }) => {
   const { deleteNode } = useFlow();
@@ -125,21 +125,6 @@ export const WhatsAppNode: React.FC<NodeProps> = ({ id, data, selected }) => {
         </div>
       )}
 
-      {/* Vendor Routing Sub-Block */}
-      {hasConfiguration && selectedVendors.length > 0 && (
-        <VendorRoutingSubBlock
-          vendors={[
-            { id: 'whatsapp-business', name: 'WhatsApp Business', logo: '💚', type: 'whatsapp' },
-            { id: 'twilio-whatsapp', name: 'Twilio WhatsApp', logo: '🔴', type: 'whatsapp' },
-            { id: 'meta-whatsapp', name: 'Meta WhatsApp', logo: '🔵', type: 'whatsapp' }
-          ]}
-          selectedVendors={selectedVendors}
-          routingConfig={routingConfig}
-          onConfigChange={(config) => {
-            console.log('WhatsApp routing config changed:', config);
-          }}
-        />
-      )}
 
       {/* Invisible Connection Handles for full connectivity */}
       <Handle type="target" position={Position.Left} id="left" className="w-3 h-3 opacity-0" />
