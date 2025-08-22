@@ -68,16 +68,6 @@ interface NodeType {
 }
 
 const nodeTypes: NodeType[] = [
-  // Routing Blocks
-  {
-    id: 'vendorrouting',
-    label: 'Vendor Routing',
-    icon: GitBranch,
-    color: 'text-primary',
-    description: 'Configure vendor routing strategy and algorithms',
-    category: 'Routing',
-  },
-
   // Channel Nodes
   {
     id: 'sms',

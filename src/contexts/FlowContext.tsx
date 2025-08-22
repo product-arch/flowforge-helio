@@ -72,7 +72,40 @@ export const FlowProvider: React.FC<{ children: React.ReactNode }> = ({ children
         ...getDefaultNodeData(type)
       },
     };
-    setNodes((nds) => [...nds, newNode]);
+    
+    // For channel nodes, also create an attached routing node
+    const isChannelNode = ['sms', 'whatsapp', 'email', 'voice', 'rcs'].includes(type);
+    
+    if (isChannelNode) {
+      const routingNode: Node = {
+        id: `vendorrouting-${Date.now()}`,
+        type: 'vendorrouting',
+        position: { x: position.x, y: position.y + 120 },
+        data: {
+          label: 'Vendor Routing',
+          parentChannelId: newNode.id,
+          configType: 'default',
+          selectedVendors: [],
+          routingConfig: null,
+          ...getDefaultNodeData('vendorrouting')
+        },
+      };
+      
+      setNodes((nds) => [...nds, newNode, routingNode]);
+      
+      // Auto-connect channel to routing node
+      setTimeout(() => {
+        setEdges((eds) => addEdge({
+          id: `edge-${newNode.id}-${routingNode.id}`,
+          source: newNode.id,
+          target: routingNode.id,
+          type: 'custom',
+          style: { strokeDasharray: '5,5', stroke: 'hsl(var(--primary))', opacity: 0.6 }
+        }, eds));
+      }, 100);
+    } else {
+      setNodes((nds) => [...nds, newNode]);
+    }
   }, []);
 
   const deleteNode = useCallback((nodeId: string) => {

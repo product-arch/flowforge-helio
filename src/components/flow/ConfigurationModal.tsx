@@ -331,8 +331,11 @@ export const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
   );
 };
 
+// Import vendor routing configuration
+import { VendorRoutingConfiguration } from './VendorRoutingConfiguration';
+
 // Configuration components for each node type
-const VendorRoutingConfiguration: React.FC<{ node: any; onUpdate: (data: any) => void }> = ({
+const OldVendorRoutingConfiguration: React.FC<{ node: any; onUpdate: (data: any) => void }> = ({
   node,
   onUpdate,
 }) => {

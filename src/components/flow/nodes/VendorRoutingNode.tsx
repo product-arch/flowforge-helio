@@ -31,6 +31,12 @@ export const VendorRoutingNode: React.FC<NodeProps> = ({ id, data, selected }) =
   const routingConfig = data.routingConfig as RoutingConfig | undefined;
   const selectedVendors = (data.selectedVendors as string[]) || [];
   const configType = (data.configType as string) || 'default';
+  const parentChannelId = data.parentChannelId as string;
+  
+  // Check if parent channel is configured
+  const { nodes } = useFlow();
+  const parentChannel = nodes.find(node => node.id === parentChannelId);
+  const channelConfigured = parentChannel?.data?.vendors && Array.isArray(parentChannel.data.vendors) && parentChannel.data.vendors.length > 0;
   
   // Check if node has configuration
   const hasConfiguration = routingConfig && selectedVendors.length > 0;
@@ -136,7 +142,9 @@ export const VendorRoutingNode: React.FC<NodeProps> = ({ id, data, selected }) =
         {/* Unconfigured state notice */}
         {!hasConfiguration && (
           <div className="text-center mb-2">
-            <span className="text-xs text-muted-foreground">Not configured</span>
+            <span className="text-xs text-muted-foreground">
+              {!channelConfigured ? 'Configure channel block first' : 'Not configured'}
+            </span>
           </div>
         )}
 
