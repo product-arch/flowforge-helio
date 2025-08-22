@@ -32,14 +32,17 @@ export const VendorRoutingNode: React.FC<NodeProps> = ({ id, data, selected }) =
   const selectedVendors = (data.selectedVendors as string[]) || [];
   const configType = (data.configType as string) || 'default';
   const parentChannelId = data.parentChannelId as string;
+  const fallbackTrigger = data.fallbackTrigger as string;
+  const fallbackDelay = data.fallbackDelay as number;
+  const maxRetryAttempts = data.maxRetryAttempts as number;
   
   // Check if parent channel is configured
   const { nodes } = useFlow();
   const parentChannel = nodes.find(node => node.id === parentChannelId);
-  const channelConfigured = parentChannel?.data?.vendors && Array.isArray(parentChannel.data.vendors) && parentChannel.data.vendors.length > 0;
+  const channelConfigured = parentChannel?.data?.selectedVendors && Array.isArray(parentChannel.data.selectedVendors) && parentChannel.data.selectedVendors.length > 0;
   
   // Check if node has configuration
-  const hasConfiguration = routingConfig && selectedVendors.length > 0;
+  const hasConfiguration = configType === 'custom' ? (routingConfig && routingConfig.vendors.length > 0) : configType === 'default';
 
   return (
     <TooltipProvider>
@@ -119,22 +122,67 @@ export const VendorRoutingNode: React.FC<NodeProps> = ({ id, data, selected }) =
                       {routingConfig.vendors.length} configured
                     </span>
                   </div>
-                  {routingConfig.vendors.slice(0, 2).map((vendor, index) => (
+                  {routingConfig.vendors.slice(0, 3).map((vendor, index) => (
                     <div key={index} className="flex items-center justify-between mt-1">
-                      <span className="text-xs truncate max-w-16">{vendor.id}</span>
-                      <span className="text-xs text-muted-foreground">
-                        {routingConfig.mode === 'weighted' ? `${vendor.weight}%` : `#${vendor.priority}`}
-                      </span>
+                      <span className="text-xs truncate max-w-20">{vendor.id}</span>
+                      <div className="flex items-center gap-1">
+                        {routingConfig.mode === 'weighted' && (
+                          <span className="text-xs text-muted-foreground">{vendor.weight}%</span>
+                        )}
+                        {routingConfig.mode === 'priority' && (
+                          <Badge variant="outline" className="text-xs px-1 py-0">#{vendor.priority}</Badge>
+                        )}
+                        {vendor.tpsCap && (
+                          <span className="text-xs text-blue-600 dark:text-blue-400">{vendor.tpsCap}TPS</span>
+                        )}
+                      </div>
                     </div>
                   ))}
+                  {routingConfig.vendors.length > 3 && (
+                    <div className="text-xs text-muted-foreground text-center mt-1">
+                      +{routingConfig.vendors.length - 3} more
+                    </div>
+                  )}
                 </div>
 
                 {routingConfig.fallbackEnabled && (
-                  <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded p-1">
-                    <span className="text-xs text-green-700 dark:text-green-400 font-medium">✓ Fallback Enabled</span>
+                  <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded p-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-green-700 dark:text-green-400 font-medium">✓ Fallback Enabled</span>
+                    </div>
+                    <div className="text-xs text-green-600 dark:text-green-300 mt-1 space-y-1">
+                      <div>Trigger: {fallbackTrigger}</div>
+                      <div>Delay: {fallbackDelay}s</div>
+                      <div>Max Retries: {maxRetryAttempts}</div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Weight validation for weighted mode */}
+                {routingConfig.mode === 'weighted' && (
+                  <div className="bg-accent/30 rounded p-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-medium">Total Weight</span>
+                      <span className={`text-xs ${
+                        routingConfig.vendors.reduce((sum, v) => sum + v.weight, 0) === 100 
+                          ? 'text-green-600 dark:text-green-400' 
+                          : 'text-destructive'
+                      }`}>
+                        {routingConfig.vendors.reduce((sum, v) => sum + v.weight, 0)}%
+                      </span>
+                    </div>
                   </div>
                 )}
               </>
+            )}
+
+            {configType === 'default' && (
+              <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded p-2">
+                <span className="text-xs text-blue-700 dark:text-blue-400 font-medium">Using System Defaults</span>
+                <div className="text-xs text-blue-600 dark:text-blue-300 mt-1">
+                  Automatic load balancing across available vendors
+                </div>
+              </div>
             )}
           </div>
         )}

@@ -91,7 +91,7 @@ const SortableVendorItem: React.FC<{
             value={vendor.id}
             onChange={(e) => onUpdate(index, 'id', e.target.value)}
             placeholder="vendor-name"
-            className="h-8"
+            className="h-8 nodrag"
           />
         </div>
         
@@ -118,7 +118,7 @@ const SortableVendorItem: React.FC<{
               type="number"
               value={vendor.priority}
               onChange={(e) => onUpdate(index, 'priority', parseInt(e.target.value))}
-              className="h-8"
+              className="h-8 nodrag"
               min="1"
             />
           </div>
@@ -131,7 +131,7 @@ const SortableVendorItem: React.FC<{
             value={vendor.tpsCap || ''}
             onChange={(e) => onUpdate(index, 'tpsCap', parseInt(e.target.value))}
             placeholder="100"
-            className="h-8"
+            className="h-8 nodrag"
           />
         </div>
         
@@ -143,7 +143,7 @@ const SortableVendorItem: React.FC<{
             value={vendor.costCap || ''}
             onChange={(e) => onUpdate(index, 'costCap', parseFloat(e.target.value))}
             placeholder="1.000"
-            className="h-8"
+            className="h-8 nodrag"
           />
         </div>
       </div>
@@ -172,13 +172,21 @@ export const VendorRoutingConfiguration: React.FC<VendorRoutingConfigurationProp
     fallbackOrder: []
   });
 
+  // Fallback configuration state
+  const [fallbackTrigger, setFallbackTrigger] = useState(node.data.fallbackTrigger || 'failure');
+  const [fallbackDelay, setFallbackDelay] = useState(node.data.fallbackDelay || 30);
+  const [maxRetryAttempts, setMaxRetryAttempts] = useState(node.data.maxRetryAttempts || 3);
+
   // Update parent component state without saving to node
   React.useEffect(() => {
     onUpdate({ 
       configType, 
-      routingConfig 
+      routingConfig,
+      fallbackTrigger,
+      fallbackDelay,
+      maxRetryAttempts
     });
-  }, [configType, routingConfig, onUpdate]);
+  }, [configType, routingConfig, fallbackTrigger, fallbackDelay, maxRetryAttempts, onUpdate]);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -353,7 +361,7 @@ export const VendorRoutingConfiguration: React.FC<VendorRoutingConfigurationProp
                           <div className="space-y-3">
                             <div>
                               <Label>Fallback Trigger</Label>
-                              <Select defaultValue="failure">
+                              <Select value={fallbackTrigger} onValueChange={setFallbackTrigger}>
                                 <SelectTrigger>
                                   <SelectValue />
                                 </SelectTrigger>
@@ -369,8 +377,10 @@ export const VendorRoutingConfiguration: React.FC<VendorRoutingConfigurationProp
                               <Label>Fallback Delay (seconds)</Label>
                               <Input 
                                 type="number" 
-                                defaultValue="30"
+                                value={fallbackDelay}
+                                onChange={(e) => setFallbackDelay(parseInt(e.target.value) || 30)}
                                 placeholder="Seconds before fallback"
+                                className="nodrag"
                               />
                             </div>
                             
@@ -378,8 +388,10 @@ export const VendorRoutingConfiguration: React.FC<VendorRoutingConfigurationProp
                               <Label>Max Retry Attempts</Label>
                               <Input 
                                 type="number" 
-                                defaultValue="3"
+                                value={maxRetryAttempts}
+                                onChange={(e) => setMaxRetryAttempts(parseInt(e.target.value) || 3)}
                                 placeholder="Maximum retries"
+                                className="nodrag"
                               />
                             </div>
                           </div>
