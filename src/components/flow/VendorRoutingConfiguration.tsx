@@ -416,6 +416,37 @@ export const VendorRoutingConfiguration: React.FC<VendorRoutingConfigurationProp
                 
                 <TabsContent value="main" className="space-y-4">
                   <div className="space-y-4">
+                    {/* Channel Vendors Display */}
+                    {channelVendors.length > 0 && (
+                      <div className="bg-accent/20 rounded-lg p-3 border border-border">
+                        <div className="flex items-center justify-between mb-2">
+                          <Label className="text-sm font-medium">Available Channel Vendors</Label>
+                          <Badge variant="secondary" className="text-xs">
+                            {channelVendors.length} vendor{channelVendors.length !== 1 ? 's' : ''}
+                          </Badge>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {channelVendors.map((vendorName: string, index: number) => (
+                            <Badge 
+                              key={index} 
+                              variant={routingConfig.vendors.find(v => v.id === vendorName) ? "default" : "outline"}
+                              className="text-xs"
+                            >
+                              {vendorName}
+                              {routingConfig.vendors.find(v => v.id === vendorName) && (
+                                <span className="ml-1">✓</span>
+                              )}
+                            </Badge>
+                          ))}
+                        </div>
+                        {routingConfig.vendors.length < channelVendors.length && (
+                          <p className="text-xs text-muted-foreground mt-2">
+                            Click "Add Vendor" to configure remaining vendors
+                          </p>
+                        )}
+                      </div>
+                    )}
+
                     <div className="flex items-center justify-between">
                       <Label>Primary Vendor Configuration</Label>
                       <Button
@@ -423,10 +454,10 @@ export const VendorRoutingConfiguration: React.FC<VendorRoutingConfigurationProp
                         variant="outline"
                         size="sm"
                         onClick={addVendor}
-                        disabled={channelVendors.length === 0}
+                        disabled={channelVendors.length === 0 || routingConfig.vendors.length >= channelVendors.length}
                       >
                         <Plus className="w-4 h-4 mr-1" />
-                        Add Vendor
+                        Add Vendor ({routingConfig.vendors.length}/{channelVendors.length})
                       </Button>
                     </div>
 
