@@ -69,8 +69,23 @@ export const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
   const { toast } = useToast();
 
   const selectedNode = nodes.find(node => node.id === nodeId);
-  const [selectedVendors, setSelectedVendors] = useState<string[]>((selectedNode?.data?.selectedVendors as string[]) || []);
-  const [fallbackConfig, setFallbackConfig] = useState<FallbackConfig | null>((selectedNode?.data?.fallback as FallbackConfig) || null);
+  
+  // Store original data for cancel functionality
+  const [originalData, setOriginalData] = useState<any>(null);
+  const [selectedVendors, setSelectedVendors] = useState<string[]>([]);
+  const [fallbackConfig, setFallbackConfig] = useState<FallbackConfig | null>(null);
+  const [pendingChanges, setPendingChanges] = useState<any>({});
+
+  // Initialize state when modal opens
+  React.useEffect(() => {
+    if (isOpen && selectedNode) {
+      const nodeData = selectedNode.data;
+      setOriginalData(nodeData);
+      setSelectedVendors((nodeData?.selectedVendors as string[]) || []);
+      setFallbackConfig((nodeData?.fallback as FallbackConfig) || null);
+      setPendingChanges({});
+    }
+  }, [isOpen, selectedNode]);
 
   if (!selectedNode) {
     return null;
@@ -120,18 +135,36 @@ export const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
   };
 
   const handleUpdateData = (newData: any) => {
+    setPendingChanges(prev => ({ ...prev, ...newData }));
+  };
+
+  const handleSave = () => {
+    if (!selectedNode) return;
+    
     const updatedData = {
       ...selectedNode.data,
-      ...newData,
+      ...pendingChanges,
       selectedVendors,
       fallback: fallbackConfig,
     };
+    
     updateNodeData(selectedNode.id, updatedData);
     toast({
-      title: "Node Updated",
-      description: "Configuration saved successfully.",
+      title: "Configuration Saved",
+      description: "All changes have been saved successfully.",
       className: "border-status-success bg-status-success/10 text-status-success"
     });
+    onClose();
+  };
+
+  const handleCancel = () => {
+    // Reset all state to original values
+    if (originalData) {
+      setSelectedVendors((originalData?.selectedVendors as string[]) || []);
+      setFallbackConfig((originalData?.fallback as FallbackConfig) || null);
+      setPendingChanges({});
+    }
+    onClose();
   };
 
   const renderConfiguration = () => {
@@ -325,6 +358,16 @@ export const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
               {renderConfiguration()}
             </motion.div>
           </AnimatePresence>
+        </div>
+
+        {/* Save and Cancel Buttons */}
+        <div className="flex items-center justify-end gap-3 pt-4 border-t">
+          <Button variant="outline" onClick={handleCancel}>
+            Cancel
+          </Button>
+          <Button onClick={handleSave}>
+            Save Configuration
+          </Button>
         </div>
       </DialogContent>
     </Dialog>

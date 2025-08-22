@@ -172,6 +172,14 @@ export const VendorRoutingConfiguration: React.FC<VendorRoutingConfigurationProp
     fallbackOrder: []
   });
 
+  // Update parent component state without saving to node
+  React.useEffect(() => {
+    onUpdate({ 
+      configType, 
+      routingConfig 
+    });
+  }, [configType, routingConfig, onUpdate]);
+
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
@@ -181,12 +189,10 @@ export const VendorRoutingConfiguration: React.FC<VendorRoutingConfigurationProp
 
   const handleConfigTypeChange = (type: string) => {
     setConfigType(type);
-    onUpdate({ ...node.data, configType: type });
   };
 
   const handleRoutingConfigChange = (config: RoutingConfig) => {
     setRoutingConfig(config);
-    onUpdate({ ...node.data, routingConfig: config });
   };
 
   const addVendor = () => {
