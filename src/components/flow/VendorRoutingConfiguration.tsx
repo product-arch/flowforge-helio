@@ -48,19 +48,10 @@ interface Vendor {
 }
 
 interface RoutingConfig {
-  mode: 'priority' | 'weighted' | 'fixed' | 'round_robin' | 'least_cost' | 'failover' | 'geographic';
+  mode: 'priority' | 'weighted' | 'fixed';
   vendors: Vendor[];
   fallbackEnabled: boolean;
   fallbackOrder: string[];
-  // Round Robin specific
-  roundRobinResetInterval?: number;
-  // Least Cost specific
-  costThreshold?: number;
-  // Geographic specific
-  geoRoutingRules?: Array<{ region: string; vendorId: string; }>;
-  // Failover specific
-  healthCheckInterval?: number;
-  maxFailures?: number;
 }
 
 const SortableVendorItem: React.FC<{
@@ -120,36 +111,15 @@ const SortableVendorItem: React.FC<{
           </div>
         )}
         
-        {(routingMode === 'priority' || routingMode === 'failover') && (
+        {routingMode === 'priority' && (
           <div>
             <Label className="text-xs">Priority</Label>
             <Input
               type="number"
               value={vendor.priority}
-              onChange={(e) => {
-                const val = parseInt(e.target.value);
-                if (val >= 1) onUpdate(index, 'priority', val);
-              }}
+              onChange={(e) => onUpdate(index, 'priority', parseInt(e.target.value))}
               className="h-8"
               min="1"
-            />
-          </div>
-        )}
-        
-        {routingMode === 'least_cost' && (
-          <div>
-            <Label className="text-xs">Cost Per Message (₹)</Label>
-            <Input
-              type="number"
-              step="0.001"
-              value={vendor.costCap || ''}
-              onChange={(e) => {
-                const val = parseFloat(e.target.value);
-                if (val >= 0) onUpdate(index, 'costCap', val);
-              }}
-              placeholder="0.850"
-              className="h-8"
-              min="0"
             />
           </div>
         )}
@@ -159,13 +129,9 @@ const SortableVendorItem: React.FC<{
           <Input
             type="number"
             value={vendor.tpsCap || ''}
-            onChange={(e) => {
-              const val = parseInt(e.target.value);
-              if (val >= 1) onUpdate(index, 'tpsCap', val);
-            }}
+            onChange={(e) => onUpdate(index, 'tpsCap', parseInt(e.target.value))}
             placeholder="100"
             className="h-8"
-            min="1"
           />
         </div>
         
@@ -175,13 +141,9 @@ const SortableVendorItem: React.FC<{
             type="number"
             step="0.001"
             value={vendor.costCap || ''}
-            onChange={(e) => {
-              const val = parseFloat(e.target.value);
-              if (val >= 0) onUpdate(index, 'costCap', val);
-            }}
+            onChange={(e) => onUpdate(index, 'costCap', parseFloat(e.target.value))}
             placeholder="1.000"
             className="h-8"
-            min="0"
           />
         </div>
       </div>
@@ -207,31 +169,8 @@ export const VendorRoutingConfiguration: React.FC<VendorRoutingConfigurationProp
     mode: 'priority',
     vendors: [],
     fallbackEnabled: true,
-    fallbackOrder: [],
-    roundRobinResetInterval: 3600,
-    costThreshold: 1.0,
-    geoRoutingRules: [],
-    healthCheckInterval: 30,
-    maxFailures: 3
+    fallbackOrder: []
   });
-
-  // Get channel vendors automatically
-  const parentChannelId = node.data.parentChannelId;
-  const channelVendors = node.data.channelVendors || [];
-  
-  // Initialize vendors from channel if not already done
-  React.useEffect(() => {
-    if (channelVendors.length > 0 && routingConfig.vendors.length === 0) {
-      const initialVendors = channelVendors.map((vendorName: string, index: number) => ({
-        id: vendorName,
-        weight: Math.floor(100 / channelVendors.length),
-        priority: index + 1,
-        tpsCap: 100,
-        costCap: 1.0
-      }));
-      setRoutingConfig(prev => ({ ...prev, vendors: initialVendors }));
-    }
-  }, [channelVendors]);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -251,16 +190,8 @@ export const VendorRoutingConfiguration: React.FC<VendorRoutingConfigurationProp
   };
 
   const addVendor = () => {
-    if (channelVendors.length === 0) return;
-    
-    // Get next available vendor from channel that's not already added
-    const usedVendorIds = routingConfig.vendors.map(v => v.id);
-    const availableVendor = channelVendors.find((name: string) => !usedVendorIds.includes(name));
-    
-    if (!availableVendor) return;
-    
     const newVendor: Vendor = {
-      id: availableVendor,
+      id: `vendor-${Date.now()}`,
       weight: Math.floor(100 / (routingConfig.vendors.length + 1)),
       priority: routingConfig.vendors.length + 1,
       tpsCap: 100,
@@ -321,7 +252,7 @@ export const VendorRoutingConfiguration: React.FC<VendorRoutingConfigurationProp
                 <Label>Routing Strategy</Label>
                 <Select
                   value={routingConfig.mode}
-                  onValueChange={(value: any) =>
+                  onValueChange={(value: 'priority' | 'weighted' | 'fixed') =>
                     handleRoutingConfigChange({ ...routingConfig, mode: value })
                   }
                 >
@@ -332,81 +263,9 @@ export const VendorRoutingConfiguration: React.FC<VendorRoutingConfigurationProp
                     <SelectItem value="priority">Priority Based</SelectItem>
                     <SelectItem value="weighted">Weighted Distribution</SelectItem>
                     <SelectItem value="fixed">Fixed Assignment</SelectItem>
-                    <SelectItem value="round_robin">Round Robin</SelectItem>
-                    <SelectItem value="least_cost">Least Cost</SelectItem>
-                    <SelectItem value="failover">Failover</SelectItem>
-                    <SelectItem value="geographic">Geographic</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
-
-              {/* Strategy-specific settings */}
-              {routingConfig.mode === 'round_robin' && (
-                <div className="space-y-2">
-                  <Label>Reset Interval (seconds)</Label>
-                  <Input
-                    type="number"
-                    value={routingConfig.roundRobinResetInterval}
-                    onChange={(e) => handleRoutingConfigChange({ 
-                      ...routingConfig, 
-                      roundRobinResetInterval: parseInt(e.target.value) || 3600 
-                    })}
-                    min="60"
-                    placeholder="3600"
-                  />
-                  <p className="text-xs text-muted-foreground">Time before resetting round robin cycle</p>
-                </div>
-              )}
-
-              {routingConfig.mode === 'least_cost' && (
-                <div className="space-y-2">
-                  <Label>Cost Threshold (₹)</Label>
-                  <Input
-                    type="number"
-                    step="0.001"
-                    value={routingConfig.costThreshold}
-                    onChange={(e) => handleRoutingConfigChange({ 
-                      ...routingConfig, 
-                      costThreshold: parseFloat(e.target.value) || 1.0 
-                    })}
-                    min="0"
-                    placeholder="1.000"
-                  />
-                  <p className="text-xs text-muted-foreground">Maximum cost per message</p>
-                </div>
-              )}
-
-              {routingConfig.mode === 'failover' && (
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label>Health Check Interval (seconds)</Label>
-                    <Input
-                      type="number"
-                      value={routingConfig.healthCheckInterval}
-                      onChange={(e) => handleRoutingConfigChange({ 
-                        ...routingConfig, 
-                        healthCheckInterval: parseInt(e.target.value) || 30 
-                      })}
-                      min="10"
-                      placeholder="30"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Max Failures Before Failover</Label>
-                    <Input
-                      type="number"
-                      value={routingConfig.maxFailures}
-                      onChange={(e) => handleRoutingConfigChange({ 
-                        ...routingConfig, 
-                        maxFailures: parseInt(e.target.value) || 3 
-                      })}
-                      min="1"
-                      max="10"
-                      placeholder="3"
-                    />
-                  </div>
-                </div>
-              )}
 
               <Tabs defaultValue="main" className="w-full">
                 <TabsList className="grid w-full grid-cols-2">
@@ -416,37 +275,6 @@ export const VendorRoutingConfiguration: React.FC<VendorRoutingConfigurationProp
                 
                 <TabsContent value="main" className="space-y-4">
                   <div className="space-y-4">
-                    {/* Channel Vendors Display */}
-                    {channelVendors.length > 0 && (
-                      <div className="bg-accent/20 rounded-lg p-3 border border-border">
-                        <div className="flex items-center justify-between mb-2">
-                          <Label className="text-sm font-medium">Available Channel Vendors</Label>
-                          <Badge variant="secondary" className="text-xs">
-                            {channelVendors.length} vendor{channelVendors.length !== 1 ? 's' : ''}
-                          </Badge>
-                        </div>
-                        <div className="flex flex-wrap gap-2">
-                          {channelVendors.map((vendorName: string, index: number) => (
-                            <Badge 
-                              key={index} 
-                              variant={routingConfig.vendors.find(v => v.id === vendorName) ? "default" : "outline"}
-                              className="text-xs"
-                            >
-                              {vendorName}
-                              {routingConfig.vendors.find(v => v.id === vendorName) && (
-                                <span className="ml-1">✓</span>
-                              )}
-                            </Badge>
-                          ))}
-                        </div>
-                        {routingConfig.vendors.length < channelVendors.length && (
-                          <p className="text-xs text-muted-foreground mt-2">
-                            Click "Add Vendor" to configure remaining vendors
-                          </p>
-                        )}
-                      </div>
-                    )}
-
                     <div className="flex items-center justify-between">
                       <Label>Primary Vendor Configuration</Label>
                       <Button
@@ -454,10 +282,9 @@ export const VendorRoutingConfiguration: React.FC<VendorRoutingConfigurationProp
                         variant="outline"
                         size="sm"
                         onClick={addVendor}
-                        disabled={channelVendors.length === 0 || routingConfig.vendors.length >= channelVendors.length}
                       >
                         <Plus className="w-4 h-4 mr-1" />
-                        Add Vendor ({routingConfig.vendors.length}/{channelVendors.length})
+                        Add Vendor
                       </Button>
                     </div>
 
@@ -485,33 +312,12 @@ export const VendorRoutingConfiguration: React.FC<VendorRoutingConfigurationProp
                       </SortableContext>
                     </DndContext>
 
-                    {/* Validation messages */}
                     {routingConfig.mode === 'weighted' && (
                       <div className="text-sm text-muted-foreground">
                         Total weight: {routingConfig.vendors.reduce((sum, v) => sum + v.weight, 0)}%
                         {routingConfig.vendors.reduce((sum, v) => sum + v.weight, 0) !== 100 && (
                           <span className="text-destructive ml-2">Must equal 100%</span>
                         )}
-                      </div>
-                    )}
-                    
-                    {routingConfig.mode === 'priority' && (
-                      <div className="text-sm text-muted-foreground">
-                        {new Set(routingConfig.vendors.map(v => v.priority)).size !== routingConfig.vendors.length && (
-                          <span className="text-destructive">⚠️ Duplicate priorities detected</span>
-                        )}
-                      </div>
-                    )}
-                    
-                    {routingConfig.mode === 'least_cost' && (
-                      <div className="text-sm text-muted-foreground">
-                        Average cost: ₹{(routingConfig.vendors.reduce((sum, v) => sum + (v.costCap || 0), 0) / routingConfig.vendors.length).toFixed(3)}
-                      </div>
-                    )}
-                    
-                    {channelVendors.length === 0 && (
-                      <div className="text-sm text-destructive bg-destructive/10 p-2 rounded">
-                        ⚠️ No vendors selected in channel block. Configure channel first.
                       </div>
                     )}
                   </div>
