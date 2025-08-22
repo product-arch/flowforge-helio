@@ -4,6 +4,7 @@ import { Phone, Trash2, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useFlow } from '@/contexts/FlowContext';
+import { VendorRoutingSubBlock } from '../VendorRoutingSubBlock';
 
 const VENDORS = [
   { id: 'twilio', name: 'Twilio', logo: '🔴', type: 'voice' },
@@ -25,6 +26,7 @@ export const VoiceNode: React.FC<NodeProps> = ({ id, data, selected }) => {
   const language = (data.language as string) || 'en';
   const selectedVendors = (data.selectedVendors as string[]) || [];
   const fallback = data.fallback as FallbackConfig | undefined;
+  const routingConfig = data.routingConfig;
   
   // Check if node has any configuration
   const hasConfiguration = selectedVendors.length > 0 || callerId;
@@ -136,6 +138,18 @@ export const VoiceNode: React.FC<NodeProps> = ({ id, data, selected }) => {
         <div className="text-center mb-2">
           <span className="text-xs text-muted-foreground">Not configured</span>
         </div>
+      )}
+
+      {/* Vendor Routing Sub-Block */}
+      {hasConfiguration && (
+        <VendorRoutingSubBlock
+          vendors={VENDORS}
+          selectedVendors={selectedVendors}
+          routingConfig={routingConfig}
+          onConfigChange={(config) => {
+            console.log('Voice routing config changed:', config);
+          }}
+        />
       )}
 
       {/* Invisible Connection Handles for full connectivity */}

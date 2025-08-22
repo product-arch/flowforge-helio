@@ -1,9 +1,10 @@
 import React from 'react';
 import { Handle, Position, NodeProps } from '@xyflow/react';
-import { MessageCircle, Hash, Bot, X, CheckCircle, Plus } from 'lucide-react';
+import { MessageCircle, Hash, Bot, X, CheckCircle, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useFlow } from '@/contexts/FlowContext';
+import { VendorRoutingSubBlock } from '../VendorRoutingSubBlock';
 
 export const WhatsAppNode: React.FC<NodeProps> = ({ id, data, selected }) => {
   const { deleteNode } = useFlow();
@@ -12,9 +13,11 @@ export const WhatsAppNode: React.FC<NodeProps> = ({ id, data, selected }) => {
   const businessId = (data.businessId as string) || '';
   const templateType = (data.templateType as string) || 'text';
   const botName = (data.botName as string) || '';
+  const selectedVendors = (data.selectedVendors as string[]) || [];
+  const routingConfig = data.routingConfig;
   
   // Check if node has any configuration
-  const hasConfiguration = businessId || botName;
+  const hasConfiguration = businessId || botName || selectedVendors.length > 0;
 
   const templateTypeColors = {
     text: 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400',
@@ -47,7 +50,7 @@ export const WhatsAppNode: React.FC<NodeProps> = ({ id, data, selected }) => {
         onClick={() => onConfigClick?.(id)}
         className="absolute -bottom-2 -right-2 w-6 h-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity bg-primary text-primary-foreground hover:bg-primary/90 rounded-full"
       >
-        <Plus className="w-3 h-3" />
+        <Settings className="w-3 h-3" />
       </Button>
 
       {/* Header */}
@@ -120,6 +123,22 @@ export const WhatsAppNode: React.FC<NodeProps> = ({ id, data, selected }) => {
         <div className="text-center mb-2">
           <span className="text-xs text-muted-foreground">Not configured</span>
         </div>
+      )}
+
+      {/* Vendor Routing Sub-Block */}
+      {hasConfiguration && selectedVendors.length > 0 && (
+        <VendorRoutingSubBlock
+          vendors={[
+            { id: 'whatsapp-business', name: 'WhatsApp Business', logo: '💚', type: 'whatsapp' },
+            { id: 'twilio-whatsapp', name: 'Twilio WhatsApp', logo: '🔴', type: 'whatsapp' },
+            { id: 'meta-whatsapp', name: 'Meta WhatsApp', logo: '🔵', type: 'whatsapp' }
+          ]}
+          selectedVendors={selectedVendors}
+          routingConfig={routingConfig}
+          onConfigChange={(config) => {
+            console.log('WhatsApp routing config changed:', config);
+          }}
+        />
       )}
 
       {/* Invisible Connection Handles for full connectivity */}

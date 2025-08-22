@@ -4,6 +4,7 @@ import { Radio, Trash2, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useFlow } from '@/contexts/FlowContext';
+import { VendorRoutingSubBlock } from '../VendorRoutingSubBlock';
 
 const VENDORS = [
   { id: 'google', name: 'Google RCS', logo: '🟢', type: 'rcs' },
@@ -25,6 +26,7 @@ export const RCSNode: React.FC<NodeProps> = ({ id, data, selected }) => {
   const messageType = (data.messageType as string) || 'text';
   const selectedVendors = (data.selectedVendors as string[]) || [];
   const fallback = data.fallback as FallbackConfig | undefined;
+  const routingConfig = data.routingConfig;
   
   // Check if node has any configuration
   const hasConfiguration = selectedVendors.length > 0 || botName;
@@ -139,9 +141,22 @@ export const RCSNode: React.FC<NodeProps> = ({ id, data, selected }) => {
         </div>
       )}
 
+      {/* Vendor Routing Sub-Block */}
+      {hasConfiguration && (
+        <VendorRoutingSubBlock
+          vendors={VENDORS}
+          selectedVendors={selectedVendors}
+          routingConfig={routingConfig}
+          onConfigChange={(config) => {
+            console.log('RCS routing config changed:', config);
+          }}
+        />
+      )}
+
       {/* Invisible Connection Handles for full connectivity */}
       <Handle type="target" position={Position.Left} id="left" className="w-3 h-3 opacity-0" />
       <Handle type="target" position={Position.Top} id="top-in" className="w-3 h-3 opacity-0" />
+      <Handle type="target" position={Position.Bottom} id="bottom-in" className="w-3 h-3 opacity-0" />
       <Handle type="source" position={Position.Right} id="right" className="w-3 h-3 opacity-0" />
       <Handle type="source" position={Position.Top} id="top-out" className="w-3 h-3 opacity-0" />
       <Handle type="source" position={Position.Bottom} id="bottom-out" className="w-3 h-3 opacity-0" />
