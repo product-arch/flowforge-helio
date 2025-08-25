@@ -45,6 +45,7 @@ import {
 } from 'lucide-react';
 import { useFlow } from '@/contexts/FlowContext';
 import { useToast } from '@/hooks/use-toast';
+import { VendorRoutingConfiguration } from './VendorRoutingConfiguration';
 
 interface ConfigurationModalProps {
   isOpen: boolean;
