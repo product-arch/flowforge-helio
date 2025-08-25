@@ -202,7 +202,45 @@ function getDefaultNodeData(type: string) {
       return {
         vendors: [],
         capacityLimits: [],
+        spilloverMode: 'capacity_based',
+        globalThreshold: 80,
+        enablePreemptiveSpillover: false,
+        primaryRegion: 'india',
         label: 'Spillover Route'
+      };
+    case 'priorityroute':
+      return {
+        vendors: [],
+        priorityMode: 'strict',
+        strictPriority: true,
+        minHealthScore: 90,
+        label: 'Priority Route'
+      };
+    case 'roundrobin':
+      return {
+        vendors: [],
+        roundRobinType: 'simple',
+        skipUnhealthyVendors: true,
+        stickinessDuration: 60,
+        label: 'Round Robin'
+      };
+    case 'geolocation':
+      return {
+        regions: [],
+        geoStrategy: 'country_based',
+        defaultRegion: 'global',
+        enableGeoFencing: false,
+        label: 'Geo Routing'
+      };
+    case 'loadbalancer':
+      return {
+        algorithm: 'round_robin',
+        healthCheck: true,
+        healthCheckInterval: 30,
+        healthCheckTimeout: 5,
+        sessionPersistence: 'none',
+        targets: [],
+        label: 'Load Balancer'
       };
 
     // Channel Nodes
