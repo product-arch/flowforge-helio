@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { PersonalInfoModal, AccountSettingsModal, BillingModal } from '@/components/flow/AccountModals';
+import { SupportModal } from '@/components/flow/SupportModal';
 import { 
   DropdownMenu,
   DropdownMenuContent,
@@ -119,6 +120,7 @@ const Home: React.FC = () => {
   const [personalInfoOpen, setPersonalInfoOpen] = React.useState(false);
   const [accountSettingsOpen, setAccountSettingsOpen] = React.useState(false);
   const [billingOpen, setBillingOpen] = React.useState(false);
+  const [supportModalOpen, setSupportModalOpen] = React.useState(false);
   const [helpModalOpen, setHelpModalOpen] = React.useState(false);
   const { theme, mode, setTheme, setMode } = useTheme();
   const { toast } = useToast();
@@ -168,7 +170,7 @@ const Home: React.FC = () => {
               <nav className="hidden md:flex items-center gap-6">
                 <Button variant="ghost" className="text-sm">Home</Button>
                 <Button variant="ghost" className="text-sm">Modules</Button>
-                <Button variant="ghost" className="text-sm">Support</Button>
+                <Button variant="ghost" className="text-sm" onClick={() => setSupportModalOpen(true)}>Support</Button>
               </nav>
             </div>
 
@@ -481,6 +483,7 @@ const Home: React.FC = () => {
       <PersonalInfoModal isOpen={personalInfoOpen} onClose={() => setPersonalInfoOpen(false)} />
       <AccountSettingsModal isOpen={accountSettingsOpen} onClose={() => setAccountSettingsOpen(false)} />
       <BillingModal isOpen={billingOpen} onClose={() => setBillingOpen(false)} />
+      <SupportModal isOpen={supportModalOpen} onClose={() => setSupportModalOpen(false)} />
       
       {/* Help Modal */}
       <Dialog open={helpModalOpen} onOpenChange={setHelpModalOpen}>
