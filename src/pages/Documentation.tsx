@@ -503,7 +503,7 @@ const Documentation: React.FC = () => {
               
               <Button variant="outline" size="sm">
                 <ExternalLink className="w-4 h-4 mr-2" />
-                API Console
+                <span onClick={() => navigate('/api-console')}>API Console</span>
               </Button>
             </div>
           </div>

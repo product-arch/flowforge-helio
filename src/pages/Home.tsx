@@ -176,7 +176,7 @@ const Home: React.FC = () => {
 
             <div className="flex items-center gap-3">
               <Button variant="ghost" size="sm" onClick={() => setHelpModalOpen(true)}>
-                <HelpCircle className="w-4 h-4" />
+                <span onClick={() => navigate('/api-console')}>API Console</span>
               </Button>
               
               {/* Settings Menu */}
