@@ -4,6 +4,21 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { PersonalInfoModal, AccountSettingsModal, BillingModal } from '@/components/flow/AccountModals';
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Separator } from '@/components/ui/separator';
 import { 
   GitBranch, 
   BarChart3, 
@@ -15,8 +30,29 @@ import {
   Users,
   Settings,
   HelpCircle,
-  User
+  User,
+  Bell,
+  Moon,
+  Sun,
+  Globe,
+  Shield,
+  Palette,
+  Database,
+  Keyboard,
+  LogOut
 } from 'lucide-react';
+import { useTheme, Theme } from '@/contexts/ThemeContext';
+import { useToast } from '@/hooks/use-toast';
+
+const themes: Array<{ value: Theme; label: string; color: string }> = [
+  { value: 'blue', label: 'Professional Blue', color: 'bg-blue-500' },
+  { value: 'emerald', label: 'Growth Green', color: 'bg-emerald-500' },
+  { value: 'purple', label: 'Creative Purple', color: 'bg-purple-500' },
+  { value: 'orange', label: 'Energy Orange', color: 'bg-orange-500' },
+  { value: 'rose', label: 'Warm Rose', color: 'bg-rose-500' },
+  { value: 'indigo', label: 'Deep Indigo', color: 'bg-indigo-500' },
+  { value: 'solarized-osaka', label: 'Solarized Osaka', color: 'bg-teal-600' },
+];
 
 const modules = [
   {
@@ -80,6 +116,12 @@ const stats = [
 
 const Home: React.FC = () => {
   const navigate = useNavigate();
+  const [personalInfoOpen, setPersonalInfoOpen] = React.useState(false);
+  const [accountSettingsOpen, setAccountSettingsOpen] = React.useState(false);
+  const [billingOpen, setBillingOpen] = React.useState(false);
+  const [helpModalOpen, setHelpModalOpen] = React.useState(false);
+  const { theme, mode, setTheme, setMode } = useTheme();
+  const { toast } = useToast();
 
   const handleModuleClick = (route: string) => {
     if (route === '/flow-builder') {
@@ -88,6 +130,23 @@ const Home: React.FC = () => {
       // For other modules, show coming soon message
       console.log(`Navigating to ${route} - Coming soon!`);
     }
+  };
+
+  const handleThemeChange = (newTheme: Theme) => {
+    setTheme(newTheme);
+    toast({
+      title: "Theme Changed",
+      description: `Switched to ${themes.find(t => t.value === newTheme)?.label}`,
+      className: "border-status-success bg-status-success/10 text-status-success"
+    });
+  };
+
+  const handleSettingClick = (setting: string) => {
+    toast({
+      title: "Setting Updated",
+      description: `${setting} setting has been updated`,
+      className: "border-status-info bg-status-info/10 text-status-info"
+    });
   };
 
   return (
@@ -114,15 +173,109 @@ const Home: React.FC = () => {
             </div>
 
             <div className="flex items-center gap-3">
-              <Button variant="ghost" size="sm">
+              <Button variant="ghost" size="sm" onClick={() => setHelpModalOpen(true)}>
                 <HelpCircle className="w-4 h-4" />
               </Button>
-              <Button variant="ghost" size="sm">
-                <Settings className="w-4 h-4" />
-              </Button>
-              <Button variant="ghost" size="sm">
-                <User className="w-4 h-4" />
-              </Button>
+              
+              {/* Settings Menu */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm">
+                    <Settings className="w-4 h-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuItem onClick={() => handleSettingClick('Notifications')}>
+                    <Bell className="w-4 h-4 mr-2" />
+                    Notifications
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleSettingClick('Language')}>
+                    <Globe className="w-4 h-4 mr-2" />
+                    Language & Region
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleSettingClick('Privacy')}>
+                    <Shield className="w-4 h-4 mr-2" />
+                    Privacy & Security
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleSettingClick('Data')}>
+                    <Database className="w-4 h-4 mr-2" />
+                    Data Management
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleSettingClick('Shortcuts')}>
+                    <Keyboard className="w-4 h-4 mr-2" />
+                    Keyboard Shortcuts
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => setMode(mode === 'light' ? 'dark' : 'light')}>
+                    {mode === 'light' ? <Moon className="w-4 h-4 mr-2" /> : <Sun className="w-4 h-4 mr-2" />}
+                    {mode === 'light' ? 'Dark Mode' : 'Light Mode'}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              {/* Account Menu */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm">
+                    <User className="w-4 h-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem onClick={() => setPersonalInfoOpen(true)}>
+                    <User className="w-4 h-4 mr-2" />
+                    Personal Info
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setAccountSettingsOpen(true)}>
+                    <Settings className="w-4 h-4 mr-2" />
+                    Account Settings
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setBillingOpen(true)}>
+                    <Badge className="w-4 h-4 mr-2" />
+                    Billing
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  
+                  <div className="px-2 py-1">
+                    <div className="text-xs font-medium text-muted-foreground mb-2">Themes</div>
+                    <div className="grid grid-cols-3 gap-1">
+                      {themes.map((themeOption) => (
+                        <button
+                          key={themeOption.value}
+                          onClick={() => handleThemeChange(themeOption.value)}
+                          className={`w-6 h-6 rounded-full ${themeOption.color} hover:scale-110 transition-transform ${
+                            theme === themeOption.value ? 'ring-2 ring-ring ring-offset-2 ring-offset-background' : ''
+                          }`}
+                          title={themeOption.label}
+                        />
+                      ))}
+                    </div>
+                    <div className="mt-2 flex gap-1">
+                      <button
+                        onClick={() => setMode('light')}
+                        className={`px-2 py-1 text-xs rounded ${
+                          mode === 'light' ? 'bg-primary text-primary-foreground' : 'hover:bg-accent'
+                        }`}
+                      >
+                        Light
+                      </button>
+                      <button
+                        onClick={() => setMode('dark')}
+                        className={`px-2 py-1 text-xs rounded ${
+                          mode === 'dark' ? 'bg-primary text-primary-foreground' : 'hover:bg-accent'
+                        }`}
+                      >
+                        Dark
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem className="text-destructive focus:text-destructive">
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Sign Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
         </div>
@@ -323,6 +476,108 @@ const Home: React.FC = () => {
           </div>
         </div>
       </footer>
+      
+      {/* Modals */}
+      <PersonalInfoModal isOpen={personalInfoOpen} onClose={() => setPersonalInfoOpen(false)} />
+      <AccountSettingsModal isOpen={accountSettingsOpen} onClose={() => setAccountSettingsOpen(false)} />
+      <BillingModal isOpen={billingOpen} onClose={() => setBillingOpen(false)} />
+      
+      {/* Help Modal */}
+      <Dialog open={helpModalOpen} onOpenChange={setHelpModalOpen}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <HelpCircle className="w-5 h-5 text-primary" />
+              About Hub
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-6">
+            <div>
+              <h3 className="text-lg font-semibold mb-3">Product Information</h3>
+              <div className="space-y-2 text-sm text-muted-foreground">
+                <p>
+                  <strong className="text-foreground">Hub</strong> is an intelligent communication routing platform 
+                  that enables businesses to build sophisticated messaging workflows with multi-vendor support, 
+                  real-time analytics, and seamless integrations.
+                </p>
+                <p>
+                  Our platform empowers teams to create, manage, and optimize communication flows across 
+                  SMS, WhatsApp, Email, Voice, and RCS channels with advanced routing logic and fallback mechanisms.
+                </p>
+              </div>
+            </div>
+            
+            <Separator />
+            
+            <div>
+              <h3 className="text-lg font-semibold mb-3">About Helo.ai</h3>
+              <div className="space-y-2 text-sm text-muted-foreground">
+                <p>
+                  <strong className="text-foreground">Helo.ai</strong> is a leading provider of AI-powered 
+                  communication solutions, helping businesses automate and optimize their customer engagement 
+                  across multiple channels.
+                </p>
+                <p>
+                  Founded in 2023, Helo.ai serves over 500+ enterprises globally, processing millions of 
+                  messages daily with industry-leading delivery rates and cost optimization.
+                </p>
+                <p>
+                  <strong className="text-foreground">Mission:</strong> To democratize intelligent communication 
+                  automation and make enterprise-grade messaging accessible to businesses of all sizes.
+                </p>
+              </div>
+            </div>
+            
+            <Separator />
+            
+            <div>
+              <h3 className="text-lg font-semibold mb-3">Version & Licenses</h3>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between p-3 bg-accent/30 rounded-lg">
+                  <span className="text-sm font-medium">Hub Platform Version</span>
+                  <Badge variant="secondary">v2.4.1</Badge>
+                </div>
+                
+                <div className="space-y-2">
+                  <h4 className="text-sm font-medium">Open Source Licenses</h4>
+                  <div className="text-xs text-muted-foreground space-y-1">
+                    <div className="flex justify-between">
+                      <span>React</span>
+                      <span>MIT License</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>React Flow</span>
+                      <span>MIT License</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Tailwind CSS</span>
+                      <span>MIT License</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Radix UI</span>
+                      <span>MIT License</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Framer Motion</span>
+                      <span>MIT License</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Lucide Icons</span>
+                      <span>ISC License</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="text-xs text-muted-foreground pt-2 border-t border-border">
+                  <p>© 2024 Helo.ai. All rights reserved.</p>
+                  <p>Built with ❤️ for intelligent communication automation.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
