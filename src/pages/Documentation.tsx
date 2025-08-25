@@ -22,6 +22,7 @@ import {
 import { 
   Home,
   Search,
+  Zap,
   ChevronRight,
   ChevronDown,
   Copy,
@@ -367,9 +368,9 @@ const Documentation: React.FC = () => {
         </div>
       </header>
 
-      <div className="flex h-[calc(100vh-73px)]">
+      <div className="flex min-h-[calc(100vh-73px)]">
         {/* Sidebar */}
-        <div className="w-80 border-r border-border bg-card/50 flex flex-col">
+        <div className="w-80 border-r border-border bg-card/50 flex flex-col sticky top-[73px] h-[calc(100vh-73px)]">
           {/* Search */}
           <div className="p-4 border-b border-border">
             <div className="relative">
@@ -505,12 +506,12 @@ const Documentation: React.FC = () => {
         </div>
 
         {/* Main Content */}
-        <div className="flex-1 flex flex-col overflow-hidden">
+        <div className="flex-1 flex flex-col">
           {selectedEndpoint ? (
-            <div className="flex-1 flex">
+            <div className="flex-1 flex min-h-0">
               {/* Documentation Content */}
-              <div className="flex-1 overflow-y-auto">
-                <div className="p-8 max-w-4xl">
+              <div className="flex-1 overflow-y-auto max-h-[calc(100vh-73px)]">
+                <div className="p-8 max-w-4xl pb-20">
                   {/* Endpoint Header */}
                   <div className="mb-8">
                     <div className="flex items-center gap-3 mb-4">
@@ -642,7 +643,7 @@ const Documentation: React.FC = () => {
               </div>
 
               {/* Code Examples Panel */}
-              <div className="w-96 border-l border-border bg-card/30 flex flex-col">
+              <div className="w-96 border-l border-border bg-card/30 flex flex-col sticky top-[73px] h-[calc(100vh-73px)]">
                 <div className="p-4 border-b border-border">
                   <div className="flex items-center justify-between mb-3">
                     <h3 className="font-semibold">Code Examples</h3>
@@ -738,7 +739,7 @@ const Documentation: React.FC = () => {
             </div>
           ) : (
             /* Welcome Screen */
-            <div className="flex-1 flex items-center justify-center">
+            <div className="flex-1 flex items-center justify-center min-h-[calc(100vh-73px)]">
               <div className="text-center max-w-2xl mx-auto p-8">
                 <div className="p-4 bg-primary/10 rounded-full w-20 h-20 mx-auto mb-6 flex items-center justify-center">
                   <Book className="w-10 h-10 text-primary" />
@@ -786,6 +787,25 @@ const Documentation: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* Footer */}
+      <footer className="border-t border-border bg-card/30 backdrop-blur-sm">
+        <div className="container mx-auto px-6 py-8">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 bg-gradient-to-br from-primary to-primary/80 rounded-md flex items-center justify-center">
+                <Zap className="w-4 h-4 text-white" />
+              </div>
+              <span className="text-sm text-muted-foreground">
+                Hub - Intelligent Communication Routing Platform
+              </span>
+            </div>
+            <div className="text-sm text-muted-foreground">
+              © {new Date().getFullYear()} Hub. All rights reserved.
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };
