@@ -12,12 +12,12 @@ export const WhatsAppNode: React.FC<NodeProps> = ({ id, data, selected }) => {
   
   const businessId = (data.businessId as string) || '';
   const templateType = (data.templateType as string) || 'text';
-  const botName = (data.botName as string) || '';
+  const wabaNumber = (data.wabaNumber as string) || '';
   const selectedVendors = (data.selectedVendors as string[]) || [];
   const routingConfig = data.routingConfig;
   
   // Check if node has any configuration
-  const hasConfiguration = businessId || botName || selectedVendors.length > 0;
+  const hasConfiguration = businessId || wabaNumber || selectedVendors.length > 0;
 
   const templateTypeColors = {
     text: 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400',
@@ -62,7 +62,7 @@ export const WhatsAppNode: React.FC<NodeProps> = ({ id, data, selected }) => {
           <div className="flex-1 min-w-0">
             <div className="text-sm font-medium truncate text-primary">WhatsApp</div>
             <div className="text-xs text-muted-foreground truncate">
-              {botName || businessId || 'Business API'}
+              {wabaNumber || businessId || 'Business API'}
             </div>
           </div>
         )}
@@ -103,15 +103,15 @@ export const WhatsAppNode: React.FC<NodeProps> = ({ id, data, selected }) => {
             </div>
           </div>
 
-          {/* Bot Name Block */}
-          {botName && (
+          {/* WABA Number Block */}
+          {wabaNumber && (
             <div className="bg-accent/30 rounded p-2">
               <div className="flex items-center gap-2">
                 <Bot className="w-3 h-3 text-primary" />
-                <span className="text-xs font-medium">Bot Name</span>
+                <span className="text-xs font-medium">WABA Number</span>
               </div>
               <div className="text-xs text-muted-foreground mt-1 truncate">
-                {botName}
+                {wabaNumber}
               </div>
             </div>
           )}

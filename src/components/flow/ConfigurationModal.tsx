@@ -920,6 +920,7 @@ const SMSConfiguration: React.FC<{ node: any; onUpdate: (data: any) => void }> =
               value={node.data.senderId || ''}
               onChange={(e) => onUpdate({ ...node.data, senderId: e.target.value })}
               placeholder="Enter sender ID"
+              className="nodrag"
             />
           </div>
           <div>
@@ -974,14 +975,16 @@ const WhatsAppConfiguration: React.FC<{ node: any; onUpdate: (data: any) => void
               value={node.data.businessId || ''}
               onChange={(e) => onUpdate({ ...node.data, businessId: e.target.value })}
               placeholder="Enter business ID"
+              className="nodrag"
             />
           </div>
           <div>
-            <Label>Bot Name</Label>
+            <Label>WABA Number</Label>
             <Input
-              value={node.data.botName || ''}
-              onChange={(e) => onUpdate({ ...node.data, botName: e.target.value })}
-              placeholder="Enter bot name"
+              value={node.data.wabaNumber || ''}
+              onChange={(e) => onUpdate({ ...node.data, wabaNumber: e.target.value })}
+              placeholder="Enter WABA number"
+              className="nodrag"
             />
           </div>
         </CardContent>

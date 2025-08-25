@@ -84,15 +84,29 @@ const SortableVendorItem: React.FC<{
         <GripVertical className="w-4 h-4 text-muted-foreground" />
       </div>
       
-      <div className="flex-1 grid grid-cols-1 md:grid-cols-4 gap-3">
+                <div className="flex-1 grid grid-cols-1 md:grid-cols-4 gap-3">
         <div>
-          <Label className="text-xs">Vendor ID</Label>
-          <Input
+          <Label className="text-xs">Vendor</Label>
+          <Select
             value={vendor.id}
-            onChange={(e) => onUpdate(index, 'id', e.target.value)}
-            placeholder="vendor-name"
-            className="h-8 nodrag"
-          />
+            onValueChange={(value) => onUpdate(index, 'id', value)}
+          >
+            <SelectTrigger className="h-8 nodrag">
+              <SelectValue placeholder="Select vendor" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="twilio">Twilio</SelectItem>
+              <SelectItem value="messagebird">MessageBird</SelectItem>
+              <SelectItem value="kaleyra">Kaleyra</SelectItem>
+              <SelectItem value="gupshup">Gupshup</SelectItem>
+              <SelectItem value="msg91">MSG91</SelectItem>
+              <SelectItem value="infobip">Infobip</SelectItem>
+              <SelectItem value="sinch">Sinch</SelectItem>
+              <SelectItem value="netcore">Netcore</SelectItem>
+              <SelectItem value="valueFirst">ValueFirst</SelectItem>
+              <SelectItem value="textlocal">Textlocal</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
         
         {routingMode === 'weighted' && (

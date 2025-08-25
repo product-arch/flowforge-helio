@@ -79,7 +79,7 @@ export const VendorRoutingNode: React.FC<NodeProps> = ({ id, data, selected }) =
           </div>
           {hasConfiguration && (
             <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-sm text-primary truncate">Vendor Routing</h3>
+              <h3 className="font-semibold text-sm text-primary truncate">Routing</h3>
               <p className="text-xs text-muted-foreground truncate">
                 {configType === 'custom' ? routingConfig?.mode || 'priority' : 'default'}
               </p>
