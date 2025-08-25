@@ -1,10 +1,21 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import React, { useState, useEffect } from 'react';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Switch } from '@/components/ui/switch';
+import { Slider } from '@/components/ui/slider';
 import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Select,
   SelectContent,
@@ -12,20 +23,28 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
-import { Slider } from '@/components/ui/slider';
-import { Textarea } from '@/components/ui/textarea';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Plus, Trash2, X } from 'lucide-react';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible';
+import { 
+  Plus, 
+  X, 
+  ChevronDown, 
+  ChevronRight,
+  Save,
+  RotateCcw,
+  Settings,
+  Zap,
+  Shield,
+  Clock,
+  DollarSign,
+  Globe,
+  AlertTriangle
+} from 'lucide-react';
 import { useFlow } from '@/contexts/FlowContext';
 import { useToast } from '@/hooks/use-toast';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import { Separator } from '@/components/ui/separator';
 
 interface ConfigurationModalProps {
   isOpen: boolean;
@@ -33,1705 +52,862 @@ interface ConfigurationModalProps {
   nodeId: string;
 }
 
-interface Vendor {
-  id: string;
-  name: string;
-  logo: string;
-  type: 'sms' | 'email' | 'voice' | 'whatsapp' | 'rcs';
-}
+// Comprehensive vendor lists for each channel
+const VENDORS = {
+  sms: [
+    { id: 'twilio', name: 'Twilio', logo: '🔴', region: 'Global', tier: 'Premium' },
+    { id: 'messagebird', name: 'MessageBird', logo: '🔵', region: 'Global', tier: 'Premium' },
+    { id: 'msg91', name: 'MSG91', logo: '🟢', region: 'India', tier: 'Standard' },
+    { id: 'textlocal', name: 'Textlocal', logo: '🟡', region: 'India', tier: 'Standard' },
+    { id: 'gupshup', name: 'Gupshup', logo: '🟠', region: 'India', tier: 'Premium' },
+    { id: 'kaleyra', name: 'Kaleyra', logo: '🟣', region: 'Global', tier: 'Premium' },
+    { id: 'infobip', name: 'Infobip', logo: '🔷', region: 'Global', tier: 'Premium' },
+    { id: 'sinch', name: 'Sinch', logo: '🟦', region: 'Global', tier: 'Premium' },
+    { id: 'netcore', name: 'Netcore Cloud', logo: '⚫', region: 'India', tier: 'Standard' },
+    { id: 'valueFirst', name: 'ValueFirst', logo: '🟤', region: 'India', tier: 'Standard' },
+    { id: 'route_mobile', name: 'Route Mobile', logo: '🔶', region: 'India', tier: 'Premium' },
+    { id: 'clickatell', name: 'Clickatell', logo: '🟨', region: 'Global', tier: 'Standard' },
+    { id: 'plivo', name: 'Plivo', logo: '🟪', region: 'Global', tier: 'Premium' },
+    { id: 'nexmo', name: 'Vonage (Nexmo)', logo: '⚪', region: 'Global', tier: 'Premium' },
+    { id: 'aws_sns', name: 'AWS SNS', logo: '🟧', region: 'Global', tier: 'Premium' }
+  ],
+  whatsapp: [
+    { id: 'meta', name: 'Meta (WhatsApp)', logo: '🟢', region: 'Global', tier: 'Official' },
+    { id: 'twilio', name: 'Twilio WhatsApp', logo: '🔴', region: 'Global', tier: 'Premium' },
+    { id: 'messagebird', name: 'MessageBird WhatsApp', logo: '🔵', region: 'Global', tier: 'Premium' },
+    { id: 'gupshup', name: 'Gupshup WhatsApp', logo: '🟠', region: 'India', tier: 'Premium' },
+    { id: 'kaleyra', name: 'Kaleyra WhatsApp', logo: '🟣', region: 'Global', tier: 'Premium' },
+    { id: 'infobip', name: 'Infobip WhatsApp', logo: '🔷', region: 'Global', tier: 'Premium' },
+    { id: 'sinch', name: 'Sinch WhatsApp', logo: '🟦', region: 'Global', tier: 'Premium' },
+    { id: 'netcore', name: 'Netcore WhatsApp', logo: '⚫', region: 'India', tier: 'Standard' },
+    { id: 'interakt', name: 'Interakt', logo: '🟨', region: 'India', tier: 'Standard' },
+    { id: 'wati', name: 'WATI', logo: '🟪', region: 'Global', tier: 'Standard' },
+    { id: 'aisensy', name: 'AiSensy', logo: '🔶', region: 'India', tier: 'Standard' },
+    { id: 'yellow_ai', name: 'Yellow.ai', logo: '🟡', region: 'Global', tier: 'Premium' }
+  ],
+  email: [
+    { id: 'sendgrid', name: 'SendGrid', logo: '🟦', region: 'Global', tier: 'Premium' },
+    { id: 'mailgun', name: 'Mailgun', logo: '🟠', region: 'Global', tier: 'Premium' },
+    { id: 'ses', name: 'Amazon SES', logo: '🟡', region: 'Global', tier: 'Premium' },
+    { id: 'postmark', name: 'Postmark', logo: '🟨', region: 'Global', tier: 'Premium' },
+    { id: 'mailchimp', name: 'Mailchimp Transactional', logo: '🟢', region: 'Global', tier: 'Standard' },
+    { id: 'sparkpost', name: 'SparkPost', logo: '🔶', region: 'Global', tier: 'Premium' },
+    { id: 'netcore', name: 'Netcore Email', logo: '⚫', region: 'India', tier: 'Standard' },
+    { id: 'pepipost', name: 'Pepipost', logo: '🟣', region: 'India', tier: 'Standard' },
+    { id: 'smtp2go', name: 'SMTP2GO', logo: '🔵', region: 'Global', tier: 'Standard' },
+    { id: 'elastic_email', name: 'Elastic Email', logo: '🟪', region: 'Global', tier: 'Standard' },
+    { id: 'brevo', name: 'Brevo (Sendinblue)', logo: '🔷', region: 'Global', tier: 'Premium' },
+    { id: 'resend', name: 'Resend', logo: '⚪', region: 'Global', tier: 'Premium' }
+  ],
+  voice: [
+    { id: 'twilio', name: 'Twilio Voice', logo: '🔴', region: 'Global', tier: 'Premium' },
+    { id: 'vonage', name: 'Vonage Voice', logo: '🟣', region: 'Global', tier: 'Premium' },
+    { id: 'plivo', name: 'Plivo Voice', logo: '🟢', region: 'Global', tier: 'Premium' },
+    { id: 'kaleyra', name: 'Kaleyra Voice', logo: '🟦', region: 'Global', tier: 'Premium' },
+    { id: 'exotel', name: 'Exotel', logo: '🟠', region: 'India', tier: 'Premium' },
+    { id: 'knowlarity', name: 'Knowlarity', logo: '🟡', region: 'India', tier: 'Standard' },
+    { id: 'ozonetel', name: 'Ozonetel', logo: '🔷', region: 'India', tier: 'Standard' },
+    { id: 'aws_connect', name: 'AWS Connect', logo: '🟧', region: 'Global', tier: 'Premium' },
+    { id: 'bandwidth', name: 'Bandwidth', logo: '🟪', region: 'Global', tier: 'Premium' },
+    { id: 'signalwire', name: 'SignalWire', logo: '⚫', region: 'Global', tier: 'Premium' },
+    { id: 'telnyx', name: 'Telnyx', logo: '🔶', region: 'Global', tier: 'Premium' }
+  ],
+  rcs: [
+    { id: 'google', name: 'Google RCS', logo: '🟢', region: 'Global', tier: 'Official' },
+    { id: 'samsung', name: 'Samsung RCS', logo: '🔵', region: 'Global', tier: 'Official' },
+    { id: 'maap', name: 'MAAP', logo: '🟣', region: 'Global', tier: 'Premium' },
+    { id: 'twilio', name: 'Twilio RCS', logo: '🔴', region: 'Global', tier: 'Premium' },
+    { id: 'messagebird', name: 'MessageBird RCS', logo: '🔷', region: 'Global', tier: 'Premium' },
+    { id: 'infobip', name: 'Infobip RCS', logo: '🟦', region: 'Global', tier: 'Premium' },
+    { id: 'sinch', name: 'Sinch RCS', logo: '🟨', region: 'Global', tier: 'Premium' },
+    { id: 'kaleyra', name: 'Kaleyra RCS', logo: '🟪', region: 'Global', tier: 'Premium' },
+    { id: 'gupshup', name: 'Gupshup RCS', logo: '🟠', region: 'India', tier: 'Premium' },
+    { id: 'netcore', name: 'Netcore RCS', logo: '⚫', region: 'India', tier: 'Standard' }
+  ]
+};
 
-const VENDORS: Vendor[] = [
-  { id: 'twilio', name: 'Twilio', logo: '🔴', type: 'sms' },
-  { id: 'textlocal', name: 'TextLocal', logo: '🟢', type: 'sms' },
-  { id: 'msg91', name: 'MSG91', logo: '🔵', type: 'sms' },
-  { id: 'sendgrid', name: 'SendGrid', logo: '🟦', type: 'email' },
-  { id: 'mailgun', name: 'Mailgun', logo: '🟨', type: 'email' },
-  { id: 'ses', name: 'AWS SES', logo: '🟧', type: 'email' },
-  { id: 'plivo', name: 'Plivo', logo: '🟣', type: 'voice' },
-  { id: 'exotel', name: 'Exotel', logo: '⚫', type: 'voice' },
-  { id: 'whatsapp-business', name: 'WhatsApp Business', logo: '🟢', type: 'whatsapp' },
-  { id: 'gupshup', name: 'Gupshup', logo: '🔵', type: 'whatsapp' },
-  { id: 'google-rcs', name: 'Google RCS', logo: '🔴', type: 'rcs' },
-  { id: 'samsung-rcs', name: 'Samsung RCS', logo: '🔵', type: 'rcs' },
-];
-
-interface FallbackConfig {
-  channel: string;
-  vendors: string[];
-}
-
-export const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
-  isOpen,
-  onClose,
-  nodeId
-}) => {
+export const ConfigurationModal: React.FC<ConfigurationModalProps> = ({ isOpen, onClose, nodeId }) => {
   const { nodes, updateNodeData } = useFlow();
   const { toast } = useToast();
-
-  const selectedNode = nodes.find(node => node.id === nodeId);
   
-  // Store original data for cancel functionality
-  const [originalData, setOriginalData] = useState<any>(null);
+  const node = nodes.find(n => n.id === nodeId);
+  
+  const [formData, setFormData] = useState<any>({});
   const [selectedVendors, setSelectedVendors] = useState<string[]>([]);
-  const [fallbackConfig, setFallbackConfig] = useState<FallbackConfig | null>(null);
-  const [pendingChanges, setPendingChanges] = useState<any>({});
+  const [expandedVendorSections, setExpandedVendorSections] = useState(new Set(['premium']));
 
-  // Initialize state when modal opens
-  React.useEffect(() => {
-    if (isOpen && selectedNode) {
-      const nodeData = selectedNode.data;
-      setOriginalData(nodeData);
-      setSelectedVendors((nodeData?.selectedVendors as string[]) || []);
-      setFallbackConfig((nodeData?.fallback as FallbackConfig) || null);
-      setPendingChanges({});
+  useEffect(() => {
+    if (node) {
+      setFormData({ ...node.data });
+      setSelectedVendors(node.data.selectedVendors || []);
     }
-  }, [isOpen, selectedNode]);
+  }, [node]);
 
-  if (!selectedNode) {
-    return null;
-  }
-
-  const getChannelVendors = (channelType: string) => {
-    const channelMap: Record<string, string> = {
-      'sms': 'sms',
-      'whatsapp': 'whatsapp', 
-      'email': 'email',
-      'voice': 'voice',
-      'rcs': 'rcs'
-    };
-    return VENDORS.filter(vendor => vendor.type === channelMap[channelType]);
-  };
-  
-  const toggleVendor = (vendorId: string) => {
-    setSelectedVendors(prev =>
-      prev.includes(vendorId) 
-        ? prev.filter(id => id !== vendorId)
-        : [...prev, vendorId]
-    );
-  };
-  
-  const addFallback = () => {
-    setFallbackConfig({ channel: '', vendors: [] });
-  };
-  
-  const removeFallback = () => {
-    setFallbackConfig(null);
-  };
-  
-  const updateFallbackChannel = (channel: string) => {
-    setFallbackConfig(prev => prev ? { ...prev, channel, vendors: [] } : null);
-  };
-  
-  const toggleFallbackVendor = (vendorId: string) => {
-    setFallbackConfig(prev => {
-      if (!prev) return null;
-      return {
-        ...prev,
-        vendors: prev.vendors.includes(vendorId) 
-          ? prev.vendors.filter(id => id !== vendorId)
-          : [...prev.vendors, vendorId]
-      };
-    });
-  };
-
-  const handleUpdateData = (newData: any) => {
-    setPendingChanges(prev => ({ ...prev, ...newData }));
-  };
+  if (!node) return null;
 
   const handleSave = () => {
-    if (!selectedNode) return;
-    
     const updatedData = {
-      ...selectedNode.data,
-      ...pendingChanges,
-      selectedVendors,
-      fallback: fallbackConfig,
+      ...formData,
+      selectedVendors
     };
     
-    updateNodeData(selectedNode.id, updatedData);
+    updateNodeData(nodeId, updatedData);
     toast({
       title: "Configuration Saved",
-      description: "All changes have been saved successfully.",
+      description: `${node.type} node updated successfully`,
       className: "border-status-success bg-status-success/10 text-status-success"
     });
     onClose();
   };
 
-  const handleCancel = () => {
-    // Reset all state to original values
-    if (originalData) {
-      setSelectedVendors((originalData?.selectedVendors as string[]) || []);
-      setFallbackConfig((originalData?.fallback as FallbackConfig) || null);
-      setPendingChanges({});
-    }
-    onClose();
+  const handleReset = () => {
+    setFormData({ ...node.data });
+    setSelectedVendors(node.data.selectedVendors || []);
+    toast({
+      title: "Configuration Reset",
+      description: "All changes have been reverted",
+      className: "border-status-info bg-status-info/10 text-status-info"
+    });
   };
 
-  const renderConfiguration = () => {
-    switch (selectedNode.type) {
-      case 'vendorrouting':
-        return <VendorRoutingConfiguration node={selectedNode} onUpdate={handleUpdateData} />;
-      case 'conditional':
-        return <ConditionalConfiguration node={selectedNode} onUpdate={handleUpdateData} />;
-      case 'converge':
-      case 'diverge':
-      case 'timer':
-      case 'doevent':
-      case 'switch':
-      case 'filter':
-        return <ControlsLogicConfiguration node={selectedNode} onUpdate={handleUpdateData} />;
-      case 'terminal':
-        return <TerminalConfiguration node={selectedNode} onUpdate={handleUpdateData} />;
-      case 'audit':
-        return <AuditConfiguration node={selectedNode} onUpdate={handleUpdateData} />;
-      case 'sms':
-        return <SMSConfiguration node={selectedNode} onUpdate={handleUpdateData} />;
-      case 'whatsapp':
-        return <WhatsAppConfiguration node={selectedNode} onUpdate={handleUpdateData} />;
-      case 'email':
-        return <EmailConfiguration node={selectedNode} onUpdate={handleUpdateData} />;
-      case 'voice':
-        return <VoiceConfiguration node={selectedNode} onUpdate={handleUpdateData} />;
-      case 'rcs':
-        return <RCSConfiguration node={selectedNode} onUpdate={handleUpdateData} />;
-      case 'leastcost':
-        return <LeastCostConfiguration node={selectedNode} onUpdate={handleUpdateData} />;
-      case 'weightedsplit':
-        return <WeightedSplitConfiguration node={selectedNode} onUpdate={handleUpdateData} />;
-      case 'fallback':
-        return <FallbackConfiguration node={selectedNode} onUpdate={handleUpdateData} />;
-      case 'filter':
-        return <FilterConfiguration node={selectedNode} onUpdate={handleUpdateData} />;
-      case 'switch':
-        return <SwitchConfiguration node={selectedNode} onUpdate={handleUpdateData} />;
-      case 'ratelimit':
-        return <RateLimitConfiguration node={selectedNode} onUpdate={handleUpdateData} />;
-      case 'delay':
-        return <DelayConfiguration node={selectedNode} onUpdate={handleUpdateData} />;
-      case 'throttle':
-        return <ThrottleConfiguration node={selectedNode} onUpdate={handleUpdateData} />;
-      case 'webhook':
-        return <IntegrationMonitoringConfiguration node={selectedNode} onUpdate={handleUpdateData} />;
-      case 'database':
-        return <IntegrationMonitoringConfiguration node={selectedNode} onUpdate={handleUpdateData} />;
-      case 'transform':
-        return <IntegrationMonitoringConfiguration node={selectedNode} onUpdate={handleUpdateData} />;
-      case 'api':
-        return <IntegrationMonitoringConfiguration node={selectedNode} onUpdate={handleUpdateData} />;
-      case 'analytics':
-        return <IntegrationMonitoringConfiguration node={selectedNode} onUpdate={handleUpdateData} />;
-      case 'alert':
-        return <IntegrationMonitoringConfiguration node={selectedNode} onUpdate={handleUpdateData} />;
-      default:
-        return <div className="text-center text-muted-foreground">No configuration available for this node type.</div>;
-    }
-  };
-
-  return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-3xl max-h-[80vh] overflow-hidden flex flex-col">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            Configuration
-            <Badge variant="secondary">{selectedNode.type}</Badge>
-            <span className="text-sm text-muted-foreground truncate">
-              {String(selectedNode.data.label || selectedNode.type)}
-            </span>
-          </DialogTitle>
-        </DialogHeader>
-        
-        <div className="flex-1 overflow-y-auto pr-2">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={selectedNode.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.2 }}
-              className="space-y-6"
-            >
-              {/* Vendor Selection for Channel Nodes */}
-              {['sms', 'email', 'voice', 'whatsapp', 'rcs'].includes(selectedNode.type || '') && (
-                <div className="space-y-4">
-                  <div>
-                    <Label className="text-sm font-medium">Select Vendors</Label>
-                    <p className="text-xs text-muted-foreground mb-3">Choose one or more vendors for this channel</p>
-                    <div className="grid grid-cols-2 gap-3">
-                      {getChannelVendors(selectedNode.type || '').map(vendor => (
-                        <div 
-                          key={vendor.id}
-                          className={`border rounded-lg p-3 cursor-pointer transition-colors ${
-                            selectedVendors.includes(vendor.id) 
-                              ? 'border-primary bg-primary/5' 
-                              : 'border-border hover:border-primary/50'
-                          }`}
-                          onClick={() => toggleVendor(vendor.id)}
-                        >
-                          <div className="flex items-center gap-2">
-                            <span className="text-lg">{vendor.logo}</span>
-                            <span className="font-medium text-sm">{vendor.name}</span>
-                            {selectedVendors.includes(vendor.id) && (
-                              <Badge variant="default" className="ml-auto text-xs">Selected</Badge>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <Separator />
-
-                  {/* Fallback Configuration */}
-                  <div>
-                    <div className="flex items-center justify-between mb-3">
-                      <div>
-                        <Label className="text-sm font-medium">Fallback Channel</Label>
-                        <p className="text-xs text-muted-foreground">Configure backup channel if primary fails</p>
-                      </div>
-                      {!fallbackConfig ? (
-                        <Button variant="outline" size="sm" onClick={addFallback}>
-                          <Plus className="w-4 h-4 mr-1" />
-                          Add Fallback
-                        </Button>
-                      ) : (
-                        <Button variant="outline" size="sm" onClick={removeFallback}>
-                          <Trash2 className="w-4 h-4 mr-1" />
-                          Remove
-                        </Button>
-                      )}
-                    </div>
-
-                    {fallbackConfig && (
-                      <div className="space-y-3 border rounded-lg p-4 bg-accent/20">
-                        <div>
-                          <Label className="text-xs">Fallback Channel</Label>
-                          <Select value={fallbackConfig.channel} onValueChange={updateFallbackChannel}>
-                            <SelectTrigger className="mt-1">
-                              <SelectValue placeholder="Select fallback channel" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {['sms', 'email', 'voice', 'whatsapp', 'rcs']
-                                .filter(ch => ch !== selectedNode.type)
-                                .map(channel => (
-                                  <SelectItem key={channel} value={channel}>
-                                    {channel.toUpperCase()}
-                                  </SelectItem>
-                                ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-
-                        {fallbackConfig.channel && (
-                          <div>
-                            <Label className="text-xs">Fallback Vendors</Label>
-                            <div className="grid grid-cols-2 gap-2 mt-2">
-                              {getChannelVendors(fallbackConfig.channel).map(vendor => (
-                                <div 
-                                  key={vendor.id}
-                                  className={`border rounded-lg p-2 cursor-pointer transition-colors ${
-                                    fallbackConfig.vendors.includes(vendor.id) 
-                                      ? 'border-primary bg-primary/5' 
-                                      : 'border-border hover:border-primary/50'
-                                  }`}
-                                  onClick={() => toggleFallbackVendor(vendor.id)}
-                                >
-                                  <div className="flex items-center gap-2">
-                                    <span className="text-sm">{vendor.logo}</span>
-                                    <span className="text-xs font-medium">{vendor.name}</span>
-                                    {fallbackConfig.vendors.includes(vendor.id) && (
-                                      <Badge variant="secondary" className="ml-auto text-xs px-1 py-0">✓</Badge>
-                                    )}
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-
-                  <Separator />
-                </div>
-              )}
-
-              {renderConfiguration()}
-            </motion.div>
-          </AnimatePresence>
-        </div>
-
-        {/* Save and Cancel Buttons */}
-        <div className="flex items-center justify-end gap-3 pt-4 border-t">
-          <Button variant="outline" onClick={handleCancel}>
-            Cancel
-          </Button>
-          <Button onClick={handleSave}>
-            Save Configuration
-          </Button>
-        </div>
-      </DialogContent>
-    </Dialog>
-  );
-};
-
-// Import vendor routing configuration
-import { VendorRoutingConfiguration } from './VendorRoutingConfiguration';
-
-// Configuration components for each node type
-const OldVendorRoutingConfiguration: React.FC<{ node: any; onUpdate: (data: any) => void }> = ({
-  node,
-  onUpdate,
-}) => {
-  const [configType, setConfigType] = useState(node.data.configType || 'default');
-  const [routingConfig, setRoutingConfig] = useState(node.data.routingConfig || {
-    mode: 'priority',
-    vendors: [],
-    fallbackEnabled: true,
-    fallbackOrder: []
-  });
-
-  const handleConfigTypeChange = (type: string) => {
-    setConfigType(type);
-    onUpdate({ ...node.data, configType: type });
-  };
-
-  const handleRoutingConfigChange = (config: any) => {
-    setRoutingConfig(config);
-    onUpdate({ ...node.data, routingConfig: config });
-  };
-
-  const AVAILABLE_VENDORS = [
-    { id: 'twilio', name: 'Twilio', logo: '🔴' },
-    { id: 'sendgrid', name: 'SendGrid', logo: '🟦' },
-    { id: 'plivo', name: 'Plivo', logo: '🟣' },
-    { id: 'gupshup', name: 'Gupshup', logo: '🔵' },
-    { id: 'karix', name: 'Karix', logo: '🟢' },
-    { id: 'msg91', name: 'MSG91', logo: '🟡' },
-  ];
-
-  const addVendor = () => {
-    const newVendor = {
-      id: `vendor-${Date.now()}`,
-      weight: 100 / (routingConfig.vendors.length + 1),
-      priority: routingConfig.vendors.length + 1,
-      tpsCap: 100,
-      costCap: 1000
-    };
-    
-    const updatedVendors = [...routingConfig.vendors, newVendor];
-    const updatedConfig = { ...routingConfig, vendors: updatedVendors };
-    handleRoutingConfigChange(updatedConfig);
-  };
-
-  const removeVendor = (index: number) => {
-    const updatedVendors = routingConfig.vendors.filter((_: any, i: number) => i !== index);
-    const updatedConfig = { ...routingConfig, vendors: updatedVendors };
-    handleRoutingConfigChange(updatedConfig);
-  };
-
-  const updateVendor = (index: number, field: string, value: any) => {
-    const updatedVendors = routingConfig.vendors.map((vendor: any, i: number) =>
-      i === index ? { ...vendor, [field]: value } : vendor
+  const toggleVendor = (vendorId: string) => {
+    setSelectedVendors(prev => 
+      prev.includes(vendorId) 
+        ? prev.filter(id => id !== vendorId)
+        : [...prev, vendorId]
     );
-    const updatedConfig = { ...routingConfig, vendors: updatedVendors };
-    handleRoutingConfigChange(updatedConfig);
   };
 
-  return (
-    <div className="space-y-4">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-sm">Routing Configuration Type</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <div className="grid grid-cols-2 gap-3">
-            <div 
-              className={`border rounded-lg p-3 cursor-pointer transition-colors ${
-                configType === 'default' 
-                  ? 'border-primary bg-primary/5' 
-                  : 'border-border hover:border-primary/50'
-              }`}
-              onClick={() => handleConfigTypeChange('default')}
-            >
-              <div className="flex items-center gap-2">
-                <Badge variant={configType === 'default' ? 'default' : 'secondary'} className="text-xs">
-                  Default
-                </Badge>
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                Use system default routing
-              </p>
-            </div>
-            
-            <div 
-              className={`border rounded-lg p-3 cursor-pointer transition-colors ${
-                configType === 'custom' 
-                  ? 'border-primary bg-primary/5' 
-                  : 'border-border hover:border-primary/50'
-              }`}
-              onClick={() => handleConfigTypeChange('custom')}
-            >
-              <div className="flex items-center gap-2">
-                <Badge variant={configType === 'custom' ? 'default' : 'secondary'} className="text-xs">
-                  Custom
-                </Badge>
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                Configure custom routing logic
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+  const toggleVendorSection = (section: string) => {
+    const newExpanded = new Set(expandedVendorSections);
+    if (newExpanded.has(section)) {
+      newExpanded.delete(section);
+    } else {
+      newExpanded.add(section);
+    }
+    setExpandedVendorSections(newExpanded);
+  };
 
-      {configType === 'custom' && (
-        <>
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-sm">Routing Strategy</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div>
-                <Label>Mode</Label>
-                <Select
-                  value={routingConfig.mode}
-                  onValueChange={(value) => handleRoutingConfigChange({ ...routingConfig, mode: value })}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="priority">Priority Based</SelectItem>
-                    <SelectItem value="weighted">Weighted Distribution</SelectItem>
-                    <SelectItem value="fixed">Fixed Assignment</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </CardContent>
-          </Card>
+  const getChannelVendors = () => {
+    switch (node.type) {
+      case 'sms': return VENDORS.sms;
+      case 'whatsapp': return VENDORS.whatsapp;
+      case 'email': return VENDORS.email;
+      case 'voice': return VENDORS.voice;
+      case 'rcs': return VENDORS.rcs;
+      default: return [];
+    }
+  };
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-sm flex items-center justify-between">
-                Vendor Configuration
-                <Button size="sm" onClick={addVendor}>
-                  <Plus className="w-4 h-4 mr-1" />
-                  Add Vendor
-                </Button>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {routingConfig.vendors.map((vendor: any, index: number) => (
-                <div key={vendor.id || index} className="p-3 border border-border rounded-lg space-y-3">
-                  <div className="flex items-center justify-between">
-                    <Label className="text-xs">Vendor {index + 1}</Label>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => removeVendor(index)}
-                      className="w-6 h-6 p-0"
-                    >
-                      <X className="w-3 h-3" />
-                    </Button>
-                  </div>
-                  
+  const channelVendors = getChannelVendors();
+  const vendorsByTier = {
+    premium: channelVendors.filter(v => v.tier === 'Premium' || v.tier === 'Official'),
+    standard: channelVendors.filter(v => v.tier === 'Standard')
+  };
+
+  const renderChannelConfiguration = () => {
+    switch (node.type) {
+      case 'sms':
+        return (
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">SMS Channel Configuration</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label className="text-xs">Vendor</Label>
+                    <Label htmlFor="senderId">Sender ID</Label>
+                    <Input
+                      id="senderId"
+                      value={formData.senderId || ''}
+                      onChange={(e) => setFormData({ ...formData, senderId: e.target.value })}
+                      placeholder="YOURCOMPANY"
+                      className="nodrag"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="messageType">Message Type</Label>
                     <Select
-                      value={vendor.id}
-                      onValueChange={(value) => updateVendor(index, 'id', value)}
+                      value={formData.messageType || 'transactional'}
+                      onValueChange={(value) => setFormData({ ...formData, messageType: value })}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Select vendor" />
+                        <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        {AVAILABLE_VENDORS.map(v => (
-                          <SelectItem key={v.id} value={v.id}>
-                            {v.logo} {v.name}
-                          </SelectItem>
-                        ))}
+                        <SelectItem value="transactional">Transactional</SelectItem>
+                        <SelectItem value="promotional">Promotional</SelectItem>
+                        <SelectItem value="utility">Utility</SelectItem>
+                        <SelectItem value="authentication">Authentication</SelectItem>
+                        <SelectItem value="service_explicit">Service Explicit</SelectItem>
+                        <SelectItem value="service_implicit">Service Implicit</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
-
-                  {routingConfig.mode === 'weighted' && (
-                    <div>
-                      <Label className="text-xs">Weight (%)</Label>
-                      <Slider
-                        value={[vendor.weight || 0]}
-                        onValueChange={([value]) => updateVendor(index, 'weight', value)}
-                        max={100}
-                        step={1}
-                        className="mt-2"
-                      />
-                      <div className="text-xs text-muted-foreground mt-1">
-                        {vendor.weight || 0}%
-                      </div>
-                    </div>
-                  )}
-
-                  {routingConfig.mode === 'priority' && (
-                    <div>
-                      <Label className="text-xs">Priority</Label>
-                      <Input
-                        type="number"
-                        value={vendor.priority || 1}
-                        onChange={(e) => updateVendor(index, 'priority', parseInt(e.target.value))}
-                        min={1}
-                        className="mt-1"
-                      />
-                    </div>
-                  )}
-
-                  <div className="grid grid-cols-2 gap-2">
-                    <div>
-                      <Label className="text-xs">TPS Cap</Label>
-                      <Input
-                        type="number"
-                        value={vendor.tpsCap || ''}
-                        onChange={(e) => updateVendor(index, 'tpsCap', parseInt(e.target.value))}
-                        placeholder="100"
-                        className="mt-1"
-                      />
-                    </div>
-                    <div>
-                      <Label className="text-xs">Cost Cap (₹)</Label>
-                      <Input
-                        type="number"
-                        step="0.01"
-                        value={vendor.costCap || ''}
-                        onChange={(e) => updateVendor(index, 'costCap', parseFloat(e.target.value))}
-                        placeholder="1000"
-                        className="mt-1"
-                      />
-                    </div>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="encoding">Encoding</Label>
+                    <Select
+                      value={formData.encoding || 'utf8'}
+                      onValueChange={(value) => setFormData({ ...formData, encoding: value })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="utf8">UTF-8</SelectItem>
+                        <SelectItem value="unicode">Unicode</SelectItem>
+                        <SelectItem value="gsm7">GSM 7-bit</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="priority">Priority</Label>
+                    <Select
+                      value={formData.priority || 'normal'}
+                      onValueChange={(value) => setFormData({ ...formData, priority: value })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="low">Low</SelectItem>
+                        <SelectItem value="normal">Normal</SelectItem>
+                        <SelectItem value="high">High</SelectItem>
+                        <SelectItem value="urgent">Urgent</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
-              ))}
-              
-              {routingConfig.vendors.length === 0 && (
-                <div className="text-center py-4 text-muted-foreground text-sm">
-                  No vendors configured. Click "Add Vendor" to get started.
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-sm">Fallback Configuration</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="flex items-center space-x-2">
-                <Switch
-                  checked={routingConfig.fallbackEnabled}
-                  onCheckedChange={(checked) => 
-                    handleRoutingConfigChange({ ...routingConfig, fallbackEnabled: checked })
-                  }
-                />
-                <Label>Enable automatic fallback</Label>
-              </div>
-              
-              {routingConfig.fallbackEnabled && (
-                <div>
-                  <Label className="text-xs">Fallback Order</Label>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Vendors will be tried in priority order if primary fails
-                  </p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </>
-      )}
-    </div>
-  );
-};
-
-const RoutingConfiguration: React.FC<{ node: any; onUpdate: (data: any) => void }> = ({
-  node,
-  onUpdate,
-}) => {
-  const [strategy, setStrategy] = useState(node.data.strategy || 'weightedSplit');
-  const [vendors, setVendors] = useState(node.data.vendors || []);
-  const [fallbackEnabled, setFallbackEnabled] = useState(node.data.fallbackEnabled || false);
-
-  const addVendor = () => {
-    const newVendor = {
-      id: `vendor-${Date.now()}`,
-      vendorId: '',
-      weight: 0,
-      priority: vendors.length + 1,
-      tpsLimit: '',
-      costCap: '',
-      quotaLimit: '',
-      activeWindow: { start: '00:00', end: '23:59' }
-    };
-    const updatedVendors = [...vendors, newVendor];
-    setVendors(updatedVendors);
-    onUpdate({ ...node.data, vendors: updatedVendors });
-  };
-
-  const updateVendor = (index: number, field: string, value: any) => {
-    const updatedVendors = vendors.map((vendor: any, i: number) =>
-      i === index ? { ...vendor, [field]: value } : vendor
-    );
-    setVendors(updatedVendors);
-    onUpdate({ ...node.data, vendors: updatedVendors });
-  };
-
-  const removeVendor = (index: number) => {
-    const updatedVendors = vendors.filter((_: any, i: number) => i !== index);
-    setVendors(updatedVendors);
-    onUpdate({ ...node.data, vendors: updatedVendors });
-  };
-
-  return (
-    <div className="space-y-4">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-sm">Routing Strategy</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <div>
-            <Label htmlFor="strategy">Strategy</Label>
-            <Select
-              value={strategy}
-              onValueChange={(value) => {
-                setStrategy(value);
-                onUpdate({ ...node.data, strategy: value });
-              }}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="weightedSplit">Weighted Split</SelectItem>
-                <SelectItem value="spillover">Spillover</SelectItem>
-                <SelectItem value="firstAvailable">First Available</SelectItem>
-              </SelectContent>
-            </Select>
+              </CardContent>
+            </Card>
           </div>
-        </CardContent>
-      </Card>
+        );
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-sm flex items-center justify-between">
-            Vendors
-            <Button size="sm" onClick={addVendor}>
-              <Plus className="w-4 h-4 mr-1" />
-              Add
-            </Button>
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {vendors.map((vendor: any, index: number) => (
-            <div key={vendor.id} className="p-3 border border-border rounded-lg space-y-2">
-              <div className="flex items-center justify-between">
-                <Label className="text-xs">Vendor {index + 1}</Label>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => removeVendor(index)}
-                  className="w-6 h-6 p-0"
-                >
-                  <X className="w-3 h-3" />
-                </Button>
-              </div>
-              <Select
-                value={vendor.vendorId}
-                onValueChange={(value) => updateVendor(index, 'vendorId', value)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select vendor" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="gupshup">Gupshup</SelectItem>
-                  <SelectItem value="karix">Karix</SelectItem>
-                  <SelectItem value="kaleyra">Kaleyra</SelectItem>
-                </SelectContent>
-              </Select>
-              
-              {strategy === 'weightedSplit' && (
+      case 'whatsapp':
+        return (
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">WhatsApp Channel Configuration</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="businessId">Business ID</Label>
+                    <Input
+                      id="businessId"
+                      value={formData.businessId || ''}
+                      onChange={(e) => setFormData({ ...formData, businessId: e.target.value })}
+                      placeholder="Enter WhatsApp Business ID"
+                      className="nodrag"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="wabaNumber">WABA Number</Label>
+                    <Input
+                      id="wabaNumber"
+                      value={formData.wabaNumber || ''}
+                      onChange={(e) => setFormData({ ...formData, wabaNumber: e.target.value })}
+                      placeholder="+91XXXXXXXXXX"
+                      className="nodrag"
+                    />
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="templateType">Template Type</Label>
+                    <Select
+                      value={formData.templateType || 'text'}
+                      onValueChange={(value) => setFormData({ ...formData, templateType: value })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="text">Text</SelectItem>
+                        <SelectItem value="media">Media</SelectItem>
+                        <SelectItem value="interactive">Interactive</SelectItem>
+                        <SelectItem value="location">Location</SelectItem>
+                        <SelectItem value="authentication">Authentication</SelectItem>
+                        <SelectItem value="utility">Utility</SelectItem>
+                        <SelectItem value="marketing">Marketing</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="botName">Bot Name</Label>
+                    <Input
+                      id="botName"
+                      value={formData.botName || ''}
+                      onChange={(e) => setFormData({ ...formData, botName: e.target.value })}
+                      placeholder="your_bot_name"
+                      className="nodrag"
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        );
+
+      case 'email':
+        return (
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Email Channel Configuration</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="fromAddress">From Address</Label>
+                    <Input
+                      id="fromAddress"
+                      value={formData.fromAddress || ''}
+                      onChange={(e) => setFormData({ ...formData, fromAddress: e.target.value })}
+                      placeholder="noreply@yourcompany.com"
+                      className="nodrag"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="fromName">From Name</Label>
+                    <Input
+                      id="fromName"
+                      value={formData.fromName || ''}
+                      onChange={(e) => setFormData({ ...formData, fromName: e.target.value })}
+                      placeholder="Your Company"
+                      className="nodrag"
+                    />
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="messageType">Message Type</Label>
+                    <Select
+                      value={formData.messageType || 'transactional'}
+                      onValueChange={(value) => setFormData({ ...formData, messageType: value })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="transactional">Transactional</SelectItem>
+                        <SelectItem value="promotional">Promotional</SelectItem>
+                        <SelectItem value="utility">Utility</SelectItem>
+                        <SelectItem value="authentication">Authentication</SelectItem>
+                        <SelectItem value="service">Service</SelectItem>
+                        <SelectItem value="newsletter">Newsletter</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="template">Template ID</Label>
+                    <Input
+                      id="template"
+                      value={formData.template || ''}
+                      onChange={(e) => setFormData({ ...formData, template: e.target.value })}
+                      placeholder="welcome_email_v1"
+                      className="nodrag"
+                    />
+                  </div>
+                </div>
+
                 <div>
-                  <Label className="text-xs">Weight (%)</Label>
+                  <Label htmlFor="replyTo">Reply-To Address</Label>
                   <Input
-                    type="number"
-                    value={vendor.weight}
-                    onChange={(e) => updateVendor(index, 'weight', parseInt(e.target.value))}
-                    placeholder="0"
+                    id="replyTo"
+                    value={formData.replyTo || ''}
+                    onChange={(e) => setFormData({ ...formData, replyTo: e.target.value })}
+                    placeholder="support@yourcompany.com"
+                    className="nodrag"
                   />
                 </div>
-              )}
-              
-              {strategy === 'spillover' && (
+              </CardContent>
+            </Card>
+          </div>
+        );
+
+      case 'voice':
+        return (
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Voice Channel Configuration</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="callerId">Caller ID</Label>
+                    <Input
+                      id="callerId"
+                      value={formData.callerId || ''}
+                      onChange={(e) => setFormData({ ...formData, callerId: e.target.value })}
+                      placeholder="+1234567890"
+                      className="nodrag"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="voiceType">Voice Type</Label>
+                    <Select
+                      value={formData.voiceType || 'text-to-speech'}
+                      onValueChange={(value) => setFormData({ ...formData, voiceType: value })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="text-to-speech">Text-to-Speech</SelectItem>
+                        <SelectItem value="pre-recorded">Pre-recorded</SelectItem>
+                        <SelectItem value="interactive">Interactive (IVR)</SelectItem>
+                        <SelectItem value="live">Live Agent</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="language">Language</Label>
+                    <Select
+                      value={formData.language || 'en'}
+                      onValueChange={(value) => setFormData({ ...formData, language: value })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="en">English</SelectItem>
+                        <SelectItem value="hi">Hindi</SelectItem>
+                        <SelectItem value="es">Spanish</SelectItem>
+                        <SelectItem value="fr">French</SelectItem>
+                        <SelectItem value="de">German</SelectItem>
+                        <SelectItem value="pt">Portuguese</SelectItem>
+                        <SelectItem value="it">Italian</SelectItem>
+                        <SelectItem value="ja">Japanese</SelectItem>
+                        <SelectItem value="ko">Korean</SelectItem>
+                        <SelectItem value="zh">Chinese</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="voice">Voice</Label>
+                    <Select
+                      value={formData.voice || 'female'}
+                      onValueChange={(value) => setFormData({ ...formData, voice: value })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="female">Female</SelectItem>
+                        <SelectItem value="male">Male</SelectItem>
+                        <SelectItem value="neutral">Neutral</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
                 <div>
-                  <Label className="text-xs">Priority</Label>
+                  <Label htmlFor="callbackUrl">Callback URL</Label>
                   <Input
-                    type="number"
-                    value={vendor.priority}
-                    onChange={(e) => updateVendor(index, 'priority', parseInt(e.target.value))}
-                    placeholder="1"
+                    id="callbackUrl"
+                    value={formData.callbackUrl || ''}
+                    onChange={(e) => setFormData({ ...formData, callbackUrl: e.target.value })}
+                    placeholder="https://your-app.com/voice-callback"
+                    className="nodrag"
                   />
                 </div>
-              )}
-            </div>
-          ))}
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-sm">Fallback Configuration</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <div className="flex items-center space-x-2">
-            <Switch
-              checked={fallbackEnabled}
-              onCheckedChange={(checked) => {
-                setFallbackEnabled(checked);
-                onUpdate({ ...node.data, fallbackEnabled: checked });
-              }}
-            />
-            <Label>Enable Fallback</Label>
+              </CardContent>
+            </Card>
           </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
-};
-
-
-const ConditionalConfiguration: React.FC<{ node: any; onUpdate: (data: any) => void }> = ({
-  node,
-  onUpdate,
-}) => {
-  const [conditions, setConditions] = useState(node.data.conditions || []);
-
-  const addCondition = () => {
-    const newCondition = {
-      id: `condition-${Date.now()}`,
-      field: '',
-      operator: 'equals',
-      value: ''
-    };
-    const updatedConditions = [...conditions, newCondition];
-    setConditions(updatedConditions);
-    onUpdate({ ...node.data, conditions: updatedConditions });
-  };
-
-  return (
-    <div className="space-y-4">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-sm flex items-center justify-between">
-            Conditions
-            <Button size="sm" onClick={addCondition}>
-              <Plus className="w-4 h-4 mr-1" />
-              Add
-            </Button>
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {conditions.map((condition: any, index: number) => (
-            <div key={condition.id} className="p-3 border border-border rounded-lg space-y-2">
-              <Select
-                value={condition.field}
-                onValueChange={(value) => {
-                  const updated = conditions.map((c: any, i: number) =>
-                    i === index ? { ...c, field: value } : c
-                  );
-                  setConditions(updated);
-                  onUpdate({ ...node.data, conditions: updated });
-                }}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select field" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="messageType">Message Type</SelectItem>
-                  <SelectItem value="userType">User Type</SelectItem>
-                  <SelectItem value="cost">Cost</SelectItem>
-                  <SelectItem value="time">Time</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          ))}
-        </CardContent>
-      </Card>
-    </div>
-  );
-};
-
-const TerminalConfiguration: React.FC<{ node: any; onUpdate: (data: any) => void }> = ({
-  node,
-  onUpdate,
-}) => {
-  return (
-    <div className="space-y-4">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-sm">Terminal State</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <div>
-            <Label>State</Label>
-            <Select
-              value={node.data.state || 'sent'}
-              onValueChange={(value) => onUpdate({ ...node.data, state: value })}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="sent">Sent</SelectItem>
-                <SelectItem value="dropped">Dropped</SelectItem>
-                <SelectItem value="alerted">Alerted</SelectItem>
-                <SelectItem value="queued">Queued</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div>
-            <Label>Reason</Label>
-            <Textarea
-              value={node.data.reason || ''}
-              onChange={(e) => onUpdate({ ...node.data, reason: e.target.value })}
-              placeholder="Enter reason..."
-            />
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
-};
-
-const SMSConfiguration: React.FC<{ node: any; onUpdate: (data: any) => void }> = ({ node, onUpdate }) => {
-  return (
-    <div className="space-y-4">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-sm">SMS Configuration</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <div>
-            <Label>Sender ID</Label>
-            <Input
-              value={node.data.senderId || ''}
-              onChange={(e) => onUpdate({ ...node.data, senderId: e.target.value })}
-              placeholder="Enter sender ID"
-              className="nodrag"
-            />
-          </div>
-          <div>
-            <Label>Message Type</Label>
-            <Select
-              value={node.data.messageType || 'transactional'}
-              onValueChange={(value) => onUpdate({ ...node.data, messageType: value })}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="transactional">Transactional</SelectItem>
-                <SelectItem value="promotional">Promotional</SelectItem>
-                <SelectItem value="utility">Utility</SelectItem>
-                <SelectItem value="authentication">Authentication</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div>
-            <Label>Encoding</Label>
-            <Select
-              value={node.data.encoding || 'utf8'}
-              onValueChange={(value) => onUpdate({ ...node.data, encoding: value })}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="utf8">UTF-8</SelectItem>
-                <SelectItem value="unicode">Unicode</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
-};
-
-const WhatsAppConfiguration: React.FC<{ node: any; onUpdate: (data: any) => void }> = ({ node, onUpdate }) => {
-  return (
-    <div className="space-y-4">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-sm">WhatsApp Configuration</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <div>
-            <Label>Business ID</Label>
-            <Input
-              value={node.data.businessId || ''}
-              onChange={(e) => onUpdate({ ...node.data, businessId: e.target.value })}
-              placeholder="Enter business ID"
-              className="nodrag"
-            />
-          </div>
-          <div>
-            <Label>WABA Number</Label>
-            <Input
-              value={node.data.wabaNumber || ''}
-              onChange={(e) => onUpdate({ ...node.data, wabaNumber: e.target.value })}
-              placeholder="Enter WABA number"
-              className="nodrag"
-            />
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
-};
-
-const EmailConfiguration: React.FC<{ node: any; onUpdate: (data: any) => void }> = ({ node, onUpdate }) => {
-  return (
-    <div className="space-y-4">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-sm">Email Configuration</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <div>
-            <Label>From Email</Label>
-            <Input
-              value={node.data.fromEmail || ''}
-              onChange={(e) => onUpdate({ ...node.data, fromEmail: e.target.value })}
-              placeholder="noreply@example.com"
-            />
-          </div>
-          <div>
-            <Label>Template ID</Label>
-            <Input
-              value={node.data.templateId || ''}
-              onChange={(e) => onUpdate({ ...node.data, templateId: e.target.value })}
-              placeholder="Enter template ID"
-            />
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
-};
-
-const VoiceConfiguration: React.FC<{ node: any; onUpdate: (data: any) => void }> = ({ node, onUpdate }) => {
-  return (
-    <div className="space-y-4">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-sm">Voice Configuration</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <div>
-            <Label>Caller ID</Label>
-            <Input
-              value={node.data.callerId || ''}
-              onChange={(e) => onUpdate({ ...node.data, callerId: e.target.value })}
-              placeholder="Enter caller ID"
-            />
-          </div>
-          <div>
-            <Label>Voice Type</Label>
-            <Select
-              value={node.data.voiceType || 'automated'}
-              onValueChange={(value) => onUpdate({ ...node.data, voiceType: value })}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="automated">Automated</SelectItem>
-                <SelectItem value="human">Human</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
-};
-
-const RCSConfiguration: React.FC<{ node: any; onUpdate: (data: any) => void }> = ({ node, onUpdate }) => {
-  return (
-    <div className="space-y-4">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-sm">RCS Configuration</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <div>
-            <Label>Bot ID</Label>
-            <Input
-              value={node.data.botId || ''}
-              onChange={(e) => onUpdate({ ...node.data, botId: e.target.value })}
-              placeholder="Enter bot ID"
-            />
-          </div>
-          <div>
-            <Label>Agent Name</Label>
-            <Input
-              value={node.data.agentName || ''}
-              onChange={(e) => onUpdate({ ...node.data, agentName: e.target.value })}
-              placeholder="Enter agent name"
-            />
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
-};
-
-const AuditConfiguration: React.FC<{ node: any; onUpdate: (data: any) => void }> = ({ node, onUpdate }) => {
-  return (
-    <div className="space-y-4">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-sm">Audit Configuration</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <div>
-            <Label>Log Level</Label>
-            <Select
-              value={node.data.logLevel || 'info'}
-              onValueChange={(value) => onUpdate({ ...node.data, logLevel: value })}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="debug">Debug</SelectItem>
-                <SelectItem value="info">Info</SelectItem>
-                <SelectItem value="warn">Warning</SelectItem>
-                <SelectItem value="error">Error</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              checked={node.data.capturePayload || false}
-              onCheckedChange={(checked) => onUpdate({ ...node.data, capturePayload: checked })}
-            />
-            <Label>Capture Payload</Label>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
-};
-
-const LeastCostConfiguration: React.FC<{ node: any; onUpdate: (data: any) => void }> = ({ node, onUpdate }) => {
-  return (
-    <div className="space-y-4">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-sm">Least Cost Configuration</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <div>
-            <Label>Cost Threshold (₹)</Label>
-            <Input
-              type="number"
-              step="0.001"
-              value={node.data.costThreshold || ''}
-              onChange={(e) => onUpdate({ ...node.data, costThreshold: parseFloat(e.target.value) })}
-              placeholder="0.050"
-            />
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
-};
-
-const WeightedSplitConfiguration: React.FC<{ node: any; onUpdate: (data: any) => void }> = ({ node, onUpdate }) => {
-  const [weights, setWeights] = useState(node.data.weights || []);
-
-  const addWeight = () => {
-    const newWeight = { vendor: '', weight: 0 };
-    const updatedWeights = [...weights, newWeight];
-    setWeights(updatedWeights);
-    onUpdate({ ...node.data, weights: updatedWeights });
-  };
-
-  return (
-    <div className="space-y-4">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-sm flex items-center justify-between">
-            Weighted Split Configuration
-            <Button size="sm" onClick={addWeight}>
-              <Plus className="w-4 h-4 mr-1" />
-              Add
-            </Button>
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {weights.map((weight: any, index: number) => (
-            <div key={index} className="p-3 border border-border rounded-lg space-y-2">
-              <div>
-                <Label className="text-xs">Vendor</Label>
-                <Input
-                  value={weight.vendor}
-                  onChange={(e) => {
-                    const updated = weights.map((w: any, i: number) =>
-                      i === index ? { ...w, vendor: e.target.value } : w
-                    );
-                    setWeights(updated);
-                    onUpdate({ ...node.data, weights: updated });
-                  }}
-                  placeholder="Vendor name"
-                />
-              </div>
-              <div>
-                <Label className="text-xs">Weight (%)</Label>
-                <Input
-                  type="number"
-                  value={weight.weight}
-                  onChange={(e) => {
-                    const updated = weights.map((w: any, i: number) =>
-                      i === index ? { ...w, weight: parseInt(e.target.value) } : w
-                    );
-                    setWeights(updated);
-                    onUpdate({ ...node.data, weights: updated });
-                  }}
-                  placeholder="0"
-                />
-              </div>
-            </div>
-          ))}
-        </CardContent>
-      </Card>
-    </div>
-  );
-};
-
-const FallbackConfiguration: React.FC<{ node: any; onUpdate: (data: any) => void }> = ({ node, onUpdate }) => {
-  return (
-    <div className="space-y-4">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-sm">Fallback Configuration</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <div>
-            <Label>Retry Count</Label>
-            <Input
-              type="number"
-              value={node.data.retryCount || ''}
-              onChange={(e) => onUpdate({ ...node.data, retryCount: parseInt(e.target.value) })}
-              placeholder="3"
-            />
-          </div>
-          <div>
-            <Label>Retry Delay (seconds)</Label>
-            <Input
-              type="number"
-              value={node.data.retryDelay || ''}
-              onChange={(e) => onUpdate({ ...node.data, retryDelay: parseInt(e.target.value) })}
-              placeholder="5"
-            />
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
-};
-
-const FilterConfiguration: React.FC<{ node: any; onUpdate: (data: any) => void }> = ({ node, onUpdate }) => {
-  return (
-    <div className="space-y-4">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-sm">Filter Configuration</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <div>
-            <Label>Filter Field</Label>
-            <Select
-              value={node.data.filterField || ''}
-              onValueChange={(value) => onUpdate({ ...node.data, filterField: value })}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select field" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="messageType">Message Type</SelectItem>
-                <SelectItem value="userType">User Type</SelectItem>
-                <SelectItem value="cost">Cost</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
-};
-
-const SwitchConfiguration: React.FC<{ node: any; onUpdate: (data: any) => void }> = ({ node, onUpdate }) => {
-  return (
-    <div className="space-y-4">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-sm">Switch Configuration</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <div>
-            <Label>Switch Variable</Label>
-            <Input
-              value={node.data.switchVariable || ''}
-              onChange={(e) => onUpdate({ ...node.data, switchVariable: e.target.value })}
-              placeholder="Enter variable name"
-            />
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
-};
-
-const RateLimitConfiguration: React.FC<{ node: any; onUpdate: (data: any) => void }> = ({ node, onUpdate }) => {
-  return (
-    <div className="space-y-4">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-sm">Rate Limit Configuration</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <div>
-            <Label>Max Requests</Label>
-            <Input
-              type="number"
-              value={node.data.maxRequests || ''}
-              onChange={(e) => onUpdate({ ...node.data, maxRequests: parseInt(e.target.value) })}
-              placeholder="100"
-            />
-          </div>
-          <div>
-            <Label>Time Window (seconds)</Label>
-            <Input
-              type="number"
-              value={node.data.timeWindow || ''}
-              onChange={(e) => onUpdate({ ...node.data, timeWindow: parseInt(e.target.value) })}
-              placeholder="60"
-            />
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
-};
-
-const DelayConfiguration: React.FC<{ node: any; onUpdate: (data: any) => void }> = ({ node, onUpdate }) => {
-  return (
-    <div className="space-y-4">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-sm">Delay Configuration</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <div>
-            <Label>Delay (seconds)</Label>
-            <Input
-              type="number"
-              value={node.data.delay || ''}
-              onChange={(e) => onUpdate({ ...node.data, delay: parseInt(e.target.value) })}
-              placeholder="5"
-            />
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
-};
-
-const ThrottleConfiguration: React.FC<{ node: any; onUpdate: (data: any) => void }> = ({ node, onUpdate }) => {
-  return (
-    <div className="space-y-4">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-sm">Throttle Configuration</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <div>
-            <Label>Throttle Rate (req/sec)</Label>
-            <Input
-              type="number"
-              value={node.data.throttleRate || ''}
-              onChange={(e) => onUpdate({ ...node.data, throttleRate: parseInt(e.target.value) })}
-              placeholder="10"
-            />
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
-};
-
-const ControlsLogicConfiguration: React.FC<{ node: any; onUpdate: (data: any) => void }> = ({ node, onUpdate }) => {
-  return (
-    <div className="space-y-4">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-sm">{node.type.charAt(0).toUpperCase() + node.type.slice(1)} Configuration</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {/* Basic Configuration */}
-          <div>
-            <Label>Description</Label>
-            <Textarea
-              value={node.data.description || ''}
-              onChange={(e) => onUpdate({ ...node.data, description: e.target.value })}
-              placeholder="Enter description..."
-            />
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Constraints Configuration */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-sm">Constraints</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {/* TPS Limit */}
-          <div>
-            <Label>Max TPS (Transactions Per Second)</Label>
-            <Input
-              type="number"
-              placeholder="100"
-              value={node.data.maxTPS || ''}
-              onChange={(e) => onUpdate({ ...node.data, maxTPS: Number(e.target.value) || undefined })}
-            />
-          </div>
-
-          {/* Cost Cap */}
-          <div>
-            <Label>Max Cost (₹)</Label>
-            <Input
-              type="number"
-              step="0.01"
-              placeholder="10.00"
-              value={node.data.maxCost || ''}
-              onChange={(e) => onUpdate({ ...node.data, maxCost: Number(e.target.value) || undefined })}
-            />
-          </div>
-
-          {/* Time Window */}
-          <div>
-            <Label>Time Window</Label>
-            <div className="grid grid-cols-2 gap-2">
-              <div>
-                <Label htmlFor="timeWindowStart">Start Time</Label>
-                <Input
-                  id="timeWindowStart"
-                  type="time"
-                  value={node.data.timeWindow?.start || ''}
-                  onChange={(e) => onUpdate({ 
-                    ...node.data, 
-                    timeWindow: { ...node.data.timeWindow, start: e.target.value }
-                  })}
-                />
-              </div>
-              <div>
-                <Label htmlFor="timeWindowEnd">End Time</Label>
-                <Input
-                  id="timeWindowEnd"
-                  type="time"
-                  value={node.data.timeWindow?.end || ''}
-                  onChange={(e) => onUpdate({ 
-                    ...node.data, 
-                    timeWindow: { ...node.data.timeWindow, end: e.target.value }
-                  })}
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Geo Fence */}
-          <div>
-            <Label>Geographic Restrictions</Label>
-            <Select
-              value={node.data.geoFence || ''}
-              onValueChange={(value) => onUpdate({ ...node.data, geoFence: value })}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select geographic restriction" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">No Restrictions</SelectItem>
-                <SelectItem value="domestic">Domestic Only</SelectItem>
-                <SelectItem value="international">International Only</SelectItem>
-                <SelectItem value="specific">Specific Countries</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {node.data.geoFence === 'specific' && (
-            <div>
-              <Label>Allowed Countries</Label>
-              <Input
-                placeholder="IN, US, UK (comma separated)"
-                value={node.data.allowedCountries || ''}
-                onChange={(e) => onUpdate({ ...node.data, allowedCountries: e.target.value })}
-              />
-            </div>
-          )}
-        </CardContent>
-      </Card>
-    </div>
-  );
-};
-
-const IntegrationMonitoringConfiguration: React.FC<{ node: any; onUpdate: (data: any) => void }> = ({ node, onUpdate }) => {
-  const getNodeSpecificConfig = () => {
-    switch (node.type) {
-      case 'webhook':
-        return (
-          <>
-            <div>
-              <Label>URL</Label>
-              <Input
-                value={node.data.url || ''}
-                onChange={(e) => onUpdate({ ...node.data, url: e.target.value })}
-                placeholder="https://api.example.com/webhook"
-              />
-            </div>
-            <div>
-              <Label>Method</Label>
-              <Select
-                value={node.data.method || 'POST'}
-                onValueChange={(value) => onUpdate({ ...node.data, method: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="GET">GET</SelectItem>
-                  <SelectItem value="POST">POST</SelectItem>
-                  <SelectItem value="PUT">PUT</SelectItem>
-                  <SelectItem value="DELETE">DELETE</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </>
         );
-      case 'database':
+
+      case 'rcs':
         return (
-          <>
-            <div>
-              <Label>Connection String</Label>
-              <Input
-                value={node.data.connectionString || ''}
-                onChange={(e) => onUpdate({ ...node.data, connectionString: e.target.value })}
-                placeholder="mongodb://localhost:27017/mydb"
-              />
-            </div>
-            <div>
-              <Label>Operation</Label>
-              <Select
-                value={node.data.operation || 'select'}
-                onValueChange={(value) => onUpdate({ ...node.data, operation: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="select">SELECT</SelectItem>
-                  <SelectItem value="insert">INSERT</SelectItem>
-                  <SelectItem value="update">UPDATE</SelectItem>
-                  <SelectItem value="delete">DELETE</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label>Table/Collection</Label>
-              <Input
-                value={node.data.table || ''}
-                onChange={(e) => onUpdate({ ...node.data, table: e.target.value })}
-                placeholder="users"
-              />
-            </div>
-          </>
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">RCS Channel Configuration</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="botName">Bot Name</Label>
+                    <Input
+                      id="botName"
+                      value={formData.botName || ''}
+                      onChange={(e) => setFormData({ ...formData, botName: e.target.value })}
+                      placeholder="your_rcs_bot"
+                      className="nodrag"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="agentId">Agent ID</Label>
+                    <Input
+                      id="agentId"
+                      value={formData.agentId || ''}
+                      onChange={(e) => setFormData({ ...formData, agentId: e.target.value })}
+                      placeholder="agent_12345"
+                      className="nodrag"
+                    />
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="messageType">Message Type</Label>
+                    <Select
+                      value={formData.messageType || 'text'}
+                      onValueChange={(value) => setFormData({ ...formData, messageType: value })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="text">Text</SelectItem>
+                        <SelectItem value="rich">Rich Card</SelectItem>
+                        <SelectItem value="media">Media</SelectItem>
+                        <SelectItem value="interactive">Interactive</SelectItem>
+                        <SelectItem value="carousel">Carousel</SelectItem>
+                        <SelectItem value="location">Location</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="brandId">Brand ID</Label>
+                    <Input
+                      id="brandId"
+                      value={formData.brandId || ''}
+                      onChange={(e) => setFormData({ ...formData, brandId: e.target.value })}
+                      placeholder="brand_12345"
+                      className="nodrag"
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         );
-      case 'transform':
-        return (
-          <>
-            <div>
-              <Label>Transform Type</Label>
-              <Select
-                value={node.data.transformType || 'format'}
-                onValueChange={(value) => onUpdate({ ...node.data, transformType: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="format">Format</SelectItem>
-                  <SelectItem value="validate">Validate</SelectItem>
-                  <SelectItem value="enrich">Enrich</SelectItem>
-                  <SelectItem value="filter">Filter</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label>Script</Label>
-              <Textarea
-                value={node.data.script || ''}
-                onChange={(e) => onUpdate({ ...node.data, script: e.target.value })}
-                placeholder="Enter transformation script..."
-              />
-            </div>
-          </>
-        );
-      case 'api':
-        return (
-          <>
-            <div>
-              <Label>Endpoint</Label>
-              <Input
-                value={node.data.endpoint || ''}
-                onChange={(e) => onUpdate({ ...node.data, endpoint: e.target.value })}
-                placeholder="https://api.example.com/v1/users"
-              />
-            </div>
-            <div>
-              <Label>Method</Label>
-              <Select
-                value={node.data.method || 'GET'}
-                onValueChange={(value) => onUpdate({ ...node.data, method: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="GET">GET</SelectItem>
-                  <SelectItem value="POST">POST</SelectItem>
-                  <SelectItem value="PUT">PUT</SelectItem>
-                  <SelectItem value="DELETE">DELETE</SelectItem>
-                  <SelectItem value="PATCH">PATCH</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label>Authentication</Label>
-              <Select
-                value={node.data.authentication || 'none'}
-                onValueChange={(value) => onUpdate({ ...node.data, authentication: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">None</SelectItem>
-                  <SelectItem value="basic">Basic Auth</SelectItem>
-                  <SelectItem value="bearer">Bearer Token</SelectItem>
-                  <SelectItem value="apikey">API Key</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </>
-        );
-      case 'analytics':
-        return (
-          <>
-            <div>
-              <Label>Dashboard</Label>
-              <Input
-                value={node.data.dashboard || ''}
-                onChange={(e) => onUpdate({ ...node.data, dashboard: e.target.value })}
-                placeholder="Main Analytics Dashboard"
-              />
-            </div>
-            <div>
-              <Label>Reporting Interval</Label>
-              <Select
-                value={node.data.reportingInterval || 'hourly'}
-                onValueChange={(value) => onUpdate({ ...node.data, reportingInterval: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="realtime">Real-time</SelectItem>
-                  <SelectItem value="minutely">Every Minute</SelectItem>
-                  <SelectItem value="hourly">Hourly</SelectItem>
-                  <SelectItem value="daily">Daily</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </>
-        );
-      case 'alert':
-        return (
-          <>
-            <div>
-              <Label>Alert Type</Label>
-              <Select
-                value={node.data.alertType || 'threshold'}
-                onValueChange={(value) => onUpdate({ ...node.data, alertType: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="threshold">Threshold</SelectItem>
-                  <SelectItem value="anomaly">Anomaly</SelectItem>
-                  <SelectItem value="error">Error</SelectItem>
-                  <SelectItem value="status">Status</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label>Severity</Label>
-              <Select
-                value={node.data.severity || 'medium'}
-                onValueChange={(value) => onUpdate({ ...node.data, severity: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="low">Low</SelectItem>
-                  <SelectItem value="medium">Medium</SelectItem>
-                  <SelectItem value="high">High</SelectItem>
-                  <SelectItem value="critical">Critical</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label>Condition</Label>
-              <Input
-                value={node.data.condition || ''}
-                onChange={(e) => onUpdate({ ...node.data, condition: e.target.value })}
-                placeholder="error_rate > 5%"
-              />
-            </div>
-          </>
-        );
+
       default:
         return null;
     }
   };
 
-  return (
-    <div className="space-y-4">
+  const renderVendorSelection = () => {
+    if (!['sms', 'whatsapp', 'email', 'voice', 'rcs'].includes(node.type)) {
+      return null;
+    }
+
+    return (
       <Card>
         <CardHeader>
-          <CardTitle className="text-sm">{node.type.charAt(0).toUpperCase() + node.type.slice(1)} Configuration</CardTitle>
+          <CardTitle className="text-lg flex items-center justify-between">
+            Vendor Selection
+            <Badge variant="secondary">
+              {selectedVendors.length} selected
+            </Badge>
+          </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-3">
-          {getNodeSpecificConfig()}
+        <CardContent className="space-y-4">
+          {/* Premium/Official Vendors */}
+          <Collapsible 
+            open={expandedVendorSections.has('premium')}
+            onOpenChange={() => toggleVendorSection('premium')}
+          >
+            <CollapsibleTrigger className="flex items-center justify-between w-full p-3 bg-accent/30 rounded-lg hover:bg-accent/50 transition-colors">
+              <div className="flex items-center gap-2">
+                <Shield className="w-4 h-4 text-primary" />
+                <span className="font-medium">Premium & Official Vendors</span>
+                <Badge variant="outline" className="text-xs">
+                  {vendorsByTier.premium.length} available
+                </Badge>
+              </div>
+              {expandedVendorSections.has('premium') ? 
+                <ChevronDown className="w-4 h-4" /> : 
+                <ChevronRight className="w-4 h-4" />
+              }
+            </CollapsibleTrigger>
+            <CollapsibleContent className="mt-3">
+              <div className="grid grid-cols-1 gap-2">
+                {vendorsByTier.premium.map((vendor) => (
+                  <div
+                    key={vendor.id}
+                    className={`
+                      flex items-center justify-between p-3 border rounded-lg cursor-pointer transition-all
+                      ${selectedVendors.includes(vendor.id) 
+                        ? 'border-primary bg-primary/5' 
+                        : 'border-border hover:border-primary/50 hover:bg-accent/30'
+                      }
+                    `}
+                    onClick={() => toggleVendor(vendor.id)}
+                  >
+                    <div className="flex items-center gap-3">
+                      <Checkbox
+                        checked={selectedVendors.includes(vendor.id)}
+                        onChange={() => {}} // Handled by parent onClick
+                        className="pointer-events-none"
+                      />
+                      <span className="text-lg">{vendor.logo}</span>
+                      <div>
+                        <div className="font-medium text-sm">{vendor.name}</div>
+                        <div className="text-xs text-muted-foreground flex items-center gap-2">
+                          <Globe className="w-3 h-3" />
+                          {vendor.region}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge 
+                        variant={vendor.tier === 'Official' ? 'default' : 'secondary'}
+                        className="text-xs"
+                      >
+                        {vendor.tier}
+                      </Badge>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
+
+          {/* Standard Vendors */}
+          {vendorsByTier.standard.length > 0 && (
+            <Collapsible 
+              open={expandedVendorSections.has('standard')}
+              onOpenChange={() => toggleVendorSection('standard')}
+            >
+              <CollapsibleTrigger className="flex items-center justify-between w-full p-3 bg-accent/30 rounded-lg hover:bg-accent/50 transition-colors">
+                <div className="flex items-center gap-2">
+                  <Zap className="w-4 h-4 text-primary" />
+                  <span className="font-medium">Standard Vendors</span>
+                  <Badge variant="outline" className="text-xs">
+                    {vendorsByTier.standard.length} available
+                  </Badge>
+                </div>
+                {expandedVendorSections.has('standard') ? 
+                  <ChevronDown className="w-4 h-4" /> : 
+                  <ChevronRight className="w-4 h-4" />
+                }
+              </CollapsibleTrigger>
+              <CollapsibleContent className="mt-3">
+                <div className="grid grid-cols-1 gap-2">
+                  {vendorsByTier.standard.map((vendor) => (
+                    <div
+                      key={vendor.id}
+                      className={`
+                        flex items-center justify-between p-3 border rounded-lg cursor-pointer transition-all
+                        ${selectedVendors.includes(vendor.id) 
+                          ? 'border-primary bg-primary/5' 
+                          : 'border-border hover:border-primary/50 hover:bg-accent/30'
+                        }
+                      `}
+                      onClick={() => toggleVendor(vendor.id)}
+                    >
+                      <div className="flex items-center gap-3">
+                        <Checkbox
+                          checked={selectedVendors.includes(vendor.id)}
+                          onChange={() => {}} // Handled by parent onClick
+                          className="pointer-events-none"
+                        />
+                        <span className="text-lg">{vendor.logo}</span>
+                        <div>
+                          <div className="font-medium text-sm">{vendor.name}</div>
+                          <div className="text-xs text-muted-foreground flex items-center gap-2">
+                            <Globe className="w-3 h-3" />
+                            {vendor.region}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="secondary" className="text-xs">
+                          {vendor.tier}
+                        </Badge>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
+          )}
+
+          {/* Vendor Selection Summary */}
+          {selectedVendors.length > 0 && (
+            <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <Settings className="w-4 h-4 text-primary" />
+                <span className="font-medium text-sm">Selected Vendors</span>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {selectedVendors.map(vendorId => {
+                  const vendor = channelVendors.find(v => v.id === vendorId);
+                  return vendor ? (
+                    <Badge key={vendorId} variant="outline" className="text-xs">
+                      {vendor.logo} {vendor.name}
+                    </Badge>
+                  ) : null;
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Vendor Selection Warning */}
+          {selectedVendors.length === 0 && (
+            <div className="bg-status-warning/10 border border-status-warning/20 rounded-lg p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <AlertTriangle className="w-4 h-4 text-status-warning" />
+                <span className="font-medium text-sm text-status-warning">No Vendors Selected</span>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Please select at least one vendor to enable message routing for this channel.
+              </p>
+            </div>
+          )}
         </CardContent>
       </Card>
-    </div>
+    );
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-hidden flex flex-col">
+        <DialogHeader>
+          <DialogTitle className="text-xl flex items-center gap-2">
+            <Settings className="w-5 h-5 text-primary" />
+            Configure {node.type.charAt(0).toUpperCase() + node.type.slice(1)} Node
+          </DialogTitle>
+        </DialogHeader>
+        
+        <div className="flex-1 overflow-y-auto">
+          <Tabs defaultValue="general" className="w-full">
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="general">General</TabsTrigger>
+              <TabsTrigger value="vendors">Vendors</TabsTrigger>
+              <TabsTrigger value="advanced">Advanced</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="general" className="space-y-4 mt-6">
+              {renderChannelConfiguration()}
+            </TabsContent>
+            
+            <TabsContent value="vendors" className="space-y-4 mt-6">
+              {renderVendorSelection()}
+            </TabsContent>
+            
+            <TabsContent value="advanced" className="space-y-4 mt-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Advanced Settings</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="timeout">Timeout (seconds)</Label>
+                      <Input
+                        id="timeout"
+                        type="number"
+                        value={formData.timeout || ''}
+                        onChange={(e) => setFormData({ ...formData, timeout: parseInt(e.target.value) })}
+                        placeholder="30"
+                        className="nodrag"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="retryAttempts">Retry Attempts</Label>
+                      <Input
+                        id="retryAttempts"
+                        type="number"
+                        value={formData.retryAttempts || ''}
+                        onChange={(e) => setFormData({ ...formData, retryAttempts: parseInt(e.target.value) })}
+                        placeholder="3"
+                        className="nodrag"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <div className="flex items-center space-x-2">
+                      <Switch
+                        id="enableFallback"
+                        checked={formData.enableFallback || false}
+                        onCheckedChange={(checked) => setFormData({ ...formData, enableFallback: checked })}
+                      />
+                      <Label htmlFor="enableFallback">Enable Fallback Routing</Label>
+                    </div>
+
+                    <div className="flex items-center space-x-2">
+                      <Switch
+                        id="enableDeliveryReports"
+                        checked={formData.enableDeliveryReports || false}
+                        onCheckedChange={(checked) => setFormData({ ...formData, enableDeliveryReports: checked })}
+                      />
+                      <Label htmlFor="enableDeliveryReports">Enable Delivery Reports</Label>
+                    </div>
+
+                    <div className="flex items-center space-x-2">
+                      <Switch
+                        id="enableAnalytics"
+                        checked={formData.enableAnalytics || true}
+                        onCheckedChange={(checked) => setFormData({ ...formData, enableAnalytics: checked })}
+                      />
+                      <Label htmlFor="enableAnalytics">Enable Analytics Tracking</Label>
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="webhookUrl">Webhook URL</Label>
+                    <Input
+                      id="webhookUrl"
+                      value={formData.webhookUrl || ''}
+                      onChange={(e) => setFormData({ ...formData, webhookUrl: e.target.value })}
+                      placeholder="https://your-app.com/webhooks/delivery-status"
+                      className="nodrag"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="customHeaders">Custom Headers (JSON)</Label>
+                    <Textarea
+                      id="customHeaders"
+                      value={formData.customHeaders || ''}
+                      onChange={(e) => setFormData({ ...formData, customHeaders: e.target.value })}
+                      placeholder='{"X-Custom-Header": "value"}'
+                      className="nodrag font-mono text-sm"
+                      rows={3}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
+        </div>
+        
+        <Separator />
+        
+        <div className="flex justify-between items-center pt-4">
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={handleReset}>
+              <RotateCcw className="w-4 h-4 mr-2" />
+              Reset
+            </Button>
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={onClose}>
+              Cancel
+            </Button>
+            <Button onClick={handleSave} className="bg-gradient-primary">
+              <Save className="w-4 h-4 mr-2" />
+              Save Configuration
+            </Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 };
