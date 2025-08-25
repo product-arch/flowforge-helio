@@ -134,7 +134,7 @@ export const FlowNavbar: React.FC = () => {
 
   return (
     <TooltipProvider>
-      <div className="border-b border-border bg-card px-6 py-3">
+      <div className="border-b border-border bg-card/80 backdrop-blur-sm px-6 py-3 transition-colors duration-300">
         <div className="flex items-center justify-between">
           {/* Left Section - Flow Info */}
           <div className="flex items-center gap-4">

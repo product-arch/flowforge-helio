@@ -32,6 +32,8 @@
     /* Flow Builder Specific Colors */
     --flow-canvas: 210 15% 97%;
     --flow-grid: 210 20% 85%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
     --node-start: 142 76% 36%;
     --node-routing: 217 91% 60%;
     --node-constraint: 38 92% 50%;
@@ -125,72 +127,118 @@
 
   /* Theme Variants */
   [data-theme="emerald"] {
-    --background: 142 52% 96%;
+    --background: 142 52% 96%; /* #f4f7f5 equivalent */
     --primary: 158 64% 52%;
     --ring: 158 64% 52%;
     --node-routing: 158 64% 52%;
     --connection-default: 158 64% 52%;
     --gradient-primary: linear-gradient(135deg, hsl(158 64% 52%) 0%, hsl(142 76% 36%) 100%);
+    --flow-canvas: 142 52% 98%;
+    --flow-grid: 142 30% 88%;
+    --card: 0 0% 100%;
   }
 
   [data-theme="emerald"].dark {
     --background: 220 13% 9%;
+    --flow-canvas: 220 13% 12%;
+    --card: 220 13% 11%;
   }
+  
   [data-theme="purple"] {
-    --background: 250 100% 98%;
+    --background: 250 100% 98%; /* #F6F3FF equivalent */
     --primary: 271 81% 56%;
     --ring: 271 81% 56%;
     --node-routing: 271 81% 56%;
     --connection-default: 271 81% 56%;
     --gradient-primary: linear-gradient(135deg, hsl(271 81% 56%) 0%, hsl(262 83% 58%) 100%);
+    --flow-canvas: 250 100% 99%;
+    --flow-grid: 250 50% 90%;
+    --card: 0 0% 100%;
   }
 
   [data-theme="purple"].dark {
     --background: 220 13% 9%;
+    --flow-canvas: 220 13% 12%;
+    --card: 220 13% 11%;
   }
+  
   [data-theme="orange"] {
-    --background: 0 100% 98%;
+    --background: 0 100% 98%; /* #FFF5F5 equivalent */
     --primary: 25 95% 53%;
     --ring: 25 95% 53%;
     --node-routing: 25 95% 53%;
     --connection-default: 25 95% 53%;
     --gradient-primary: linear-gradient(135deg, hsl(25 95% 53%) 0%, hsl(43 96% 56%) 100%);
+    --flow-canvas: 0 100% 99%;
+    --flow-grid: 0 50% 92%;
+    --card: 0 0% 100%;
   }
 
   [data-theme="orange"].dark {
     --background: 220 13% 9%;
+    --flow-canvas: 220 13% 12%;
+    --card: 220 13% 11%;
   }
+  
   [data-theme="rose"] {
-    --background: 0 100% 98%;
+    --background: 0 100% 98%; /* #FFF5F5 equivalent */
     --primary: 330 81% 60%;
     --ring: 330 81% 60%;
     --node-routing: 330 81% 60%;
     --connection-default: 330 81% 60%;
     --gradient-primary: linear-gradient(135deg, hsl(330 81% 60%) 0%, hsl(346 77% 49%) 100%);
+    --flow-canvas: 0 100% 99%;
+    --flow-grid: 0 50% 92%;
+    --card: 0 0% 100%;
   }
 
   [data-theme="rose"].dark {
     --background: 220 13% 9%;
+    --flow-canvas: 220 13% 12%;
+    --card: 220 13% 11%;
   }
+  
   [data-theme="indigo"] {
-    --background: 250 100% 98%;
+    --background: 250 100% 98%; /* #F6F3FF equivalent */
     --primary: 239 84% 67%;
     --ring: 239 84% 67%;
     --node-routing: 239 84% 67%;
     --connection-default: 239 84% 67%;
     --gradient-primary: linear-gradient(135deg, hsl(239 84% 67%) 0%, hsl(262 83% 58%) 100%);
+    --flow-canvas: 250 100% 99%;
+    --flow-grid: 250 50% 90%;
+    --card: 0 0% 100%;
   }
 
   [data-theme="indigo"].dark {
     --background: 220 13% 9%;
+    --flow-canvas: 220 13% 12%;
+    --card: 220 13% 11%;
   }
+  
   [data-theme="solarized-osaka"] {
-    --background: 142 52% 96%;
+    --background: 142 52% 96%; /* #f4f7f5 equivalent */
     --primary: 166 100% 37%;
     --ring: 166 100% 37%;
     --node-routing: 166 100% 37%;
     --connection-default: 166 100% 37%;
     --gradient-primary: linear-gradient(135deg, hsl(166 100% 37%) 0%, hsl(180 100% 25%) 100%);
+    --flow-canvas: 142 52% 98%;
+    --flow-grid: 142 30% 88%;
+    --card: 0 0% 100%;
+  }
+
+  [data-theme="solarized-osaka"].dark {
+    --background: 220 13% 9%;
+    --flow-canvas: 220 13% 12%;
+    --card: 220 13% 11%;
+  }
+
+  /* Default Blue Theme - #f0f6ff equivalent */
+  :root {
+    --background: 214 100% 97%; /* #f0f6ff equivalent */
+    --flow-canvas: 214 100% 98%;
+    --flow-grid: 214 50% 90%;
   }
 }
 

@@ -120,7 +120,7 @@ export const FlowBuilder: React.FC = () => {
   }), [simulationMode]);
 
   return (
-    <div className="h-screen w-full flex flex-col bg-background">
+    <div className="h-screen w-full flex flex-col bg-background transition-colors duration-300">
       <FlowNavbar />
       
       <div className="flex-1 flex overflow-hidden">
@@ -158,7 +158,7 @@ export const FlowBuilder: React.FC = () => {
               <MiniMap 
                 nodeColor="hsl(var(--node-routing))"
                 maskColor="rgba(0,0,0,0.1)"
-                className="bg-card border border-border rounded-lg"
+                className="bg-card border border-border rounded-lg shadow-lg"
                 style={{ backgroundColor: 'hsl(var(--card))' }}
               />
             </Panel>

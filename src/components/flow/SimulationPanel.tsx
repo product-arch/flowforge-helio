@@ -76,7 +76,7 @@ export const SimulationPanel: React.FC = () => {
 
   if (!expanded) {
     return (
-      <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border p-4">
+      <div className="fixed bottom-0 left-0 right-0 bg-card/90 backdrop-blur-sm border-t border-border p-4 transition-colors duration-300">
         <div className="flex items-center justify-between max-w-7xl mx-auto">
           <div className="flex items-center gap-4">
             <h3 className="font-semibold">Simulation Center</h3>
@@ -108,7 +108,7 @@ export const SimulationPanel: React.FC = () => {
       initial={{ height: 0 }}
       animate={{ height: 400 }}
       exit={{ height: 0 }}
-      className="fixed bottom-0 left-0 right-0 bg-card border-t border-border overflow-hidden"
+      className="fixed bottom-0 left-0 right-0 bg-card/95 backdrop-blur-sm border-t border-border overflow-hidden transition-colors duration-300"
     >
       <div className="h-full flex flex-col">
         <div className="p-4 border-b border-border">
