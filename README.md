@@ -36,6 +36,31 @@ npm i
 npm run dev
 ```
 
+## API Documentation
+
+This project includes comprehensive API documentation served via Swagger UI.
+
+### Start the Documentation Server
+
+```sh
+npm run swagger
+```
+
+The documentation will be available at:
+- **Swagger UI**: http://localhost:8080/swagger-ui.html
+- **Alternative**: http://localhost:8080/docs
+- **OpenAPI Spec**: http://localhost:8080/openapi.yaml
+- **Health Check**: http://localhost:8080/health
+
+### Environment Variables
+
+Set `FLOWFORGE_API_TOKEN` to automatically authenticate API requests in Swagger UI:
+
+```sh
+export FLOWFORGE_API_TOKEN="your-api-token"
+npm run swagger
+```
+
 **Edit a file directly in GitHub**
 
 - Navigate to the desired file(s).
