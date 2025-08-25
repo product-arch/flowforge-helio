@@ -9,6 +9,7 @@ import FlowBuilderPage from "./pages/FlowBuilder";
 import Monitoring from "./pages/Monitoring";
 import Integration from "./pages/Integration";
 import Templates from "./pages/Templates";
+import Documentation from "./pages/Documentation";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,6 +27,7 @@ const App = () => (
             <Route path="/monitoring" element={<Monitoring />} />
             <Route path="/integration" element={<Integration />} />
             <Route path="/templates" element={<Templates />} />
+            <Route path="/documentation" element={<Documentation />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
