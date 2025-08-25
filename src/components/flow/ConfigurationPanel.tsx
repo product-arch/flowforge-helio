@@ -48,7 +48,7 @@ export const ConfigurationPanel: React.FC = () => {
 
   if (collapsed) {
     return (
-      <div className="w-12 bg-card/80 backdrop-blur-sm border-l border-border flex flex-col items-center py-4 transition-colors duration-300">
+      <div className="w-12 bg-card border-l border-border flex flex-col items-center py-4">
         <Button
           variant="ghost"
           size="sm"
@@ -70,7 +70,7 @@ export const ConfigurationPanel: React.FC = () => {
   };
 
   return (
-    <div className="w-80 bg-card/80 backdrop-blur-sm border-l border-border flex flex-col">
+    <div className="w-80 bg-card border-l border-border flex flex-col">
       <div className="p-4 border-b border-border">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold">Configuration</h2>

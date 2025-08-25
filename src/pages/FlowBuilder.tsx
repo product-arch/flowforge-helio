@@ -36,7 +36,7 @@ const FlowBuilderWithDragDrop: React.FC = () => {
   );
 
   return (
-    <div className="h-screen w-full bg-background" ref={reactFlowWrapper} onDragOver={onDragOver} onDrop={onDrop}>
+    <div className="h-screen w-full" ref={reactFlowWrapper} onDragOver={onDragOver} onDrop={onDrop}>
       <FlowBuilderComponent />
     </div>
   );

@@ -111,7 +111,7 @@ export const SimulationPanel: React.FC = () => {
       className="fixed bottom-0 left-0 right-0 bg-card/95 backdrop-blur-sm border-t border-border overflow-hidden"
     >
       <div className="h-full flex flex-col">
-        <div className="p-4 border-b border-border">
+        <div className="p-4 border-b border-border bg-card">
           <div className="flex items-center justify-between">
             <h3 className="font-semibold">Simulation Center</h3>
             <div className="flex items-center gap-2">

@@ -120,13 +120,13 @@ export const FlowBuilder: React.FC = () => {
   }), [simulationMode]);
 
   return (
-    <div className="h-screen w-full flex flex-col bg-background">
+    <div className="h-screen w-full flex flex-col">
       <FlowNavbar />
       
       <div className="flex-1 flex overflow-hidden">
         <NodePalette />
         
-        <div className={`flex-1 relative ${configModalOpen ? 'blur-sm' : ''} transition-all duration-200`}>
+        <div className={`flex-1 relative ${configModalOpen ? 'blur-sm' : ''}`}>
           <ReactFlow
             nodes={nodes.map(node => ({
               ...node,
@@ -145,21 +145,20 @@ export const FlowBuilder: React.FC = () => {
             edgeTypes={edgeTypes}
             defaultEdgeOptions={defaultEdgeOptions}
             fitView
-            className="bg-flow-canvas"
+            className="bg-background"
             proOptions={{ hideAttribution: true }}
           >
             <Background 
-              color="hsl(var(--flow-grid))" 
+              color="hsl(var(--border))" 
               gap={20} 
               size={1.5}
-              style={{ opacity: 0.8 }}
+              style={{ opacity: 0.5 }}
             />
             <Panel position="bottom-left">
               <MiniMap 
-                nodeColor="hsl(var(--node-routing))"
-                maskColor="rgba(0,0,0,0.1)"
+                nodeColor="hsl(var(--primary))"
+                maskColor="rgba(0,0,0,0.2)"
                 className="bg-card border border-border rounded-lg shadow-lg"
-                style={{ backgroundColor: 'hsl(var(--card))' }}
               />
             </Panel>
             <Panel position="bottom-right">
