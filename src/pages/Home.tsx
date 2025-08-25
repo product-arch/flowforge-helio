@@ -471,7 +471,7 @@ const Home: React.FC = () => {
               </span>
             </div>
             <div className="text-sm text-muted-foreground">
-              © 2024 Hub. All rights reserved.
+              © {new Date().getFullYear()} Hub. All rights reserved.
             </div>
           </div>
         </div>
@@ -484,7 +484,7 @@ const Home: React.FC = () => {
       
       {/* Help Modal */}
       <Dialog open={helpModalOpen} onOpenChange={setHelpModalOpen}>
-        <DialogContent className="sm:max-w-[600px]">
+        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <HelpCircle className="w-5 h-5 text-primary" />
@@ -519,7 +519,7 @@ const Home: React.FC = () => {
                   across multiple channels.
                 </p>
                 <p>
-                  Founded in 2023, Helo.ai serves over 500+ enterprises globally, processing millions of 
+                  Founded in {new Date().getFullYear() - 1}, Helo.ai serves over 500+ enterprises globally, processing millions of 
                   messages daily with industry-leading delivery rates and cost optimization.
                 </p>
                 <p>
@@ -570,7 +570,7 @@ const Home: React.FC = () => {
                 </div>
                 
                 <div className="text-xs text-muted-foreground pt-2 border-t border-border">
-                  <p>© 2024 Helo.ai. All rights reserved.</p>
+                  <p>© {new Date().getFullYear()} Helo.ai. All rights reserved.</p>
                   <p>Built with ❤️ for intelligent communication automation.</p>
                 </div>
               </div>

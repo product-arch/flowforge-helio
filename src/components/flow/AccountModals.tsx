@@ -45,7 +45,7 @@ export const PersonalInfoModal: React.FC<PersonalInfoModalProps> = ({ isOpen, on
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Personal Information</DialogTitle>
         </DialogHeader>
@@ -154,7 +154,7 @@ export const AccountSettingsModal: React.FC<AccountSettingsModalProps> = ({ isOp
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Account Settings</DialogTitle>
         </DialogHeader>
@@ -248,24 +248,36 @@ export const AccountSettingsModal: React.FC<AccountSettingsModalProps> = ({ isOp
 };
 
 export const BillingModal: React.FC<BillingModalProps> = ({ isOpen, onClose }) => {
+  const currentDate = new Date();
+  const nextBillingDate = new Date(currentDate.getTime() + 30 * 24 * 60 * 60 * 1000); // 30 days from now
+  
   const billingData = {
     plan: 'Professional',
     status: 'Active',
-    nextBillingDate: '2024-09-15',
+    nextBillingDate: nextBillingDate.toISOString().split('T')[0],
     monthlyUsage: '15,432',
     monthlyLimit: '50,000',
     totalCost: '$299.00'
   };
 
-  const recentInvoices = [
-    { date: '2024-08-15', amount: '$299.00', status: 'Paid' },
-    { date: '2024-07-15', amount: '$299.00', status: 'Paid' },
-    { date: '2024-06-15', amount: '$299.00', status: 'Paid' }
-  ];
+  const getRecentInvoices = () => {
+    const invoices = [];
+    for (let i = 0; i < 3; i++) {
+      const invoiceDate = new Date(currentDate.getTime() - (i + 1) * 30 * 24 * 60 * 60 * 1000);
+      invoices.push({
+        date: invoiceDate.toISOString().split('T')[0],
+        amount: '$299.00',
+        status: 'Paid'
+      });
+    }
+    return invoices;
+  };
+
+  const recentInvoices = getRecentInvoices();
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Billing & Subscription</DialogTitle>
         </DialogHeader>
