@@ -4,13 +4,12 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "concurrently \"npm run swagger\" \"vite\"",
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview",
     "swagger": "node src/server/swagger-server.js",
-    "docs:serve": "node src/server/swagger-server.js",
     "docs:serve": "npx redoc-cli serve docs/api/openapi.yaml --watch",
     "docs:build": "npx redoc-cli build docs/api/openapi.yaml --output docs/api-docs.html",
     "docs:validate": "npx @apidevtools/swagger-parser validate docs/api/openapi.yaml"
