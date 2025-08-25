@@ -120,7 +120,7 @@ export const FlowBuilder: React.FC = () => {
   }), [simulationMode]);
 
   return (
-    <div className="h-screen w-full flex flex-col bg-background transition-colors duration-300">
+    <div className="h-screen w-full flex flex-col bg-background">
       <FlowNavbar />
       
       <div className="flex-1 flex overflow-hidden">

@@ -309,7 +309,7 @@ export const NodePalette: React.FC = () => {
 
   return (
     <TooltipProvider>
-      <div className="w-80 bg-card/80 backdrop-blur-sm border-r border-border flex flex-col transition-colors duration-300">
+      <div className="w-80 bg-card/80 backdrop-blur-sm border-r border-border flex flex-col">
         <div className="p-4 border-b border-border">
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-lg font-semibold">Node Palette</h2>
