@@ -42,15 +42,29 @@ This project includes comprehensive API documentation served via Swagger UI.
 
 ### Start the Documentation Server
 
+**Important**: You need to run both the development server and documentation server:
+
+```sh
+# Terminal 1: Start the React development server
+npm run dev
+
+# Terminal 2: Start the documentation server
+npm run swagger
+```
+
+Or start the documentation server alone:
+
 ```sh
 npm run swagger
 ```
 
-The documentation will be available at:
-- **Swagger UI**: http://localhost:8080/swagger-ui.html
-- **Alternative**: http://localhost:8080/docs
-- **OpenAPI Spec**: http://localhost:8080/openapi.yaml
-- **Health Check**: http://localhost:8080/health
+With both servers running, the documentation will be available at:
+- **Swagger UI**: http://localhost:8080/swagger-ui.html (proxied from port 8081)
+- **Alternative**: http://localhost:8080/docs (proxied from port 8081)
+- **OpenAPI Spec**: http://localhost:8080/openapi.yaml (proxied from port 8081)
+- **Health Check**: http://localhost:8080/health (proxied from port 8081)
+
+The documentation server runs on port 8081, but is accessible through the main development server (port 8080) via proxy configuration.
 
 ### Environment Variables
 

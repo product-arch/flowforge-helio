@@ -11,7 +11,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const app = express();
-const PORT = 8080;
+const PORT = process.env.DOCS_PORT || 8081;
 
 // Enable CORS for all routes
 app.use(cors());
