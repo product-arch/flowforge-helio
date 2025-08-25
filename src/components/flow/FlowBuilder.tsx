@@ -150,9 +150,9 @@ export const FlowBuilder: React.FC = () => {
           >
             <Background 
               color="hsl(var(--flow-grid))" 
-              gap={24} 
-              size={0.8}
-              style={{ opacity: 0.4 }}
+              gap={20} 
+              size={1.5}
+              style={{ opacity: 0.8 }}
             />
             <Panel position="bottom-left">
               <MiniMap 

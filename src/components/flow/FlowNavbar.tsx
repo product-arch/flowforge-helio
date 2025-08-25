@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { PersonalInfoModal, AccountSettingsModal, BillingModal } from './AccountModals';
 import { 
   DropdownMenu,
   DropdownMenuContent,
@@ -56,6 +57,9 @@ export const FlowNavbar: React.FC = () => {
   const [flowState, setFlowState] = useState<'draft' | 'active' | 'archived'>('draft');
   const [isEditing, setIsEditing] = useState(false);
   const [campaignCount] = useState(3);
+  const [personalInfoOpen, setPersonalInfoOpen] = useState(false);
+  const [accountSettingsOpen, setAccountSettingsOpen] = useState(false);
+  const [billingOpen, setBillingOpen] = useState(false);
   const { simulationMode, setSimulationMode } = useFlow();
   const { theme, mode, setTheme, setMode } = useTheme();
   const { toast } = useToast();
@@ -69,12 +73,21 @@ export const FlowNavbar: React.FC = () => {
   };
 
   const handleActivate = () => {
-    setFlowState('active');
-    toast({
-      title: "Flow Activated",
-      description: "Your routing flow is now live and processing messages.",
-      className: "border-status-success bg-status-success/10 text-status-success"
-    });
+    if (flowState === 'active') {
+      setFlowState('draft');
+      toast({
+        title: "Flow Deactivated",
+        description: "Your routing flow has been deactivated and is no longer processing messages.",
+        className: "border-status-warning bg-status-warning/10 text-status-warning"
+      });
+    } else {
+      setFlowState('active');
+      toast({
+        title: "Flow Activated",
+        description: "Your routing flow is now live and processing messages.",
+        className: "border-status-success bg-status-success/10 text-status-success"
+      });
+    }
   };
 
   const handleSimulate = () => {
@@ -198,11 +211,13 @@ export const FlowNavbar: React.FC = () => {
             <Button 
               size="sm"
               onClick={handleActivate}
-              disabled={flowState === 'active'}
-              className="bg-gradient-primary hover:opacity-90"
+              className={flowState === 'active' 
+                ? "bg-status-warning hover:bg-status-warning/90 text-white" 
+                : "bg-gradient-primary hover:opacity-90"
+              }
             >
               <CheckCircle className="w-4 h-4 mr-2" />
-              Activate
+              {flowState === 'active' ? 'Deactivate' : 'Activate'}
             </Button>
 
             {/* Account Menu */}
@@ -213,15 +228,15 @@ export const FlowNavbar: React.FC = () => {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setPersonalInfoOpen(true)}>
                   <User className="w-4 h-4 mr-2" />
                   Personal Info
                 </DropdownMenuItem>
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setAccountSettingsOpen(true)}>
                   <Settings className="w-4 h-4 mr-2" />
                   Account Settings
                 </DropdownMenuItem>
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setBillingOpen(true)}>
                   <CreditCard className="w-4 h-4 mr-2" />
                   Billing
                 </DropdownMenuItem>
@@ -301,6 +316,10 @@ export const FlowNavbar: React.FC = () => {
           </div>
         </div>
       </div>
+      
+      <PersonalInfoModal isOpen={personalInfoOpen} onClose={() => setPersonalInfoOpen(false)} />
+      <AccountSettingsModal isOpen={accountSettingsOpen} onClose={() => setAccountSettingsOpen(false)} />
+      <BillingModal isOpen={billingOpen} onClose={() => setBillingOpen(false)} />
     </TooltipProvider>
   );
 };
