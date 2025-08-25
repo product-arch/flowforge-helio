@@ -42,6 +42,11 @@ import { ConvergeNode } from './nodes/ConvergeNode';
 import { DivergeNode } from './nodes/DivergeNode';
 import { TimerNode } from './nodes/TimerNode';
 import { DoEventNode } from './nodes/DoEventNode';
+import { PriorityRouteNode } from './nodes/PriorityRouteNode';
+import { SpilloverNode } from './nodes/SpilloverNode';
+import { RoundRobinNode } from './nodes/RoundRobinNode';
+import { GeolocationNode } from './nodes/GeolocationNode';
+import { LoadBalancerNode } from './nodes/LoadBalancerNode';
 
 const nodeTypes = {
   start: StartNode,
