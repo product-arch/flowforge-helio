@@ -401,6 +401,11 @@ const Documentation: React.FC = () => {
                 v1.0.0
               </Badge>
               
+              <Button variant="outline" size="sm" onClick={() => navigate('/api-console')}>
+                <Terminal className="w-4 h-4 mr-2" />
+                API Console
+              </Button>
+              
               {/* Settings Menu */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -501,10 +506,6 @@ const Documentation: React.FC = () => {
                 </DropdownMenuContent>
               </DropdownMenu>
               
-              <Button variant="outline" size="sm">
-                <ExternalLink className="w-4 h-4 mr-2" />
-                <span onClick={() => navigate('/api-console')}>API Console</span>
-              </Button>
             </div>
           </div>
         </div>
