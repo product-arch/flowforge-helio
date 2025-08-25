@@ -41,6 +41,9 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     if (mode === 'dark') {
       root.classList.add('dark');
     }
+    
+    // Add mode class for theme-specific styling
+    root.classList.add(mode);
   }, [theme, mode]);
 
   return (
