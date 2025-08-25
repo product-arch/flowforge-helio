@@ -14,9 +14,6 @@ import { SimulationPanel } from './SimulationPanel';
 import { FlowNavbar } from './FlowNavbar';
 import { StartNode } from './nodes/StartNode';
 import { TerminalNode } from './nodes/TerminalNode';
-import { LeastCostNode } from './nodes/LeastCostNode';
-import { WeightedSplitNode } from './nodes/WeightedSplitNode';
-import { FallbackNode } from './nodes/FallbackNode';
 import { SMSNode } from './nodes/SMSNode';
 import { WhatsAppNode } from './nodes/WhatsAppNode';
 import { EmailNode } from './nodes/EmailNode';
@@ -42,23 +39,10 @@ import { ConvergeNode } from './nodes/ConvergeNode';
 import { DivergeNode } from './nodes/DivergeNode';
 import { TimerNode } from './nodes/TimerNode';
 import { DoEventNode } from './nodes/DoEventNode';
-import { PriorityRouteNode } from './nodes/PriorityRouteNode';
-import { SpilloverNode } from './nodes/SpilloverNode';
-import { RoundRobinNode } from './nodes/RoundRobinNode';
-import { GeolocationNode } from './nodes/GeolocationNode';
-import { LoadBalancerNode } from './nodes/LoadBalancerNode';
 
 const nodeTypes = {
   start: StartNode,
   terminal: TerminalNode,
-  leastcost: LeastCostNode,
-  weightedsplit: WeightedSplitNode,
-  fallback: FallbackNode,
-  priorityroute: PriorityRouteNode,
-  spillover: SpilloverNode,
-  roundrobin: RoundRobinNode,
-  geolocation: GeolocationNode,
-  loadbalancer: LoadBalancerNode,
   sms: SMSNode,
   whatsapp: WhatsAppNode,
   email: EmailNode,

@@ -170,77 +170,16 @@ export const FlowProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
 function getDefaultNodeData(type: string) {
   switch (type) {
-    // Routing Nodes
-    case 'leastcost':
+    // Vendor Routing Node (attached to channels)
+    case 'vendorrouting':
       return {
-        costThreshold: 0.05,
-        vendorCosts: [],
-        fallbackVendor: '',
-        label: 'Least Cost Route'
-      };
-    case 'weightedsplit':
-      return {
-        weights: [],
-        totalWeight: 0,
-        fallbackEnabled: false,
-        label: 'Weighted Split'
-      };
-    case 'fallback':
-      return {
-        triggers: ['timeout', '5xxError'],
-        fallbackVendor: '',
-        maxRetries: 3,
-        label: 'Fallback Route'
-      };
-    case 'priorityroute':
-      return {
-        vendors: [],
-        strictPriority: true,
-        label: 'Priority Route'
-      };
-    case 'spillover':
-      return {
-        vendors: [],
-        capacityLimits: [],
-        spilloverMode: 'capacity_based',
-        globalThreshold: 80,
-        enablePreemptiveSpillover: false,
-        primaryRegion: 'india',
-        label: 'Spillover Route'
-      };
-    case 'priorityroute':
-      return {
-        vendors: [],
-        priorityMode: 'strict',
-        strictPriority: true,
-        minHealthScore: 90,
-        label: 'Priority Route'
-      };
-    case 'roundrobin':
-      return {
-        vendors: [],
-        roundRobinType: 'simple',
-        skipUnhealthyVendors: true,
-        stickinessDuration: 60,
-        label: 'Round Robin'
-      };
-    case 'geolocation':
-      return {
-        regions: [],
-        geoStrategy: 'country_based',
-        defaultRegion: 'global',
-        enableGeoFencing: false,
-        label: 'Geo Routing'
-      };
-    case 'loadbalancer':
-      return {
-        algorithm: 'round_robin',
-        healthCheck: true,
-        healthCheckInterval: 30,
-        healthCheckTimeout: 5,
-        sessionPersistence: 'none',
-        targets: [],
-        label: 'Load Balancer'
+        label: 'Vendor Routing',
+        parentChannelId: '',
+        configType: 'default',
+        selectedVendors: [],
+        routingConfig: null,
+        strategy: 'priority',
+        strategyConfig: {}
       };
 
     // Channel Nodes
@@ -365,13 +304,6 @@ function getDefaultNodeData(type: string) {
         priority: 1,
         config: {},
         label: 'Vendor Config'
-      };
-    case 'loadbalancer':
-      return {
-        algorithm: 'round_robin',
-        healthCheck: true,
-        targets: [],
-        label: 'Load Balancer'
       };
     case 'healthcheck':
       return {
