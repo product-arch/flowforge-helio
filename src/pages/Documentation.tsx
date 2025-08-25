@@ -22,7 +22,6 @@ import {
 import { 
   Home,
   Search,
-  Zap,
   ChevronRight,
   ChevronDown,
   Copy,
