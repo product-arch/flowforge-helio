@@ -4,12 +4,14 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft, FileText, Sparkles, MessageSquare, Mail } from 'lucide-react';
+import { ThemeProvider } from '@/contexts/ThemeContext';
 
 const Templates: React.FC = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-background">
+    <ThemeProvider>
+      <div className="min-h-screen bg-background font-body">
       {/* Header */}
       <header className="border-b border-border bg-card/50 backdrop-blur-sm">
         <div className="container mx-auto px-6 py-4">
@@ -26,7 +28,7 @@ const Templates: React.FC = () => {
               <div className="p-2 bg-orange-500/10 rounded-lg">
                 <FileText className="w-5 h-5 text-orange-500" />
               </div>
-              <h1 className="text-xl font-semibold">Template Assistant</h1>
+              <h1 className="text-xl font-heading font-heading-semibold">Template Assistant</h1>
             </div>
           </div>
         </div>
@@ -47,10 +49,10 @@ const Templates: React.FC = () => {
                   <FileText className="w-12 h-12 text-orange-500" />
                 </div>
               </div>
-              <CardTitle className="text-3xl mb-4">Template Assistant</CardTitle>
+              <CardTitle className="text-3xl font-heading font-heading-bold mb-4">Template Assistant</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
-              <p className="text-lg text-muted-foreground">
+              <p className="text-lg font-body text-muted-foreground">
                 AI-powered template creation and management for all communication channels. 
                 Create, optimize, and manage templates with intelligent suggestions.
               </p>
@@ -58,21 +60,21 @@ const Templates: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="p-4 bg-accent/30 rounded-lg">
                   <Sparkles className="w-6 h-6 text-orange-500 mb-2" />
-                  <div className="text-sm font-medium">AI Generation</div>
+                  <div className="text-sm font-body-medium">AI Generation</div>
                 </div>
                 <div className="p-4 bg-accent/30 rounded-lg">
                   <MessageSquare className="w-6 h-6 text-orange-500 mb-2" />
-                  <div className="text-sm font-medium">Multi-channel</div>
+                  <div className="text-sm font-body-medium">Multi-channel</div>
                 </div>
                 <div className="p-4 bg-accent/30 rounded-lg">
                   <Mail className="w-6 h-6 text-orange-500 mb-2" />
-                  <div className="text-sm font-medium">Version Control</div>
+                  <div className="text-sm font-body-medium">Version Control</div>
                 </div>
               </div>
 
               <div className="bg-muted/50 border border-border rounded-lg p-6">
-                <h3 className="text-lg font-semibold mb-2">Coming Soon</h3>
-                <p className="text-muted-foreground">
+                <h3 className="text-lg font-heading font-heading-semibold mb-2">Coming Soon</h3>
+                <p className="font-body text-muted-foreground">
                   The template assistant is currently under development. 
                   It will provide AI-powered template creation, optimization suggestions, 
                   and centralized template management across all channels.
@@ -81,7 +83,7 @@ const Templates: React.FC = () => {
 
               <Button 
                 onClick={() => navigate('/')}
-                className="w-full"
+                className="w-full font-body-medium"
               >
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Return to Hub
@@ -90,7 +92,8 @@ const Templates: React.FC = () => {
           </Card>
         </motion.div>
       </main>
-    </div>
+      </div>
+    </ThemeProvider>
   );
 };
 

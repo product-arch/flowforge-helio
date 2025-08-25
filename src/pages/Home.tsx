@@ -129,8 +129,8 @@ const Home: React.FC = () => {
     if (route === '/flow-builder') {
       navigate(route);
     } else {
-      // For other modules, show coming soon message
-      console.log(`Navigating to ${route} - Coming soon!`);
+      // Navigate to other modules
+      navigate(route);
     }
   };
 
@@ -292,10 +292,10 @@ const Home: React.FC = () => {
           transition={{ duration: 0.6 }}
           className="text-center mb-16"
         >
-          <h2 className="text-5xl font-bold mb-6 bg-gradient-to-r from-foreground via-foreground/90 to-foreground/70 bg-clip-text text-transparent">
+          <h2 className="text-5xl font-heading font-heading-bold mb-6 bg-gradient-to-r from-foreground via-foreground/90 to-foreground/70 bg-clip-text text-transparent">
             Build your first messaging flow with Hub
           </h2>
-          <p className="text-xl text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed">
+          <p className="text-xl font-body text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed">
             Create intelligent communication workflows with multi-vendor routing, 
             real-time analytics, and seamless integrations. Start building in minutes.
           </p>
@@ -303,7 +303,7 @@ const Home: React.FC = () => {
           <div className="flex items-center justify-center gap-4">
             <Button 
               size="lg" 
-              className="bg-gradient-primary hover:opacity-90 text-lg px-8 py-6 h-auto"
+              className="bg-gradient-primary hover:opacity-90 text-lg font-body-medium px-8 py-6 h-auto"
               onClick={() => navigate('/flow-builder')}
             >
               <Play className="w-5 h-5 mr-2" />
@@ -312,7 +312,7 @@ const Home: React.FC = () => {
             <Button 
               variant="outline" 
               size="lg" 
-              className="text-lg px-8 py-6 h-auto"
+              className="text-lg font-body-medium px-8 py-6 h-auto"
               onClick={() => navigate('/documentation')}
             >
               View Documentation
@@ -336,7 +336,7 @@ const Home: React.FC = () => {
                   </div>
                 </div>
                 <div className="text-2xl font-bold mb-1">{stat.value}</div>
-                <div className="text-sm text-muted-foreground">{stat.label}</div>
+                <div className="text-sm font-body text-muted-foreground">{stat.label}</div>
               </CardContent>
             </Card>
           ))}
@@ -350,8 +350,8 @@ const Home: React.FC = () => {
           className="mb-16"
         >
           <div className="text-center mb-12">
-            <h3 className="text-3xl font-bold mb-4">Platform Modules</h3>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            <h3 className="text-3xl font-heading font-heading-bold mb-4">Platform Modules</h3>
+            <p className="text-lg font-body text-muted-foreground max-w-2xl mx-auto">
               Choose a module to get started. Each module is designed to work seamlessly together 
               for a complete communication automation platform.
             </p>
@@ -384,7 +384,7 @@ const Home: React.FC = () => {
                         <module.icon className="w-8 h-8 text-primary" />
                       </div>
                       <div className="flex-1">
-                        <CardTitle className="text-2xl mb-2 flex items-center gap-2">
+                        <CardTitle className="text-2xl font-heading font-heading-semibold mb-2 flex items-center gap-2">
                           {module.title}
                           {module.stats && (
                             <Badge variant="secondary" className="text-xs">
@@ -392,7 +392,7 @@ const Home: React.FC = () => {
                             </Badge>
                           )}
                         </CardTitle>
-                        <CardDescription className="text-base leading-relaxed">
+                        <CardDescription className="text-base font-body leading-relaxed">
                           {module.description}
                         </CardDescription>
                       </div>
@@ -410,7 +410,7 @@ const Home: React.FC = () => {
                       </div>
 
                       <Button 
-                        className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300"
+                        className="w-full font-body-medium group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300"
                         variant={module.isPriority ? "default" : "outline"}
                         size="lg"
                         onClick={() => handleModuleClick(module.route)}
@@ -440,8 +440,8 @@ const Home: React.FC = () => {
         >
           <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
             <CardContent className="p-8">
-              <h3 className="text-2xl font-bold mb-4">Ready to get started?</h3>
-              <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
+              <h3 className="text-2xl font-heading font-heading-bold mb-4">Ready to get started?</h3>
+              <p className="font-body text-muted-foreground mb-6 max-w-2xl mx-auto">
                 Jump straight into building your first routing flow, or explore our other modules 
                 to see how Hub can transform your communication workflows.
               </p>
@@ -449,7 +449,7 @@ const Home: React.FC = () => {
               <div className="flex items-center justify-center gap-4">
                 <Button 
                   size="lg" 
-                  className="bg-gradient-primary hover:opacity-90"
+                  className="bg-gradient-primary hover:opacity-90 font-body-medium"
                   onClick={() => navigate('/flow-builder')}
                 >
                   <GitBranch className="w-5 h-5 mr-2" />
@@ -458,6 +458,7 @@ const Home: React.FC = () => {
                 <Button 
                   variant="outline" 
                   size="lg"
+                  className="font-body-medium"
                   onClick={() => navigate('/documentation')}
                 >
                   <FileText className="w-5 h-5 mr-2" />
@@ -476,10 +477,10 @@ const Home: React.FC = () => {
           className="mb-20"
         >
           <div className="text-center mb-12">
-            <h3 className="text-2xl font-semibold mb-4 text-muted-foreground">
+            <h3 className="text-2xl font-heading font-heading-semibold mb-4 text-muted-foreground">
               Trusted by leading enterprises
             </h3>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
+            <p className="font-body text-muted-foreground max-w-2xl mx-auto">
               Join thousands of businesses that rely on Hub for their communication workflows
             </p>
           </div>
@@ -495,7 +496,7 @@ const Home: React.FC = () => {
                 <img 
                   src="/logo_hdfc_bank.svg" 
                   alt="HDFC Bank" 
-                  className="h-8 md:h-10 w-auto filter grayscale group-hover:grayscale-0 transition-all duration-300"
+                  className="h-12 md:h-15 w-auto filter grayscale group-hover:grayscale-0 transition-all duration-300"
                 />
               </div>
               
@@ -503,7 +504,7 @@ const Home: React.FC = () => {
                 <img 
                   src="/logo_axis_bank.svg" 
                   alt="Axis Bank" 
-                  className="h-8 md:h-10 w-auto filter grayscale group-hover:grayscale-0 transition-all duration-300"
+                  className="h-12 md:h-15 w-auto filter grayscale group-hover:grayscale-0 transition-all duration-300"
                 />
               </div>
               
@@ -511,7 +512,7 @@ const Home: React.FC = () => {
                 <img 
                   src="/logo_bajaj_finserv.svg" 
                   alt="Bajaj Finserv" 
-                  className="h-8 md:h-10 w-auto filter grayscale group-hover:grayscale-0 transition-all duration-300"
+                  className="h-12 md:h-15 w-auto filter grayscale group-hover:grayscale-0 transition-all duration-300"
                 />
               </div>
               
@@ -519,7 +520,7 @@ const Home: React.FC = () => {
                 <img 
                   src="/logo_aditya_birla.svg" 
                   alt="Aditya Birla Group" 
-                  className="h-8 md:h-10 w-auto filter grayscale group-hover:grayscale-0 transition-all duration-300"
+                  className="h-12 md:h-15 w-auto filter grayscale group-hover:grayscale-0 transition-all duration-300"
                 />
               </div>
               
@@ -527,13 +528,13 @@ const Home: React.FC = () => {
                 <img 
                   src="/logo_bandhan_bank.svg" 
                   alt="Bandhan Bank" 
-                  className="h-8 md:h-10 w-auto filter grayscale group-hover:grayscale-0 transition-all duration-300"
+                  className="h-12 md:h-15 w-auto filter grayscale group-hover:grayscale-0 transition-all duration-300"
                 />
               </div>
             </div>
             
             {/* Trust indicators */}
-            <div className="flex items-center justify-center gap-8 mt-8 text-sm text-muted-foreground">
+            <div className="flex items-center justify-center gap-8 mt-8 text-sm font-body text-muted-foreground">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
                 <span>99.9% Uptime</span>
@@ -559,11 +560,11 @@ const Home: React.FC = () => {
               <div className="w-6 h-6 bg-gradient-to-br from-primary to-primary/80 rounded-md flex items-center justify-center">
                 <Zap className="w-4 h-4 text-white" />
               </div>
-              <span className="text-sm text-muted-foreground">
+              <span className="text-sm font-body text-muted-foreground">
                 Hub - Intelligent Communication Routing Platform
               </span>
             </div>
-            <div className="text-sm text-muted-foreground">
+            <div className="text-sm font-body text-muted-foreground">
               © {new Date().getFullYear()} Hub. All rights reserved.
             </div>
           </div>

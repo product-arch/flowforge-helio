@@ -4,12 +4,14 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft, Plug, Database, Webhook, Settings } from 'lucide-react';
+import { ThemeProvider } from '@/contexts/ThemeContext';
 
 const Integration: React.FC = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-background">
+    <ThemeProvider>
+      <div className="min-h-screen bg-background font-body">
       {/* Header */}
       <header className="border-b border-border bg-card/50 backdrop-blur-sm">
         <div className="container mx-auto px-6 py-4">
@@ -26,7 +28,7 @@ const Integration: React.FC = () => {
               <div className="p-2 bg-purple-500/10 rounded-lg">
                 <Plug className="w-5 h-5 text-purple-500" />
               </div>
-              <h1 className="text-xl font-semibold">Integration Hub</h1>
+              <h1 className="text-xl font-heading font-heading-semibold">Integration Hub</h1>
             </div>
           </div>
         </div>
@@ -47,10 +49,10 @@ const Integration: React.FC = () => {
                   <Plug className="w-12 h-12 text-purple-500" />
                 </div>
               </div>
-              <CardTitle className="text-3xl mb-4">Integration Module</CardTitle>
+              <CardTitle className="text-3xl font-heading font-heading-bold mb-4">Integration Module</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
-              <p className="text-lg text-muted-foreground">
+              <p className="text-lg font-body text-muted-foreground">
                 Connect with external systems, APIs, and databases for seamless data flow 
                 and enhanced automation capabilities.
               </p>
@@ -58,21 +60,21 @@ const Integration: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="p-4 bg-accent/30 rounded-lg">
                   <Database className="w-6 h-6 text-purple-500 mb-2" />
-                  <div className="text-sm font-medium">Database Connectors</div>
+                  <div className="text-sm font-body-medium">Database Connectors</div>
                 </div>
                 <div className="p-4 bg-accent/30 rounded-lg">
                   <Webhook className="w-6 h-6 text-purple-500 mb-2" />
-                  <div className="text-sm font-medium">Webhook Management</div>
+                  <div className="text-sm font-body-medium">Webhook Management</div>
                 </div>
                 <div className="p-4 bg-accent/30 rounded-lg">
                   <Settings className="w-6 h-6 text-purple-500 mb-2" />
-                  <div className="text-sm font-medium">API Configuration</div>
+                  <div className="text-sm font-body-medium">API Configuration</div>
                 </div>
               </div>
 
               <div className="bg-muted/50 border border-border rounded-lg p-6">
-                <h3 className="text-lg font-semibold mb-2">Coming Soon</h3>
-                <p className="text-muted-foreground">
+                <h3 className="text-lg font-heading font-heading-semibold mb-2">Coming Soon</h3>
+                <p className="font-body text-muted-foreground">
                   The integration hub is currently under development. 
                   It will provide powerful tools to connect Hub with your existing 
                   systems and third-party services.
@@ -81,7 +83,7 @@ const Integration: React.FC = () => {
 
               <Button 
                 onClick={() => navigate('/')}
-                className="w-full"
+                className="w-full font-body-medium"
               >
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Return to Hub
@@ -90,7 +92,8 @@ const Integration: React.FC = () => {
           </Card>
         </motion.div>
       </main>
-    </div>
+      </div>
+    </ThemeProvider>
   );
 };
 

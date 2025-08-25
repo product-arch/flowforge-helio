@@ -21,8 +21,32 @@ export const useTheme = () => {
 };
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [theme, setTheme] = useState<Theme>('blue');
-  const [mode, setMode] = useState<Mode>('light');
+  const [theme, setThemeState] = useState<Theme>('blue');
+  const [mode, setModeState] = useState<Mode>('light');
+
+  // Load theme from localStorage on mount
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('hub-theme') as Theme;
+    const savedMode = localStorage.getItem('hub-mode') as Mode;
+    
+    if (savedTheme && ['blue', 'emerald', 'purple', 'orange', 'rose', 'indigo', 'solarized-osaka'].includes(savedTheme)) {
+      setThemeState(savedTheme);
+    }
+    
+    if (savedMode && ['light', 'dark'].includes(savedMode)) {
+      setModeState(savedMode);
+    }
+  }, []);
+
+  const setTheme = (newTheme: Theme) => {
+    setThemeState(newTheme);
+    localStorage.setItem('hub-theme', newTheme);
+  };
+
+  const setMode = (newMode: Mode) => {
+    setModeState(newMode);
+    localStorage.setItem('hub-mode', newMode);
+  };
 
   useEffect(() => {
     const root = document.documentElement;
