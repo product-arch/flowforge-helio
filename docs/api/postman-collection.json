@@ -1,0 +1,392 @@
+{
+  "info": {
+    "name": "FlowForge API",
+    "description": "Complete API collection for FlowForge communication routing platform",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "version": "1.0.0"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "https://api.flowforge.com/v1",
+      "type": "string"
+    },
+    {
+      "key": "api_token",
+      "value": "your-api-token-here",
+      "type": "string"
+    },
+    {
+      "key": "flow_id",
+      "value": "flow_123",
+      "type": "string"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{api_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "Flows",
+      "description": "Flow management operations",
+      "item": [
+        {
+          "name": "List Flows",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/flows?limit=20&status=active",
+              "host": ["{{base_url}}"],
+              "path": ["flows"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "20",
+                  "description": "Number of flows to return"
+                },
+                {
+                  "key": "status",
+                  "value": "active",
+                  "description": "Filter by flow status"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "Success",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/flows",
+                  "host": ["{{base_url}}"],
+                  "path": ["flows"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"data\": [\n    {\n      \"id\": \"flow_123\",\n      \"name\": \"SMS Marketing Flow\",\n      \"status\": \"active\",\n      \"channel\": \"sms\"\n    }\n  ],\n  \"pagination\": {\n    \"has_more\": false,\n    \"total_count\": 1\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Create Flow",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"New SMS Flow\",\n  \"description\": \"Test flow for SMS routing\",\n  \"channel\": \"sms\",\n  \"configuration\": {\n    \"nodes\": [\n      {\n        \"id\": \"start-1\",\n        \"type\": \"start\",\n        \"position\": { \"x\": 100, \"y\": 100 },\n        \"data\": { \"label\": \"Start\", \"channel\": \"sms\" }\n      }\n    ],\n    \"edges\": []\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/flows",
+              "host": ["{{base_url}}"],
+              "path": ["flows"]
+            }
+          }
+        },
+        {
+          "name": "Get Flow",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/flows/{{flow_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["flows", "{{flow_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Activate Flow",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/flows/{{flow_id}}/activate",
+              "host": ["{{base_url}}"],
+              "path": ["flows", "{{flow_id}}", "activate"]
+            }
+          }
+        },
+        {
+          "name": "Simulate Flow",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"test_parameters\": {\n    \"app_id\": \"HELO_BROADCAST_001\",\n    \"channel\": \"sms\",\n    \"message_type\": \"promotional\",\n    \"message_id\": \"MSG_1234567890\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/flows/{{flow_id}}/simulate",
+              "host": ["{{base_url}}"],
+              "path": ["flows", "{{flow_id}}", "simulate"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Messages",
+      "description": "Message sending and tracking operations",
+      "item": [
+        {
+          "name": "Send Message",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"recipient\": \"+1234567890\",\n  \"message\": {\n    \"text\": \"Hello from FlowForge! This is a test message.\",\n    \"template_id\": \"welcome_template\"\n  },\n  \"metadata\": {\n    \"campaign_id\": \"TEST_CAMPAIGN\",\n    \"priority\": \"high\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/flows/{{flow_id}}/messages",
+              "host": ["{{base_url}}"],
+              "path": ["flows", "{{flow_id}}", "messages"]
+            }
+          }
+        },
+        {
+          "name": "Get Message Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/messages/{{message_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["messages", "{{message_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Bulk Send Messages",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"messages\": [\n    {\n      \"recipient\": \"+1234567890\",\n      \"message\": {\n        \"text\": \"Hello John!\",\n        \"template_id\": \"welcome_template\"\n      }\n    },\n    {\n      \"recipient\": \"+0987654321\",\n      \"message\": {\n        \"text\": \"Hello Jane!\",\n        \"template_id\": \"welcome_template\"\n      }\n    }\n  ],\n  \"options\": {\n    \"batch_size\": 100,\n    \"rate_limit\": 10\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/flows/{{flow_id}}/messages/bulk",
+              "host": ["{{base_url}}"],
+              "path": ["flows", "{{flow_id}}", "messages", "bulk"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Vendors",
+      "description": "Vendor management and health monitoring",
+      "item": [
+        {
+          "name": "List Vendors",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/vendors?channel=sms",
+              "host": ["{{base_url}}"],
+              "path": ["vendors"],
+              "query": [
+                {
+                  "key": "channel",
+                  "value": "sms"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Vendor Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/vendors/{{vendor_id}}/health",
+              "host": ["{{base_url}}"],
+              "path": ["vendors", "{{vendor_id}}", "health"]
+            }
+          }
+        },
+        {
+          "name": "Test Vendor Connection",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/vendors/{{vendor_id}}/test",
+              "host": ["{{base_url}}"],
+              "path": ["vendors", "{{vendor_id}}", "test"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Analytics",
+      "description": "Performance metrics and analytics",
+      "item": [
+        {
+          "name": "Get Flow Analytics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/flows/{{flow_id}}/analytics?period=24h&granularity=hour",
+              "host": ["{{base_url}}"],
+              "path": ["flows", "{{flow_id}}", "analytics"],
+              "query": [
+                {
+                  "key": "period",
+                  "value": "24h"
+                },
+                {
+                  "key": "granularity",
+                  "value": "hour"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Global Analytics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/analytics?period=24h&group_by=channel",
+              "host": ["{{base_url}}"],
+              "path": ["analytics"],
+              "query": [
+                {
+                  "key": "period",
+                  "value": "24h"
+                },
+                {
+                  "key": "group_by",
+                  "value": "channel"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Webhooks",
+      "description": "Webhook configuration and management",
+      "item": [
+        {
+          "name": "List Webhooks",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/webhooks",
+              "host": ["{{base_url}}"],
+              "path": ["webhooks"]
+            }
+          }
+        },
+        {
+          "name": "Create Webhook",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"url\": \"https://your-app.com/webhooks/flowforge\",\n  \"events\": [\n    \"message.sent\",\n    \"message.delivered\",\n    \"message.failed\"\n  ],\n  \"secret\": \"your-webhook-secret\",\n  \"description\": \"Main webhook for message events\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/webhooks",
+              "host": ["{{base_url}}"],
+              "path": ["webhooks"]
+            }
+          }
+        },
+        {
+          "name": "Test Webhook",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/webhooks/{{webhook_id}}/test",
+              "host": ["{{base_url}}"],
+              "path": ["webhooks", "{{webhook_id}}", "test"]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Auto-set timestamp for requests",
+          "pm.globals.set('timestamp', new Date().toISOString());"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Basic response validation",
+          "pm.test('Status code is successful', function () {",
+          "    pm.expect(pm.response.code).to.be.oneOf([200, 201, 204]);",
+          "});",
+          "",
+          "pm.test('Response time is acceptable', function () {",
+          "    pm.expect(pm.response.responseTime).to.be.below(5000);",
+          "});",
+          "",
+          "// Store response data for chaining requests",
+          "if (pm.response.json() && pm.response.json().id) {",
+          "    pm.globals.set('last_created_id', pm.response.json().id);",
+          "}"
+        ]
+      }
+    }
+  ]
+}

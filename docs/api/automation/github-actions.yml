@@ -1,0 +1,129 @@
+# GitHub Actions Workflow for API Documentation
+# Save this as .github/workflows/api-docs.yml
+
+name: API Documentation
+
+on:
+  push:
+    branches: [main, develop]
+    paths: 
+      - 'docs/api/**'
+      - 'src/routes/**'
+      - 'src/controllers/**'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'docs/api/**'
+
+jobs:
+  validate-openapi:
+    name: Validate OpenAPI Specification
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate OpenAPI spec
+        run: npm run docs:validate
+
+      - name: Lint OpenAPI with Spectral
+        run: npx spectral lint docs/api/openapi.yaml
+
+  generate-docs:
+    name: Generate Documentation
+    runs-on: ubuntu-latest
+    needs: validate-openapi
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Redoc documentation
+        run: npm run docs:build
+
+      - name: Generate Swagger UI
+        run: |
+          mkdir -p docs/swagger-ui
+          npx swagger-ui-dist-cli -f docs/api/openapi.yaml -d docs/swagger-ui
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        if: github.ref == 'refs/heads/main'
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs
+          destination_dir: api-docs
+
+  test-api-examples:
+    name: Test API Examples
+    runs-on: ubuntu-latest
+    needs: validate-openapi
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install Newman (Postman CLI)
+        run: npm install -g newman
+
+      - name: Run API tests
+        run: |
+          # Start local API server for testing
+          npm run dev &
+          sleep 10
+          
+          # Run Postman collection tests
+          newman run docs/api/postman-collection.json \
+            --env-var "base_url=http://localhost:8080/api/v1" \
+            --env-var "api_token=test-token" \
+            --reporters cli,json \
+            --reporter-json-export test-results.json
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: api-test-results
+          path: test-results.json
+
+  notify-slack:
+    name: Notify Team
+    runs-on: ubuntu-latest
+    needs: [validate-openapi, generate-docs]
+    if: always() && github.ref == 'refs/heads/main'
+    steps:
+      - name: Notify Slack
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          channel: '#api-updates'
+          text: |
+            API Documentation Update
+            Status: ${{ job.status }}
+            Branch: ${{ github.ref }}
+            Commit: ${{ github.sha }}
+            Documentation: https://your-org.github.io/flowforge/api-docs/
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

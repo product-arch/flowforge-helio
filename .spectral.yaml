@@ -1,0 +1,48 @@
+extends: ["spectral:oas"]
+
+rules:
+  # Require descriptions for all operations
+  operation-description: error
+  operation-summary: error
+  operation-tags: error
+  
+  # Require proper parameter documentation
+  path-params: error
+  operation-parameters: warn
+  
+  # Require contact and license information
+  contact-properties: error
+  info-description: error
+  license-url: error
+  
+  # Require tags for organization
+  openapi-tags: error
+  operation-operationId: error
+  
+  # Response documentation
+  operation-success-response: error
+  
+  # Security requirements
+  operation-security-defined: warn
+  
+  # Custom rules for FlowForge API
+  flowforge-error-responses:
+    description: All operations should document error responses
+    given: "$.paths.*[get,post,put,patch,delete]"
+    then:
+      field: responses
+      function: schema
+      functionOptions:
+        schema:
+          type: object
+          properties:
+            '400':
+              type: object
+            '401':
+              type: object
+            '404':
+              type: object
+          anyOf:
+            - required: ['400']
+            - required: ['401']
+            - required: ['404']

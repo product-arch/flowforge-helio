@@ -1,0 +1,552 @@
+openapi: 3.0.3
+info:
+  title: FlowForge API
+  description: |
+    The FlowForge API provides programmatic access to create, manage, and execute 
+    communication routing flows. Build sophisticated message routing logic with 
+    multi-vendor support, fallback mechanisms, and real-time analytics.
+  version: 1.0.0
+  contact:
+    name: FlowForge API Support
+    email: api-support@flowforge.com
+    url: https://docs.flowforge.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  termsOfService: https://flowforge.com/terms
+
+servers:
+  - url: https://api.flowforge.com/v1
+    description: Production server
+  - url: https://staging-api.flowforge.com/v1
+    description: Staging server
+  - url: http://localhost:8080/api/v1
+    description: Development server
+
+security:
+  - bearerAuth: []
+
+paths:
+  /flows:
+    get:
+      summary: List flows
+      description: Retrieve a paginated list of communication flows
+      tags:
+        - Flows
+      parameters:
+        - name: limit
+          in: query
+          description: Number of flows to return
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: cursor
+          in: query
+          description: Pagination cursor
+          required: false
+          schema:
+            type: string
+        - name: status
+          in: query
+          description: Filter by flow status
+          required: false
+          schema:
+            type: string
+            enum: [draft, active, archived]
+        - name: channel
+          in: query
+          description: Filter by communication channel
+          required: false
+          schema:
+            type: string
+            enum: [sms, whatsapp, email, voice, rcs]
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Flow'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+    post:
+      summary: Create flow
+      description: Create a new communication flow
+      tags:
+        - Flows
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateFlowRequest'
+      responses:
+        '201':
+          description: Flow created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Flow'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /flows/{flow_id}:
+    get:
+      summary: Get flow
+      description: Retrieve a specific flow by ID
+      tags:
+        - Flows
+      parameters:
+        - name: flow_id
+          in: path
+          required: true
+          description: Unique flow identifier
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Flow'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    put:
+      summary: Update flow
+      description: Update an existing flow configuration
+      tags:
+        - Flows
+      parameters:
+        - name: flow_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateFlowRequest'
+      responses:
+        '200':
+          description: Flow updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Flow'
+
+    delete:
+      summary: Delete flow
+      description: Delete a flow permanently
+      tags:
+        - Flows
+      parameters:
+        - name: flow_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Flow deleted successfully
+        '409':
+          description: Cannot delete active flow
+
+  /flows/{flow_id}/messages:
+    post:
+      summary: Send message
+      description: Send a message through the specified flow
+      tags:
+        - Messages
+      parameters:
+        - name: flow_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendMessageRequest'
+      responses:
+        '201':
+          description: Message queued successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Flow:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique flow identifier
+          example: "flow_123"
+        name:
+          type: string
+          description: Human-readable flow name
+          example: "SMS Marketing Flow"
+        description:
+          type: string
+          description: Flow description
+          example: "Automated SMS routing for marketing campaigns"
+        status:
+          type: string
+          enum: [draft, active, archived]
+          description: Current flow status
+        channel:
+          type: string
+          enum: [sms, whatsapp, email, voice, rcs]
+          description: Primary communication channel
+        created_at:
+          type: string
+          format: date-time
+          description: Flow creation timestamp
+        updated_at:
+          type: string
+          format: date-time
+          description: Last update timestamp
+        activated_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: Flow activation timestamp
+        configuration:
+          $ref: '#/components/schemas/FlowConfiguration'
+        metrics:
+          $ref: '#/components/schemas/FlowMetrics'
+
+    FlowConfiguration:
+      type: object
+      properties:
+        nodes:
+          type: array
+          items:
+            $ref: '#/components/schemas/FlowNode'
+        edges:
+          type: array
+          items:
+            $ref: '#/components/schemas/FlowEdge'
+
+    FlowNode:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique node identifier
+        type:
+          type: string
+          enum: [start, sms, whatsapp, email, voice, rcs, terminal, conditional, routing]
+          description: Node type
+        position:
+          type: object
+          properties:
+            x:
+              type: number
+            y:
+              type: number
+        data:
+          type: object
+          description: Node-specific configuration data
+
+    FlowEdge:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique edge identifier
+        source:
+          type: string
+          description: Source node ID
+        target:
+          type: string
+          description: Target node ID
+        type:
+          type: string
+          default: custom
+
+    Message:
+      type: object
+      properties:
+        message_id:
+          type: string
+          description: Unique message identifier
+          example: "msg_789"
+        flow_id:
+          type: string
+          description: Flow used to send the message
+          example: "flow_123"
+        recipient:
+          type: string
+          description: Message recipient
+          example: "+1234567890"
+        status:
+          type: string
+          enum: [queued, processing, sent, delivered, failed]
+          description: Current message status
+        created_at:
+          type: string
+          format: date-time
+        sent_at:
+          type: string
+          format: date-time
+          nullable: true
+        delivered_at:
+          type: string
+          format: date-time
+          nullable: true
+        routing:
+          $ref: '#/components/schemas/MessageRouting'
+
+    MessageRouting:
+      type: object
+      properties:
+        selected_vendor:
+          type: string
+          description: Vendor used for message delivery
+        routing_reason:
+          type: string
+          description: Reason for vendor selection
+        estimated_cost:
+          type: number
+          format: float
+          description: Estimated message cost
+        actual_cost:
+          type: number
+          format: float
+          description: Actual message cost
+
+    CreateFlowRequest:
+      type: object
+      required:
+        - name
+        - channel
+        - configuration
+      properties:
+        name:
+          type: string
+          description: Flow name
+          example: "New SMS Flow"
+        description:
+          type: string
+          description: Flow description
+        channel:
+          type: string
+          enum: [sms, whatsapp, email, voice, rcs]
+        configuration:
+          $ref: '#/components/schemas/FlowConfiguration'
+
+    UpdateFlowRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        configuration:
+          $ref: '#/components/schemas/FlowConfiguration'
+
+    SendMessageRequest:
+      type: object
+      required:
+        - recipient
+        - message
+      properties:
+        recipient:
+          type: string
+          description: Recipient phone number or email
+          example: "+1234567890"
+        message:
+          type: object
+          properties:
+            text:
+              type: string
+              description: Message content
+            template_id:
+              type: string
+              description: Template identifier
+            variables:
+              type: object
+              description: Template variables
+        metadata:
+          type: object
+          description: Additional metadata
+        options:
+          type: object
+          properties:
+            schedule_at:
+              type: string
+              format: date-time
+              description: Schedule message for future delivery
+            retry_attempts:
+              type: integer
+              minimum: 0
+              maximum: 5
+              default: 3
+            callback_url:
+              type: string
+              format: uri
+              description: Webhook URL for status updates
+
+    FlowMetrics:
+      type: object
+      properties:
+        total_messages:
+          type: integer
+          description: Total messages processed
+        success_rate:
+          type: number
+          format: float
+          description: Success rate percentage
+        avg_cost_per_message:
+          type: number
+          format: float
+          description: Average cost per message
+        last_24h:
+          type: object
+          properties:
+            messages:
+              type: integer
+            success_rate:
+              type: number
+              format: float
+
+    Pagination:
+      type: object
+      properties:
+        has_more:
+          type: boolean
+          description: Whether more results are available
+        next_cursor:
+          type: string
+          nullable: true
+          description: Cursor for next page
+        total_count:
+          type: integer
+          description: Total number of items
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              description: Error code
+            message:
+              type: string
+              description: Human-readable error message
+            details:
+              type: array
+              items:
+                type: object
+                properties:
+                  field:
+                    type: string
+                  message:
+                    type: string
+            request_id:
+              type: string
+              description: Unique request identifier
+            timestamp:
+              type: string
+              format: date-time
+
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error:
+              code: "VALIDATION_ERROR"
+              message: "The request contains invalid parameters"
+              details:
+                - field: "recipient"
+                  message: "Recipient is required"
+
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error:
+              code: "UNAUTHORIZED"
+              message: "Invalid or missing authentication token"
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error:
+              code: "RESOURCE_NOT_FOUND"
+              message: "The requested resource was not found"
+
+    RateLimited:
+      description: Rate limit exceeded
+      headers:
+        X-RateLimit-Limit:
+          schema:
+            type: integer
+          description: Request limit per hour
+        X-RateLimit-Remaining:
+          schema:
+            type: integer
+          description: Remaining requests in current window
+        X-RateLimit-Reset:
+          schema:
+            type: integer
+          description: Unix timestamp when rate limit resets
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+tags:
+  - name: Flows
+    description: Flow management operations
+  - name: Messages
+    description: Message sending and tracking
+  - name: Vendors
+    description: Vendor configuration and health
+  - name: Analytics
+    description: Performance metrics and analytics
+  - name: Webhooks
+    description: Webhook configuration and management
