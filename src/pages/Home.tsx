@@ -451,8 +451,6 @@ const Home: React.FC = () => {
                   Build Routing Flow
                 </Button>
                 <Button variant="outline" size="lg">
-                  onClick={() => navigate('/documentation')}
-                >
                   <FileText className="w-5 h-5 mr-2" />
                   View Documentation
                 </Button>
