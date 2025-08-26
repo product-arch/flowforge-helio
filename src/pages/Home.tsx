@@ -496,7 +496,7 @@ const Home: React.FC = () => {
                 <img 
                   src="/logo_hdfc_bank.svg" 
                   alt="HDFC Bank" 
-                  className="h-12 md:h-15 w-auto filter grayscale group-hover:grayscale-0 transition-all duration-300"
+                  className="h-18 md:h-22 w-auto filter grayscale group-hover:grayscale-0 transition-all duration-300"
                 />
               </div>
               
@@ -504,7 +504,7 @@ const Home: React.FC = () => {
                 <img 
                   src="/logo_axis_bank.svg" 
                   alt="Axis Bank" 
-                  className="h-12 md:h-15 w-auto filter grayscale group-hover:grayscale-0 transition-all duration-300"
+                  className="h-18 md:h-22 w-auto filter grayscale group-hover:grayscale-0 transition-all duration-300"
                 />
               </div>
               
@@ -512,7 +512,7 @@ const Home: React.FC = () => {
                 <img 
                   src="/logo_bajaj_finserv.svg" 
                   alt="Bajaj Finserv" 
-                  className="h-12 md:h-15 w-auto filter grayscale group-hover:grayscale-0 transition-all duration-300"
+                  className="h-18 md:h-22 w-auto filter grayscale group-hover:grayscale-0 transition-all duration-300"
                 />
               </div>
               
@@ -520,7 +520,7 @@ const Home: React.FC = () => {
                 <img 
                   src="/logo_aditya_birla.svg" 
                   alt="Aditya Birla Group" 
-                  className="h-12 md:h-15 w-auto filter grayscale group-hover:grayscale-0 transition-all duration-300"
+                  className="h-18 md:h-22 w-auto filter grayscale group-hover:grayscale-0 transition-all duration-300"
                 />
               </div>
               
@@ -528,7 +528,7 @@ const Home: React.FC = () => {
                 <img 
                   src="/logo_bandhan_bank.svg" 
                   alt="Bandhan Bank" 
-                  className="h-12 md:h-15 w-auto filter grayscale group-hover:grayscale-0 transition-all duration-300"
+                  className="h-18 md:h-22 w-auto filter grayscale group-hover:grayscale-0 transition-all duration-300"
                 />
               </div>
             </div>
