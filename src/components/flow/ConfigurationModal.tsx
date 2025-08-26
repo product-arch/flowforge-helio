@@ -140,7 +140,7 @@ export const ConfigurationModal: React.FC<ConfigurationModalProps> = ({ isOpen, 
   useEffect(() => {
     if (node) {
       setFormData({ ...node.data });
-      setSelectedVendors(node.data.selectedVendors || []);
+      setSelectedVendors((node.data.selectedVendors as string[]) || []);
     }
   }, [node]);
 
@@ -163,7 +163,7 @@ export const ConfigurationModal: React.FC<ConfigurationModalProps> = ({ isOpen, 
 
   const handleReset = () => {
     setFormData({ ...node.data });
-    setSelectedVendors(node.data.selectedVendors || []);
+    setSelectedVendors((node.data.selectedVendors as string[]) || []);
     toast({
       title: "Configuration Reset",
       description: "All changes have been reverted",

@@ -291,6 +291,15 @@ export const VendorRoutingConfiguration: React.FC<VendorRoutingConfigurationProp
                     <SelectItem value="priority">Priority Based</SelectItem>
                     <SelectItem value="weighted">Weighted Distribution</SelectItem>
                     <SelectItem value="fixed">Fixed Assignment</SelectItem>
+                    <SelectItem value="round_robin">Round Robin</SelectItem>
+                    <SelectItem value="least_cost">Least Cost</SelectItem>
+                    <SelectItem value="health_aware">Health Aware</SelectItem>
+                    <SelectItem value="geo_based">Geo Based</SelectItem>
+                    <SelectItem value="load_balanced">Load Balanced</SelectItem>
+                    <SelectItem value="latency_based">Latency Based</SelectItem>
+                    <SelectItem value="failover">Failover</SelectItem>
+                    <SelectItem value="cascade">Cascade</SelectItem>
+                    <SelectItem value="smart_routing">Smart Routing</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
