@@ -622,7 +622,7 @@ const Home: React.FC = () => {
                   across multiple channels.
                 </p>
                 <p>
-                  Founded in {new Date().getFullYear() - 1}, Helo.ai serves over 500+ enterprises globally, processing millions of 
+                  Founded in 2001, Helo.ai serves over 500+ enterprises globally, processing millions of 
                   messages daily with industry-leading delivery rates and cost optimization.
                 </p>
                 <p>
