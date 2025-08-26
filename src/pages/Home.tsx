@@ -523,6 +523,14 @@ const Home: React.FC = () => {
                   className="h-18 md:h-22 w-auto filter grayscale group-hover:grayscale-0 transition-all duration-300"
                 />
               </div>
+
+              <div className="flex items-center justify-center min-w-[120px] h-16 opacity-60 hover:opacity-100 transition-opacity duration-300 group">
+                <img 
+                  src="/logo_tata_power.svg" 
+                  alt="Tata Power" 
+                  className="h-18 md:h-22 w-auto filter grayscale group-hover:grayscale-0 transition-all duration-300"
+                />
+              </div>
               
               <div className="flex items-center justify-center min-w-[120px] h-16 opacity-60 hover:opacity-100 transition-opacity duration-300 group">
                 <img 
