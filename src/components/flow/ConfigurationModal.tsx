@@ -801,6 +801,334 @@ export const ConfigurationModal: React.FC<ConfigurationModalProps> = ({ isOpen, 
     );
   };
 
+  const renderAdvancedConfiguration = () => {
+    // Only show fallback configuration for channel nodes, not routing nodes
+    const isChannelNode = ['sms', 'whatsapp', 'email', 'voice', 'rcs'].includes(node.type);
+    
+    if (!isChannelNode) {
+      return (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Advanced Settings</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="timeout">Timeout (seconds)</Label>
+                <Input
+                  id="timeout"
+                  type="number"
+                  value={formData.timeout || ''}
+                  onChange={(e) => setFormData({ ...formData, timeout: parseInt(e.target.value) })}
+                  placeholder="30"
+                  className="nodrag"
+                />
+              </div>
+              <div>
+                <Label htmlFor="retryAttempts">Retry Attempts</Label>
+                <Input
+                  id="retryAttempts"
+                  type="number"
+                  value={formData.retryAttempts || ''}
+                  onChange={(e) => setFormData({ ...formData, retryAttempts: parseInt(e.target.value) })}
+                  placeholder="3"
+                  className="nodrag"
+                />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      );
+    }
+
+    const channelTypes = [
+      { value: 'sms', label: 'SMS', icon: '💬' },
+      { value: 'whatsapp', label: 'WhatsApp', icon: '📱' },
+      { value: 'email', label: 'Email', icon: '📧' },
+      { value: 'voice', label: 'Voice', icon: '📞' },
+      { value: 'rcs', label: 'RCS', icon: '💎' }
+    ];
+
+    const fallbackChannels = formData.fallbackChannels || [];
+    const availableChannels = channelTypes.filter(ch => ch.value !== node.type);
+
+    const addFallbackChannel = () => {
+      const newFallback = {
+        id: `fallback-${Date.now()}`,
+        channel: '',
+        vendors: [],
+        priority: fallbackChannels.length + 1,
+        enabled: true
+      };
+      setFormData({
+        ...formData,
+        fallbackChannels: [...fallbackChannels, newFallback]
+      });
+    };
+
+    const removeFallbackChannel = (index: number) => {
+      const updatedFallbacks = fallbackChannels.filter((_: any, i: number) => i !== index);
+      setFormData({
+        ...formData,
+        fallbackChannels: updatedFallbacks
+      });
+    };
+
+    const updateFallbackChannel = (index: number, updates: any) => {
+      const updatedFallbacks = fallbackChannels.map((fallback: any, i: number) => 
+        i === index ? { ...fallback, ...updates } : fallback
+      );
+      setFormData({
+        ...formData,
+        fallbackChannels: updatedFallbacks
+      });
+    };
+
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg flex items-center gap-2">
+            <Shield className="w-5 h-5" />
+            Fallback Channel Configuration
+          </CardTitle>
+          <p className="text-sm text-muted-foreground">
+            Configure backup channels and vendors to handle traffic when the primary channel fails.
+          </p>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="enableChannelFallback"
+                checked={formData.enableChannelFallback || false}
+                onCheckedChange={(checked) => setFormData({ ...formData, enableChannelFallback: checked })}
+              />
+              <Label htmlFor="enableChannelFallback">Enable Channel Fallback</Label>
+            </div>
+            {formData.enableChannelFallback && (
+              <Button onClick={addFallbackChannel} size="sm" variant="outline">
+                <Plus className="w-4 h-4 mr-2" />
+                Add Fallback
+              </Button>
+            )}
+          </div>
+
+          {formData.enableChannelFallback && (
+            <div className="space-y-4">
+              {fallbackChannels.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  <Shield className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                  <p>No fallback channels configured</p>
+                  <p className="text-sm">Click "Add Fallback" to configure backup channels</p>
+                </div>
+              ) : (
+                fallbackChannels.map((fallback: any, index: number) => (
+                  <Card key={fallback.id} className="relative">
+                    <CardContent className="pt-4">
+                      <div className="flex justify-between items-start mb-4">
+                        <div className="flex items-center gap-2">
+                          <Badge variant="secondary">Priority {fallback.priority}</Badge>
+                          <div className="flex items-center space-x-2">
+                            <Switch
+                              checked={fallback.enabled}
+                              onCheckedChange={(checked) => updateFallbackChannel(index, { enabled: checked })}
+                            />
+                            <span className="text-sm">Enabled</span>
+                          </div>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeFallbackChannel(index)}
+                          className="text-destructive hover:text-destructive"
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <Label>Fallback Channel</Label>
+                          <Select
+                            value={fallback.channel}
+                            onValueChange={(value) => updateFallbackChannel(index, { channel: value, vendors: [] })}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select channel" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {availableChannels.map((channel) => (
+                                <SelectItem key={channel.value} value={channel.value}>
+                                  <div className="flex items-center gap-2">
+                                    <span>{channel.icon}</span>
+                                    <span>{channel.label}</span>
+                                  </div>
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div>
+                          <Label>Fallback Strategy</Label>
+                          <Select
+                            value={fallback.strategy || 'priority'}
+                            onValueChange={(value) => updateFallbackChannel(index, { strategy: value })}
+                          >
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="priority">Priority Based</SelectItem>
+                              <SelectItem value="round_robin">Round Robin</SelectItem>
+                              <SelectItem value="least_cost">Least Cost</SelectItem>
+                              <SelectItem value="health_aware">Health Aware</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+
+                      {fallback.channel && (
+                        <div className="mt-4">
+                          <Label>Fallback Vendors</Label>
+                          <div className="mt-2 space-y-2">
+                            {VENDORS[fallback.channel as keyof typeof VENDORS]?.map((vendor) => (
+                              <div key={vendor.id} className="flex items-center space-x-2">
+                                <Checkbox
+                                  id={`fallback-${index}-vendor-${vendor.id}`}
+                                  checked={fallback.vendors?.includes(vendor.id) || false}
+                                  onCheckedChange={(checked) => {
+                                    const currentVendors = fallback.vendors || [];
+                                    const updatedVendors = checked
+                                      ? [...currentVendors, vendor.id]
+                                      : currentVendors.filter((id: string) => id !== vendor.id);
+                                    updateFallbackChannel(index, { vendors: updatedVendors });
+                                  }}
+                                />
+                                <div className="flex items-center gap-2">
+                                  <span>{vendor.logo}</span>
+                                  <span className="text-sm">{vendor.name}</span>
+                                  <Badge variant="outline" className="text-xs">
+                                    {vendor.tier}
+                                  </Badge>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="grid grid-cols-3 gap-4 mt-4">
+                        <div>
+                          <Label>Delay (seconds)</Label>
+                          <Input
+                            type="number"
+                            value={fallback.delay || ''}
+                            onChange={(e) => updateFallbackChannel(index, { delay: parseInt(e.target.value) || 30 })}
+                            placeholder="30"
+                            className="nodrag"
+                          />
+                        </div>
+                        <div>
+                          <Label>Max Retries</Label>
+                          <Input
+                            type="number"
+                            value={fallback.maxRetries || ''}
+                            onChange={(e) => updateFallbackChannel(index, { maxRetries: parseInt(e.target.value) || 3 })}
+                            placeholder="3"
+                            className="nodrag"
+                          />
+                        </div>
+                        <div>
+                          <Label>Timeout (sec)</Label>
+                          <Input
+                            type="number"
+                            value={fallback.timeout || ''}
+                            onChange={(e) => updateFallbackChannel(index, { timeout: parseInt(e.target.value) || 60 })}
+                            placeholder="60"
+                            className="nodrag"
+                          />
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))
+              )}
+
+              <Card className="border-dashed">
+                <CardContent className="pt-4">
+                  <h4 className="font-medium mb-2">Fallback Triggers</h4>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="trigger-failure"
+                          checked={formData.fallbackTriggers?.includes('failure') || false}
+                          onCheckedChange={(checked) => {
+                            const triggers = formData.fallbackTriggers || [];
+                            const updatedTriggers = checked
+                              ? [...triggers, 'failure']
+                              : triggers.filter((t: string) => t !== 'failure');
+                            setFormData({ ...formData, fallbackTriggers: updatedTriggers });
+                          }}
+                        />
+                        <Label htmlFor="trigger-failure">Primary Channel Failure</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="trigger-timeout"
+                          checked={formData.fallbackTriggers?.includes('timeout') || false}
+                          onCheckedChange={(checked) => {
+                            const triggers = formData.fallbackTriggers || [];
+                            const updatedTriggers = checked
+                              ? [...triggers, 'timeout']
+                              : triggers.filter((t: string) => t !== 'timeout');
+                            setFormData({ ...formData, fallbackTriggers: updatedTriggers });
+                          }}
+                        />
+                        <Label htmlFor="trigger-timeout">Response Timeout</Label>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="trigger-capacity"
+                          checked={formData.fallbackTriggers?.includes('capacity') || false}
+                          onCheckedChange={(checked) => {
+                            const triggers = formData.fallbackTriggers || [];
+                            const updatedTriggers = checked
+                              ? [...triggers, 'capacity']
+                              : triggers.filter((t: string) => t !== 'capacity');
+                            setFormData({ ...formData, fallbackTriggers: updatedTriggers });
+                          }}
+                        />
+                        <Label htmlFor="trigger-capacity">Capacity Limit Reached</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="trigger-cost"
+                          checked={formData.fallbackTriggers?.includes('cost') || false}
+                          onCheckedChange={(checked) => {
+                            const triggers = formData.fallbackTriggers || [];
+                            const updatedTriggers = checked
+                              ? [...triggers, 'cost']
+                              : triggers.filter((t: string) => t !== 'cost');
+                            setFormData({ ...formData, fallbackTriggers: updatedTriggers });
+                          }}
+                        />
+                        <Label htmlFor="trigger-cost">Cost Threshold Exceeded</Label>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    );
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-hidden flex flex-col">
@@ -828,89 +1156,7 @@ export const ConfigurationModal: React.FC<ConfigurationModalProps> = ({ isOpen, 
             </TabsContent>
             
             <TabsContent value="advanced" className="space-y-4 mt-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Advanced Settings</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="timeout">Timeout (seconds)</Label>
-                      <Input
-                        id="timeout"
-                        type="number"
-                        value={formData.timeout || ''}
-                        onChange={(e) => setFormData({ ...formData, timeout: parseInt(e.target.value) })}
-                        placeholder="30"
-                        className="nodrag"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="retryAttempts">Retry Attempts</Label>
-                      <Input
-                        id="retryAttempts"
-                        type="number"
-                        value={formData.retryAttempts || ''}
-                        onChange={(e) => setFormData({ ...formData, retryAttempts: parseInt(e.target.value) })}
-                        placeholder="3"
-                        className="nodrag"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-3">
-                    <div className="flex items-center space-x-2">
-                      <Switch
-                        id="enableFallback"
-                        checked={formData.enableFallback || false}
-                        onCheckedChange={(checked) => setFormData({ ...formData, enableFallback: checked })}
-                      />
-                      <Label htmlFor="enableFallback">Enable Fallback Routing</Label>
-                    </div>
-
-                    <div className="flex items-center space-x-2">
-                      <Switch
-                        id="enableDeliveryReports"
-                        checked={formData.enableDeliveryReports || false}
-                        onCheckedChange={(checked) => setFormData({ ...formData, enableDeliveryReports: checked })}
-                      />
-                      <Label htmlFor="enableDeliveryReports">Enable Delivery Reports</Label>
-                    </div>
-
-                    <div className="flex items-center space-x-2">
-                      <Switch
-                        id="enableAnalytics"
-                        checked={formData.enableAnalytics || true}
-                        onCheckedChange={(checked) => setFormData({ ...formData, enableAnalytics: checked })}
-                      />
-                      <Label htmlFor="enableAnalytics">Enable Analytics Tracking</Label>
-                    </div>
-                  </div>
-
-                  <div>
-                    <Label htmlFor="webhookUrl">Webhook URL</Label>
-                    <Input
-                      id="webhookUrl"
-                      value={formData.webhookUrl || ''}
-                      onChange={(e) => setFormData({ ...formData, webhookUrl: e.target.value })}
-                      placeholder="https://your-app.com/webhooks/delivery-status"
-                      className="nodrag"
-                    />
-                  </div>
-
-                  <div>
-                    <Label htmlFor="customHeaders">Custom Headers (JSON)</Label>
-                    <Textarea
-                      id="customHeaders"
-                      value={formData.customHeaders || ''}
-                      onChange={(e) => setFormData({ ...formData, customHeaders: e.target.value })}
-                      placeholder='{"X-Custom-Header": "value"}'
-                      className="nodrag font-mono text-sm"
-                      rows={3}
-                    />
-                  </div>
-                </CardContent>
-              </Card>
+              {renderAdvancedConfiguration()}
             </TabsContent>
           </Tabs>
         </div>
