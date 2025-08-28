@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
-export type Theme = 'blue' | 'emerald' | 'purple' | 'orange' | 'rose' | 'indigo' | 'solarized-osaka';
+export type Theme = 'blue' | 'emerald' | 'purple' | 'orange' | 'rose' | 'indigo' | 'solarized-osaka' | 'monochrome';
 export type Mode = 'light' | 'dark';
 
 interface ThemeContextType {
@@ -29,7 +29,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const savedTheme = localStorage.getItem('hub-theme') as Theme;
     const savedMode = localStorage.getItem('hub-mode') as Mode;
     
-    if (savedTheme && ['blue', 'emerald', 'purple', 'orange', 'rose', 'indigo', 'solarized-osaka'].includes(savedTheme)) {
+    if (savedTheme && ['blue', 'emerald', 'purple', 'orange', 'rose', 'indigo', 'solarized-osaka', 'monochrome'].includes(savedTheme)) {
       setThemeState(savedTheme);
     }
     
@@ -52,7 +52,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const root = document.documentElement;
     
     // Remove all theme classes
-    root.classList.remove('blue', 'emerald', 'purple', 'orange', 'rose', 'indigo', 'solarized-osaka');
+    root.classList.remove('blue', 'emerald', 'purple', 'orange', 'rose', 'indigo', 'solarized-osaka', 'monochrome');
     root.classList.remove('light', 'dark');
     
     // Add current theme and mode
