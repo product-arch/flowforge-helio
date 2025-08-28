@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -30,7 +31,8 @@ import {
   FileUp,
   Trash2,
   Copy,
-  History
+  History,
+  ArrowLeft
 } from 'lucide-react';
 import { useFlow } from '@/contexts/FlowContext';
 import { useTheme, Theme } from '@/contexts/ThemeContext';
@@ -53,6 +55,7 @@ const mockCampaigns = [
 ];
 
 export const FlowNavbar: React.FC = () => {
+  const navigate = useNavigate();
   const [flowName, setFlowName] = useState('SMS Marketing Flow');
   const [flowState, setFlowState] = useState<'draft' | 'active' | 'archived'>('draft');
   const [isEditing, setIsEditing] = useState(false);
@@ -138,6 +141,16 @@ export const FlowNavbar: React.FC = () => {
         <div className="flex items-center justify-between">
           {/* Left Section - Flow Info */}
           <div className="flex items-center gap-4">
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={() => navigate('/flows')}
+              className="flex items-center gap-2"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Back to Flows
+            </Button>
+            <div className="h-6 w-px bg-border" />
             <div className="flex items-center gap-2">
               {isEditing ? (
                 <Input

@@ -127,7 +127,7 @@ const Home: React.FC = () => {
 
   const handleModuleClick = (route: string) => {
     if (route === '/flow-builder') {
-      navigate(route);
+      navigate('/flows');
     } else {
       // Navigate to other modules
       navigate(route);
@@ -306,10 +306,10 @@ const Home: React.FC = () => {
             <Button 
               size="lg" 
               className="bg-gradient-primary hover:opacity-90 text-lg font-body-medium px-8 py-6 h-auto"
-              onClick={() => navigate('/flow-builder')}
+              onClick={() => navigate('/flows')}
             >
               <Play className="w-5 h-5 mr-2" />
-              Start New Flow
+              View Flows
             </Button>
             <Button 
               variant="outline" 

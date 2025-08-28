@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import Home from "./pages/Home";
+import FlowList from "./pages/FlowList";
 import FlowBuilderPage from "./pages/FlowBuilder";
 import Monitoring from "./pages/Monitoring";
 import Integration from "./pages/Integration";
@@ -24,6 +25,7 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/flows" element={<FlowList />} />
             <Route path="/flow-builder" element={<FlowBuilderPage />} />
             <Route path="/monitoring" element={<Monitoring />} />
             <Route path="/integration" element={<Integration />} />
