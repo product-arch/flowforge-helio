@@ -1,5 +1,6 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { Node, Edge, addEdge, Connection, applyNodeChanges, applyEdgeChanges, NodeChange, EdgeChange } from '@xyflow/react';
+import { useSearchParams } from 'react-router-dom';
 
 interface FlowContextType {
   nodes: Node[];
@@ -7,6 +8,7 @@ interface FlowContextType {
   selectedNode: Node | null;
   simulationMode: boolean;
   simulationResults: any[];
+  currentFlowId: string | null;
   onNodesChange: (changes: NodeChange[]) => void;
   onEdgesChange: (changes: EdgeChange[]) => void;
   onConnect: (connection: Connection) => void;
@@ -16,6 +18,8 @@ interface FlowContextType {
   updateNodeData: (nodeId: string, data: any) => void;
   setSimulationMode: (mode: boolean) => void;
   runSimulation: (testParams: any) => void;
+  loadFlow: (flowId: string) => void;
+  saveCurrentFlow: () => void;
 }
 
 const FlowContext = createContext<FlowContextType | undefined>(undefined);
@@ -43,12 +47,204 @@ const initialNodes: Node[] = [
   },
 ];
 
+// Predefined flow configurations
+const flowConfigurations: Record<string, { nodes: Node[], edges: Edge[] }> = {
+  'flow-1': {
+    // Welcome Onboarding Campaign - Complex multi-channel flow
+    nodes: [
+      {
+        id: 'start-1',
+        type: 'start',
+        position: { x: 100, y: 100 },
+        data: { 
+          label: 'Start',
+          channel: 'SMS',
+          appId: 'WELCOME_ONBOARD_001',
+          businessUnit: 'Marketing'
+        },
+        deletable: false,
+      },
+      {
+        id: 'sms-welcome',
+        type: 'sms',
+        position: { x: 300, y: 100 },
+        data: {
+          label: 'Welcome SMS',
+          senderId: 'WELCOME',
+          messageType: 'transactional',
+          encoding: 'utf8'
+        }
+      },
+      {
+        id: 'routing-sms',
+        type: 'vendorrouting',
+        position: { x: 300, y: 220 },
+        data: {
+          label: 'SMS Routing',
+          parentChannelId: 'sms-welcome',
+          configType: 'priority',
+          selectedVendors: ['TextLocal', 'Twilio'],
+          strategy: 'priority'
+        }
+      },
+      {
+        id: 'conditional-email',
+        type: 'conditional',
+        position: { x: 550, y: 100 },
+        data: {
+          label: 'Check Email Preference',
+          conditions: [{ field: 'emailOptIn', operator: 'equals', value: 'true' }],
+          operator: 'AND'
+        }
+      },
+      {
+        id: 'email-follow',
+        type: 'email',
+        position: { x: 800, y: 50 },
+        data: {
+          label: 'Follow-up Email',
+          fromAddress: 'welcome@company.com',
+          messageType: 'transactional',
+          template: 'welcome-email-template'
+        }
+      },
+      {
+        id: 'routing-email',
+        type: 'vendorrouting',
+        position: { x: 800, y: 170 },
+        data: {
+          label: 'Email Routing',
+          parentChannelId: 'email-follow',
+          configType: 'priority',
+          selectedVendors: ['SendGrid', 'Mailgun'],
+          strategy: 'priority'
+        }
+      },
+      {
+        id: 'whatsapp-welcome',
+        type: 'whatsapp',
+        position: { x: 800, y: 300 },
+        data: {
+          label: 'WhatsApp Welcome',
+          businessId: 'WELCOME_WA',
+          templateType: 'text',
+          botName: 'WelcomeBot'
+        }
+      },
+      {
+        id: 'routing-whatsapp',
+        type: 'vendorrouting',
+        position: { x: 800, y: 420 },
+        data: {
+          label: 'WhatsApp Routing',
+          parentChannelId: 'whatsapp-welcome',
+          configType: 'priority',
+          selectedVendors: ['WhatsApp Business', 'Gupshup'],
+          strategy: 'priority'
+        }
+      },
+      {
+        id: 'terminal-success',
+        type: 'terminal',
+        position: { x: 1050, y: 200 },
+        data: {
+          label: 'Campaign Complete',
+          state: 'sent',
+          reason: 'Onboarding flow completed successfully'
+        }
+      }
+    ],
+    edges: [
+      {
+        id: 'e1',
+        source: 'start-1',
+        target: 'sms-welcome',
+        type: 'custom',
+        style: { stroke: 'hsl(var(--primary))' }
+      },
+      {
+        id: 'e2',
+        source: 'sms-welcome',
+        target: 'routing-sms',
+        type: 'custom',
+        style: { strokeDasharray: '5,5', stroke: 'hsl(var(--primary))', opacity: 0.6 }
+      },
+      {
+        id: 'e3',
+        source: 'sms-welcome',
+        target: 'conditional-email',
+        type: 'custom',
+        style: { stroke: 'hsl(var(--primary))' }
+      },
+      {
+        id: 'e4',
+        source: 'conditional-email',
+        target: 'email-follow',
+        type: 'custom',
+        label: 'Email Opted In',
+        style: { stroke: 'hsl(var(--primary))' }
+      },
+      {
+        id: 'e5',
+        source: 'email-follow',
+        target: 'routing-email',
+        type: 'custom',
+        style: { strokeDasharray: '5,5', stroke: 'hsl(var(--primary))', opacity: 0.6 }
+      },
+      {
+        id: 'e6',
+        source: 'conditional-email',
+        target: 'whatsapp-welcome',
+        type: 'custom',
+        label: 'WhatsApp Preferred',
+        style: { stroke: 'hsl(var(--primary))' }
+      },
+      {
+        id: 'e7',
+        source: 'whatsapp-welcome',
+        target: 'routing-whatsapp',
+        type: 'custom',
+        style: { strokeDasharray: '5,5', stroke: 'hsl(var(--primary))', opacity: 0.6 }
+      },
+      {
+        id: 'e8',
+        source: 'email-follow',
+        target: 'terminal-success',
+        type: 'custom',
+        style: { stroke: 'hsl(var(--primary))' }
+      },
+      {
+        id: 'e9',
+        source: 'whatsapp-welcome',
+        target: 'terminal-success',
+        type: 'custom',
+        style: { stroke: 'hsl(var(--primary))' }
+      }
+    ]
+  }
+};
+
 export const FlowProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [searchParams] = useSearchParams();
   const [nodes, setNodes] = useState<Node[]>(initialNodes);
   const [edges, setEdges] = useState<Edge[]>([]);
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const [simulationMode, setSimulationMode] = useState(false);
   const [simulationResults, setSimulationResults] = useState<any[]>([]);
+  const [currentFlowId, setCurrentFlowId] = useState<string | null>(null);
+
+  // Load flow when URL parameter changes
+  useEffect(() => {
+    const flowId = searchParams.get('id');
+    if (flowId && flowId !== currentFlowId) {
+      loadFlow(flowId);
+    } else if (!flowId && currentFlowId) {
+      // Reset to default when no flow ID
+      setCurrentFlowId(null);
+      setNodes(initialNodes);
+      setEdges([]);
+    }
+  }, [searchParams]);
 
   const onNodesChange = useCallback((changes: NodeChange[]) => {
     setNodes((nds) => applyNodeChanges(changes, nds));
@@ -146,6 +342,32 @@ export const FlowProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setSimulationResults(results);
   }, [nodes, edges]);
 
+  const loadFlow = useCallback((flowId: string) => {
+    const flowConfig = flowConfigurations[flowId];
+    if (flowConfig) {
+      setCurrentFlowId(flowId);
+      setNodes(flowConfig.nodes);
+      setEdges(flowConfig.edges);
+      setSelectedNode(null);
+    } else {
+      // Flow not found, load default
+      setCurrentFlowId(null);
+      setNodes(initialNodes);
+      setEdges([]);
+    }
+  }, []);
+
+  const saveCurrentFlow = useCallback(() => {
+    if (currentFlowId) {
+      // Save current flow state to localStorage or backend
+      localStorage.setItem(`flow-${currentFlowId}`, JSON.stringify({
+        nodes,
+        edges,
+        lastModified: new Date().toISOString()
+      }));
+    }
+  }, [currentFlowId, nodes, edges]);
+
   return (
     <FlowContext.Provider value={{
       nodes,
@@ -153,6 +375,7 @@ export const FlowProvider: React.FC<{ children: React.ReactNode }> = ({ children
       selectedNode,
       simulationMode,
       simulationResults,
+      currentFlowId,
       onNodesChange,
       onEdgesChange,
       onConnect,
@@ -162,6 +385,8 @@ export const FlowProvider: React.FC<{ children: React.ReactNode }> = ({ children
       updateNodeData,
       setSimulationMode,
       runSimulation,
+      loadFlow,
+      saveCurrentFlow,
     }}>
       {children}
     </FlowContext.Provider>
