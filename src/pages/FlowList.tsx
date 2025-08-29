@@ -326,8 +326,8 @@ const FlowList: React.FC = () => {
               whileHover={{ y: -4 }}
               className="group"
             >
-              <Card className="border-2 transition-all duration-300 cursor-pointer hover:shadow-xl hover:shadow-primary/10 hover:border-primary/20">
-                <CardHeader className="pb-4">
+              <Card className="border-2 transition-all duration-300 cursor-pointer hover:shadow-xl hover:shadow-primary/10 hover:border-primary/20 h-[420px] flex flex-col">
+                <CardHeader className="pb-4 flex-shrink-0">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2">
@@ -339,10 +339,10 @@ const FlowList: React.FC = () => {
                           {flow.nodeCount} nodes
                         </Badge>
                       </div>
-                      <CardTitle className="text-xl font-heading font-heading-semibold mb-2 group-hover:text-primary transition-colors">
+                      <CardTitle className="text-xl font-heading font-heading-semibold mb-2 group-hover:text-primary transition-colors line-clamp-2">
                         {flow.name}
                       </CardTitle>
-                      <CardDescription className="text-sm font-body leading-relaxed">
+                      <CardDescription className="text-sm font-body leading-relaxed line-clamp-3 h-[4.5rem]">
                         {flow.description}
                       </CardDescription>
                     </div>
@@ -379,7 +379,7 @@ const FlowList: React.FC = () => {
                   </div>
                 </CardHeader>
 
-                <CardContent className="pt-0">
+                <CardContent className="pt-0 flex-1 flex flex-col justify-between">
                   <div className="space-y-4">
                     {/* Channels */}
                     <div>
@@ -442,11 +442,11 @@ const FlowList: React.FC = () => {
             className="group"
           >
             <Card 
-              className="border-2 border-dashed border-border/50 transition-all duration-300 cursor-pointer hover:shadow-xl hover:shadow-primary/10 hover:border-primary/40 bg-card/30"
+              className="border-2 border-dashed border-border/50 transition-all duration-300 cursor-pointer hover:shadow-xl hover:shadow-primary/10 hover:border-primary/40 bg-card/30 h-[420px]"
               onClick={handleCreateFlow}
             >
-              <CardContent className="p-8 text-center">
-                <div className="flex flex-col items-center justify-center h-48">
+              <CardContent className="p-8 text-center h-full flex items-center justify-center">
+                <div className="flex flex-col items-center justify-center">
                   <div className="p-4 bg-primary/10 rounded-full mb-4 group-hover:bg-primary/20 transition-colors">
                     <Plus className="w-8 h-8 text-primary" />
                   </div>
