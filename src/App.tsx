@@ -12,6 +12,7 @@ import Integration from "./pages/Integration";
 import Templates from "./pages/Templates";
 import Documentation from "./pages/Documentation";
 import APIConsole from "./pages/APIConsole";
+import UserProfiles from "./pages/UserProfiles";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -32,6 +33,7 @@ const App = () => (
             <Route path="/templates" element={<Templates />} />
             <Route path="/documentation" element={<Documentation />} />
             <Route path="/api-console" element={<APIConsole />} />
+            <Route path="/user-profiles" element={<UserProfiles />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

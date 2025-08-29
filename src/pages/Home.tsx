@@ -170,7 +170,22 @@ const Home: React.FC = () => {
               
               <nav className="hidden md:flex items-center gap-6">
                 <Button variant="ghost" className="text-sm">Home</Button>
-                <Button variant="ghost" className="text-sm">Modules</Button>
+                
+                {/* Modules Dropdown */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="text-sm">
+                      Modules
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start" className="w-48">
+                    <DropdownMenuItem onClick={() => navigate('/user-profiles')}>
+                      <Users className="w-4 h-4 mr-2" />
+                      User Profiles
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+                
                 <Button variant="ghost" className="text-sm" onClick={() => setSupportModalOpen(true)}>Support</Button>
               </nav>
             </div>
