@@ -16,6 +16,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import { Separator } from '@/components/ui/separator';
 import { 
   ArrowLeft,
@@ -26,7 +34,9 @@ import {
   Mail,
   Phone,
   Hash,
-  Shield
+  Shield,
+  Grid3X3,
+  List
 } from 'lucide-react';
 
 // Business data with generated codes
@@ -497,6 +507,7 @@ const UserProfiles: React.FC = () => {
   const navigate = useNavigate();
   const [selectedBusiness, setSelectedBusiness] = React.useState<typeof businessProfiles[0] | null>(null);
   const [extrasModalOpen, setExtrasModalOpen] = React.useState(false);
+  const [viewMode, setViewMode] = React.useState<'card' | 'list'>('card');
 
   const handleExtrasClick = (business: typeof businessProfiles[0]) => {
     setSelectedBusiness(business);
@@ -529,6 +540,24 @@ const UserProfiles: React.FC = () => {
               </div>
 
               <div className="flex items-center gap-3">
+                <div className="flex items-center bg-muted rounded-lg p-1">
+                  <Button 
+                    variant={viewMode === 'card' ? 'default' : 'ghost'} 
+                    size="sm"
+                    onClick={() => setViewMode('card')}
+                    className="h-8"
+                  >
+                    <Grid3X3 className="w-4 h-4" />
+                  </Button>
+                  <Button 
+                    variant={viewMode === 'list' ? 'default' : 'ghost'} 
+                    size="sm"
+                    onClick={() => setViewMode('list')}
+                    className="h-8"
+                  >
+                    <List className="w-4 h-4" />
+                  </Button>
+                </div>
                 <Button variant="ghost" size="sm">
                   <Settings className="w-4 h-4" />
                 </Button>
@@ -556,84 +585,155 @@ const UserProfiles: React.FC = () => {
           </p>
         </motion.div>
 
-        {/* Business Profiles Grid */}
+        {/* Business Profiles Display */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
         >
-          {businessProfiles.map((business, index) => (
-            <motion.div
-              key={business.code}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: 0.05 * index }}
-              whileHover={{ y: -2 }}
-              className="group"
-            >
-              <Card className="border-2 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 hover:border-primary/20 h-full">
-                <CardHeader className="pb-4">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
+          {viewMode === 'card' ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {businessProfiles.map((business, index) => (
+                <motion.div
+                  key={business.code}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: 0.05 * index }}
+                  whileHover={{ y: -2 }}
+                  className="group"
+                >
+                  <Card className="border-2 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 hover:border-primary/20 h-full">
+                    <CardHeader className="pb-4">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Badge 
+                              variant={business.status === 'active' ? 'default' : 'secondary'}
+                              className={business.status === 'active' 
+                                ? 'bg-green-500/10 text-green-600 border-green-500/20 hover:bg-green-500/20' 
+                                : 'bg-red-500/10 text-red-600 border-red-500/20 hover:bg-red-500/20'
+                              }
+                            >
+                              <Shield className="w-3 h-3 mr-1" />
+                              {business.status.toUpperCase()}
+                            </Badge>
+                          </div>
+                          <CardTitle className="text-lg font-heading font-heading-semibold mb-2 line-clamp-2 min-h-[3.5rem]">
+                            {business.name}
+                          </CardTitle>
+                          <CardDescription className="text-sm font-mono text-muted-foreground">
+                            {business.code}
+                          </CardDescription>
+                        </div>
+                        
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm" className="p-2">
+                              <MoreHorizontal className="w-4 h-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => handleExtrasClick(business)}>
+                              Extras
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    </CardHeader>
+
+                    <CardContent className="pt-0">
+                      <div>
+                        <h4 className="text-sm font-medium mb-3">Active Channels</h4>
+                        <div className="flex flex-wrap gap-2">
+                          {business.channels.map((channel, idx) => {
+                            const IconComponent = getChannelIcon(channel);
+                            return (
+                              <Badge 
+                                key={idx} 
+                                variant="outline" 
+                                className={`text-xs ${getChannelColor(channel)}`}
+                              >
+                                <IconComponent className="w-3 h-3 mr-1" />
+                                {channel.toUpperCase()}
+                              </Badge>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </div>
+          ) : (
+            <div className="bg-card rounded-lg border border-border/50">
+              <div className="p-4 border-b border-border/50">
+                <h2 className="text-lg font-semibold">All Business Profiles</h2>
+              </div>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Business Name</TableHead>
+                    <TableHead>Business Code</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Active Channels</TableHead>
+                    <TableHead className="w-[50px]"></TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {businessProfiles.map((business) => (
+                    <TableRow key={business.code} className="hover:bg-muted/50">
+                      <TableCell className="font-medium">{business.name}</TableCell>
+                      <TableCell className="font-mono text-sm">{business.code}</TableCell>
+                      <TableCell>
                         <Badge 
                           variant={business.status === 'active' ? 'default' : 'secondary'}
                           className={business.status === 'active' 
-                            ? 'bg-green-500/10 text-green-600 border-green-500/20 hover:bg-green-500/20' 
-                            : 'bg-red-500/10 text-red-600 border-red-500/20 hover:bg-red-500/20'
+                            ? 'bg-green-500/10 text-green-600 border-green-500/20' 
+                            : 'bg-red-500/10 text-red-600 border-red-500/20'
                           }
                         >
                           <Shield className="w-3 h-3 mr-1" />
                           {business.status.toUpperCase()}
                         </Badge>
-                      </div>
-                      <CardTitle className="text-lg font-heading font-heading-semibold mb-2 line-clamp-2 min-h-[3.5rem]">
-                        {business.name}
-                      </CardTitle>
-                      <CardDescription className="text-sm font-mono text-muted-foreground">
-                        {business.code}
-                      </CardDescription>
-                    </div>
-                    
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm" className="p-2">
-                          <MoreHorizontal className="w-4 h-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => handleExtrasClick(business)}>
-                          Extras
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-                </CardHeader>
-
-                <CardContent className="pt-0">
-                  <div>
-                    <h4 className="text-sm font-medium mb-3">Active Channels</h4>
-                    <div className="flex flex-wrap gap-2">
-                      {business.channels.map((channel, idx) => {
-                        const IconComponent = getChannelIcon(channel);
-                        return (
-                          <Badge 
-                            key={idx} 
-                            variant="outline" 
-                            className={`text-xs ${getChannelColor(channel)}`}
-                          >
-                            <IconComponent className="w-3 h-3 mr-1" />
-                            {channel.toUpperCase()}
-                          </Badge>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          ))}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex flex-wrap gap-1">
+                          {business.channels.map((channel, idx) => {
+                            const IconComponent = getChannelIcon(channel);
+                            return (
+                              <Badge 
+                                key={idx} 
+                                variant="outline" 
+                                className={`text-xs ${getChannelColor(channel)}`}
+                              >
+                                <IconComponent className="w-3 h-3 mr-1" />
+                                {channel.toUpperCase()}
+                              </Badge>
+                            );
+                          })}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                              <MoreHorizontal className="w-4 h-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => handleExtrasClick(business)}>
+                              Extras
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
         </motion.div>
       </main>
 

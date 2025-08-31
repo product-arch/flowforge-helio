@@ -21,6 +21,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import { 
   Plus, 
   MoreHorizontal, 
@@ -37,7 +45,9 @@ import {
   Activity,
   CheckCircle,
   Clock,
-  AlertCircle
+  AlertCircle,
+  Grid3X3,
+  List
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -111,6 +121,7 @@ const FlowList: React.FC = () => {
   const [flows, setFlows] = useState<Flow[]>(mockFlows);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [flowToDelete, setFlowToDelete] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<'card' | 'list'>('card');
 
   const getStatusColor = (status: Flow['status']) => {
     switch (status) {
@@ -227,13 +238,33 @@ const FlowList: React.FC = () => {
                 </div>
               </div>
 
-              <Button 
-                onClick={handleCreateFlow}
-                className="bg-gradient-primary hover:opacity-90 flex items-center gap-2"
-              >
-                <Plus className="w-4 h-4" />
-                Create New Flow
-              </Button>
+              <div className="flex items-center gap-3">
+                <div className="flex items-center bg-muted rounded-lg p-1">
+                  <Button 
+                    variant={viewMode === 'card' ? 'default' : 'ghost'} 
+                    size="sm"
+                    onClick={() => setViewMode('card')}
+                    className="h-8"
+                  >
+                    <Grid3X3 className="w-4 h-4" />
+                  </Button>
+                  <Button 
+                    variant={viewMode === 'list' ? 'default' : 'ghost'} 
+                    size="sm"
+                    onClick={() => setViewMode('list')}
+                    className="h-8"
+                  >
+                    <List className="w-4 h-4" />
+                  </Button>
+                </div>
+                <Button 
+                  onClick={handleCreateFlow}
+                  className="bg-gradient-primary hover:opacity-90 flex items-center gap-2"
+                >
+                  <Plus className="w-4 h-4" />
+                  Create New Flow
+                </Button>
+              </div>
             </div>
           </div>
         </div>
@@ -310,157 +341,250 @@ const FlowList: React.FC = () => {
           </Card>
         </motion.div>
 
-        {/* Flows Grid */}
+        {/* Flows Display */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6"
         >
-          {flows.map((flow, index) => (
-            <motion.div
-              key={flow.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.1 * index }}
-              whileHover={{ y: -4 }}
-              className="group"
-            >
-              <Card className="border-2 transition-all duration-300 cursor-pointer hover:shadow-xl hover:shadow-primary/10 hover:border-primary/20 h-[420px] flex flex-col">
-                <CardHeader className="pb-4 flex-shrink-0">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
+          {viewMode === 'card' ? (
+            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+              {flows.map((flow, index) => (
+                <motion.div
+                  key={flow.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.1 * index }}
+                  whileHover={{ y: -4 }}
+                  className="group"
+                >
+                  <Card className="border-2 transition-all duration-300 cursor-pointer hover:shadow-xl hover:shadow-primary/10 hover:border-primary/20 h-[420px] flex flex-col">
+                    <CardHeader className="pb-4 flex-shrink-0">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Badge className={`${getStatusColor(flow.status)} border`}>
+                              {getStatusIcon(flow.status)}
+                              <span className="ml-1 capitalize">{flow.status}</span>
+                            </Badge>
+                            <Badge variant="outline" className="text-xs">
+                              {flow.nodeCount} nodes
+                            </Badge>
+                          </div>
+                          <CardTitle className="text-xl font-heading font-heading-semibold mb-2 group-hover:text-primary transition-colors line-clamp-2">
+                            {flow.name}
+                          </CardTitle>
+                          <CardDescription className="text-sm font-body leading-relaxed line-clamp-3 h-[4.5rem]">
+                            {flow.description}
+                          </CardDescription>
+                        </div>
+                        
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                              <MoreHorizontal className="w-4 h-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => handleEditFlow(flow.id)}>
+                              <Edit className="w-4 h-4 mr-2" />
+                              Edit Flow
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleDuplicateFlow(flow.id)}>
+                              <Copy className="w-4 h-4 mr-2" />
+                              Duplicate
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => toggleFlowStatus(flow.id)}>
+                              {flow.status === 'active' ? <Pause className="w-4 h-4 mr-2" /> : <Play className="w-4 h-4 mr-2" />}
+                              {flow.status === 'active' ? 'Deactivate' : 'Activate'}
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem 
+                              onClick={() => handleDeleteFlow(flow.id)}
+                              className="text-destructive focus:text-destructive"
+                            >
+                              <Trash2 className="w-4 h-4 mr-2" />
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    </CardHeader>
+
+                    <CardContent className="pt-0 flex-1 flex flex-col justify-between">
+                      <div className="space-y-4">
+                        {/* Channels */}
+                        <div>
+                          <div className="text-xs font-medium text-muted-foreground mb-2">Channels</div>
+                          <div className="flex flex-wrap gap-1">
+                            {flow.channels.map((channel) => (
+                              <Badge key={channel} variant="secondary" className="text-xs">
+                                {channel}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Stats */}
+                        <div className="grid grid-cols-2 gap-4 text-sm">
+                          <div>
+                            <div className="text-muted-foreground">Messages</div>
+                            <div className="font-semibold">{flow.messagesProcessed.toLocaleString()}</div>
+                          </div>
+                          <div>
+                            <div className="text-muted-foreground">Success Rate</div>
+                            <div className="font-semibold">{flow.successRate}%</div>
+                          </div>
+                        </div>
+
+                        {/* Meta Info */}
+                        <div className="pt-2 border-t border-border/50">
+                          <div className="flex items-center justify-between text-xs text-muted-foreground">
+                            <span className="flex items-center gap-1">
+                              <Users className="w-3 h-3" />
+                              {flow.createdBy}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <Calendar className="w-3 h-3" />
+                              {flow.lastModified}
+                            </span>
+                          </div>
+                        </div>
+
+                        <Button 
+                          className="w-full font-body-medium group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300"
+                          variant="outline"
+                          onClick={() => handleEditFlow(flow.id)}
+                        >
+                          <Edit className="w-4 h-4 mr-2" />
+                          Edit Flow
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+
+              {/* Create New Flow Card */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.1 * flows.length }}
+                whileHover={{ y: -4 }}
+                className="group"
+              >
+                <Card 
+                  className="border-2 border-dashed border-border/50 transition-all duration-300 cursor-pointer hover:shadow-xl hover:shadow-primary/10 hover:border-primary/40 bg-card/30 h-[420px]"
+                  onClick={handleCreateFlow}
+                >
+                  <CardContent className="p-8 text-center h-full flex items-center justify-center">
+                    <div className="flex flex-col items-center justify-center">
+                      <div className="p-4 bg-primary/10 rounded-full mb-4 group-hover:bg-primary/20 transition-colors">
+                        <Plus className="w-8 h-8 text-primary" />
+                      </div>
+                      <h3 className="text-lg font-heading font-heading-semibold mb-2">Create New Flow</h3>
+                      <p className="text-sm text-muted-foreground mb-4">
+                        Start building a new routing flow from scratch
+                      </p>
+                      <Button variant="outline" className="text-primary border-primary/20 hover:bg-primary hover:text-primary-foreground">
+                        Get Started
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            </div>
+          ) : (
+            <div className="bg-card rounded-lg border border-border/50">
+              <div className="p-4 border-b border-border/50 flex justify-between items-center">
+                <h2 className="text-lg font-semibold">All Flows</h2>
+                <Button 
+                  onClick={handleCreateFlow}
+                  size="sm"
+                  className="bg-gradient-primary hover:opacity-90 flex items-center gap-2"
+                >
+                  <Plus className="w-4 h-4" />
+                  Create New Flow
+                </Button>
+              </div>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Flow Name</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Channels</TableHead>
+                    <TableHead>Messages</TableHead>
+                    <TableHead>Success Rate</TableHead>
+                    <TableHead>Created By</TableHead>
+                    <TableHead>Last Modified</TableHead>
+                    <TableHead className="w-[50px]"></TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {flows.map((flow) => (
+                    <TableRow key={flow.id} className="cursor-pointer hover:bg-muted/50" onClick={() => handleEditFlow(flow.id)}>
+                      <TableCell className="font-medium">
+                        <div>
+                          <div className="font-semibold">{flow.name}</div>
+                          <div className="text-sm text-muted-foreground line-clamp-1">{flow.description}</div>
+                        </div>
+                      </TableCell>
+                      <TableCell>
                         <Badge className={`${getStatusColor(flow.status)} border`}>
                           {getStatusIcon(flow.status)}
                           <span className="ml-1 capitalize">{flow.status}</span>
                         </Badge>
-                        <Badge variant="outline" className="text-xs">
-                          {flow.nodeCount} nodes
-                        </Badge>
-                      </div>
-                      <CardTitle className="text-xl font-heading font-heading-semibold mb-2 group-hover:text-primary transition-colors line-clamp-2">
-                        {flow.name}
-                      </CardTitle>
-                      <CardDescription className="text-sm font-body leading-relaxed line-clamp-3 h-[4.5rem]">
-                        {flow.description}
-                      </CardDescription>
-                    </div>
-                    
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                          <MoreHorizontal className="w-4 h-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => handleEditFlow(flow.id)}>
-                          <Edit className="w-4 h-4 mr-2" />
-                          Edit Flow
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleDuplicateFlow(flow.id)}>
-                          <Copy className="w-4 h-4 mr-2" />
-                          Duplicate
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => toggleFlowStatus(flow.id)}>
-                          {flow.status === 'active' ? <Pause className="w-4 h-4 mr-2" /> : <Play className="w-4 h-4 mr-2" />}
-                          {flow.status === 'active' ? 'Deactivate' : 'Activate'}
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem 
-                          onClick={() => handleDeleteFlow(flow.id)}
-                          className="text-destructive focus:text-destructive"
-                        >
-                          <Trash2 className="w-4 h-4 mr-2" />
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-                </CardHeader>
-
-                <CardContent className="pt-0 flex-1 flex flex-col justify-between">
-                  <div className="space-y-4">
-                    {/* Channels */}
-                    <div>
-                      <div className="text-xs font-medium text-muted-foreground mb-2">Channels</div>
-                      <div className="flex flex-wrap gap-1">
-                        {flow.channels.map((channel) => (
-                          <Badge key={channel} variant="secondary" className="text-xs">
-                            {channel}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Stats */}
-                    <div className="grid grid-cols-2 gap-4 text-sm">
-                      <div>
-                        <div className="text-muted-foreground">Messages</div>
-                        <div className="font-semibold">{flow.messagesProcessed.toLocaleString()}</div>
-                      </div>
-                      <div>
-                        <div className="text-muted-foreground">Success Rate</div>
-                        <div className="font-semibold">{flow.successRate}%</div>
-                      </div>
-                    </div>
-
-                    {/* Meta Info */}
-                    <div className="pt-2 border-t border-border/50">
-                      <div className="flex items-center justify-between text-xs text-muted-foreground">
-                        <span className="flex items-center gap-1">
-                          <Users className="w-3 h-3" />
-                          {flow.createdBy}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <Calendar className="w-3 h-3" />
-                          {flow.lastModified}
-                        </span>
-                      </div>
-                    </div>
-
-                    <Button 
-                      className="w-full font-body-medium group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300"
-                      variant="outline"
-                      onClick={() => handleEditFlow(flow.id)}
-                    >
-                      <Edit className="w-4 h-4 mr-2" />
-                      Edit Flow
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          ))}
-
-          {/* Create New Flow Card */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 * flows.length }}
-            whileHover={{ y: -4 }}
-            className="group"
-          >
-            <Card 
-              className="border-2 border-dashed border-border/50 transition-all duration-300 cursor-pointer hover:shadow-xl hover:shadow-primary/10 hover:border-primary/40 bg-card/30 h-[420px]"
-              onClick={handleCreateFlow}
-            >
-              <CardContent className="p-8 text-center h-full flex items-center justify-center">
-                <div className="flex flex-col items-center justify-center">
-                  <div className="p-4 bg-primary/10 rounded-full mb-4 group-hover:bg-primary/20 transition-colors">
-                    <Plus className="w-8 h-8 text-primary" />
-                  </div>
-                  <h3 className="text-lg font-heading font-heading-semibold mb-2">Create New Flow</h3>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Start building a new routing flow from scratch
-                  </p>
-                  <Button className="bg-gradient-primary hover:opacity-90">
-                    Get Started
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex flex-wrap gap-1">
+                          {flow.channels.map((channel) => (
+                            <Badge key={channel} variant="secondary" className="text-xs">
+                              {channel}
+                            </Badge>
+                          ))}
+                        </div>
+                      </TableCell>
+                      <TableCell>{flow.messagesProcessed.toLocaleString()}</TableCell>
+                      <TableCell>{flow.successRate}%</TableCell>
+                      <TableCell>{flow.createdBy}</TableCell>
+                      <TableCell>{flow.lastModified}</TableCell>
+                      <TableCell>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                              <MoreHorizontal className="w-4 h-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleEditFlow(flow.id); }}>
+                              <Edit className="w-4 h-4 mr-2" />
+                              Edit Flow
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleDuplicateFlow(flow.id); }}>
+                              <Copy className="w-4 h-4 mr-2" />
+                              Duplicate
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={(e) => { e.stopPropagation(); toggleFlowStatus(flow.id); }}>
+                              {flow.status === 'active' ? <Pause className="w-4 h-4 mr-2" /> : <Play className="w-4 h-4 mr-2" />}
+                              {flow.status === 'active' ? 'Deactivate' : 'Activate'}
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem 
+                              onClick={(e) => { e.stopPropagation(); handleDeleteFlow(flow.id); }}
+                              className="text-destructive focus:text-destructive"
+                            >
+                              <Trash2 className="w-4 h-4 mr-2" />
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
         </motion.div>
       </main>
 
