@@ -8,6 +8,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import {
@@ -25,6 +26,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Separator } from '@/components/ui/separator';
+import { PersonalInfoModal, AccountSettingsModal, BillingModal } from '@/components/flow/AccountModals';
 import { 
   ArrowLeft,
   Settings,
@@ -36,8 +38,26 @@ import {
   Hash,
   Shield,
   Grid3X3,
-  List
+  List,
+  Bell,
+  Globe,
+  Database,
+  Keyboard,
+  Moon,
+  Sun
 } from 'lucide-react';
+import { useTheme, Theme } from '@/contexts/ThemeContext';
+import { useToast } from '@/hooks/use-toast';
+
+const themes: Array<{ value: Theme; label: string; color: string }> = [
+  { value: 'blue', label: 'Professional Blue', color: 'bg-blue-500' },
+  { value: 'emerald', label: 'Growth Green', color: 'bg-emerald-500' },
+  { value: 'purple', label: 'Creative Purple', color: 'bg-purple-500' },
+  { value: 'orange', label: 'Energy Orange', color: 'bg-orange-500' },
+  { value: 'rose', label: 'Warm Rose', color: 'bg-rose-500' },
+  { value: 'indigo', label: 'Deep Indigo', color: 'bg-indigo-500' },
+  { value: 'solarized-osaka', label: 'Solarized Osaka', color: 'bg-teal-600' },
+];
 
 // Business data with generated codes
 const businessProfiles = [
@@ -508,6 +528,28 @@ const UserProfiles: React.FC = () => {
   const [selectedBusiness, setSelectedBusiness] = React.useState<typeof businessProfiles[0] | null>(null);
   const [extrasModalOpen, setExtrasModalOpen] = React.useState(false);
   const [viewMode, setViewMode] = React.useState<'card' | 'list'>('card');
+  const [personalInfoOpen, setPersonalInfoOpen] = React.useState(false);
+  const [accountSettingsOpen, setAccountSettingsOpen] = React.useState(false);
+  const [billingOpen, setBillingOpen] = React.useState(false);
+  const { theme, mode, setTheme, setMode } = useTheme();
+  const { toast } = useToast();
+
+  const handleThemeChange = (newTheme: Theme) => {
+    setTheme(newTheme);
+    toast({
+      title: "Theme Changed",
+      description: `Switched to ${themes.find(t => t.value === newTheme)?.label}`,
+      className: "border-status-success bg-status-success/10 text-status-success"
+    });
+  };
+
+  const handleSettingClick = (setting: string) => {
+    toast({
+      title: "Setting Updated",
+      description: `${setting} setting has been updated`,
+      className: "border-status-info bg-status-info/10 text-status-info"
+    });
+  };
 
   const handleExtrasClick = (business: typeof businessProfiles[0]) => {
     setSelectedBusiness(business);
@@ -558,13 +600,100 @@ const UserProfiles: React.FC = () => {
                     <List className="w-4 h-4" />
                   </Button>
                 </div>
-                <Button variant="ghost" size="sm">
-                  <Settings className="w-4 h-4" />
-                </Button>
                 
-                <Button variant="ghost" size="sm">
-                  <User className="w-4 h-4" />
-                </Button>
+                {/* Settings Menu */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="sm">
+                      <Settings className="w-4 h-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56">
+                    <DropdownMenuItem onClick={() => handleSettingClick('Notifications')}>
+                      <Bell className="w-4 h-4 mr-2" />
+                      Notifications
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleSettingClick('Language')}>
+                      <Globe className="w-4 h-4 mr-2" />
+                      Language & Region
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleSettingClick('Privacy')}>
+                      <Shield className="w-4 h-4 mr-2" />
+                      Privacy & Security
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleSettingClick('Data')}>
+                      <Database className="w-4 h-4 mr-2" />
+                      Data Management
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleSettingClick('Shortcuts')}>
+                      <Keyboard className="w-4 h-4 mr-2" />
+                      Keyboard Shortcuts
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => setMode(mode === 'light' ? 'dark' : 'light')}>
+                      {mode === 'light' ? <Moon className="w-4 h-4 mr-2" /> : <Sun className="w-4 h-4 mr-2" />}
+                      {mode === 'light' ? 'Dark Mode' : 'Light Mode'}
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+
+                {/* Account Menu */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="sm">
+                      <User className="w-4 h-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48">
+                    <DropdownMenuItem onClick={() => setPersonalInfoOpen(true)}>
+                      <User className="w-4 h-4 mr-2" />
+                      Personal Info
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setAccountSettingsOpen(true)}>
+                      <Settings className="w-4 h-4 mr-2" />
+                      Account Settings
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setBillingOpen(true)}>
+                      <Badge className="w-4 h-4 mr-2" />
+                      Billing
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    
+                    <div className="px-2 py-1">
+                      <div className="text-xs font-medium text-muted-foreground mb-2">Themes</div>
+                      <div className="grid grid-cols-3 gap-1">
+                        {themes.map((themeOption) => (
+                          <button
+                            key={themeOption.value}
+                            onClick={() => handleThemeChange(themeOption.value)}
+                            className={`w-6 h-6 rounded-full ${themeOption.color} hover:scale-110 transition-transform ${
+                              theme === themeOption.value ? 'ring-2 ring-ring ring-offset-2 ring-offset-background' : ''
+                            }`}
+                            title={themeOption.label}
+                          />
+                        ))}
+                      </div>
+                      <div className="mt-2 flex gap-1">
+                        <button
+                          onClick={() => setMode('light')}
+                          className={`px-2 py-1 text-xs rounded ${
+                            mode === 'light' ? 'bg-primary text-primary-foreground' : 'hover:bg-accent'
+                          }`}
+                        >
+                          Light
+                        </button>
+                        <button
+                          onClick={() => setMode('dark')}
+                          className={`px-2 py-1 text-xs rounded ${
+                            mode === 'dark' ? 'bg-primary text-primary-foreground' : 'hover:bg-accent'
+                          }`}
+                        >
+                          Dark
+                        </button>
+                      </div>
+                    </div>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </div>
           </div>
@@ -810,6 +939,11 @@ const UserProfiles: React.FC = () => {
           )}
         </DialogContent>
       </Dialog>
+      
+      {/* Account Modals */}
+      <PersonalInfoModal isOpen={personalInfoOpen} onClose={() => setPersonalInfoOpen(false)} />
+      <AccountSettingsModal isOpen={accountSettingsOpen} onClose={() => setAccountSettingsOpen(false)} />
+      <BillingModal isOpen={billingOpen} onClose={() => setBillingOpen(false)} />
     </div>
   );
 };
