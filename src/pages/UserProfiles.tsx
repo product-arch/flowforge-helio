@@ -26,7 +26,16 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Separator } from '@/components/ui/separator';
-import { PersonalInfoModal, AccountSettingsModal, BillingModal } from '@/components/flow/AccountModals';
+import { 
+  PersonalInfoModal, 
+  AccountSettingsModal, 
+  BillingModal,
+  NotificationsModal,
+  LanguageModal,
+  PrivacyModal,
+  DataManagementModal,
+  KeyboardShortcutsModal
+} from '@/components/flow/AccountModals';
 import { 
   ArrowLeft,
   Settings,
@@ -531,6 +540,11 @@ const UserProfiles: React.FC = () => {
   const [personalInfoOpen, setPersonalInfoOpen] = React.useState(false);
   const [accountSettingsOpen, setAccountSettingsOpen] = React.useState(false);
   const [billingOpen, setBillingOpen] = React.useState(false);
+  const [notificationsOpen, setNotificationsOpen] = React.useState(false);
+  const [languageOpen, setLanguageOpen] = React.useState(false);
+  const [privacyOpen, setPrivacyOpen] = React.useState(false);
+  const [dataManagementOpen, setDataManagementOpen] = React.useState(false);
+  const [keyboardShortcutsOpen, setKeyboardShortcutsOpen] = React.useState(false);
   const { theme, mode, setTheme, setMode } = useTheme();
   const { toast } = useToast();
 
@@ -609,23 +623,23 @@ const UserProfiles: React.FC = () => {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-56">
-                    <DropdownMenuItem onClick={() => handleSettingClick('Notifications')}>
+                    <DropdownMenuItem onClick={() => setNotificationsOpen(true)}>
                       <Bell className="w-4 h-4 mr-2" />
                       Notifications
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleSettingClick('Language')}>
+                    <DropdownMenuItem onClick={() => setLanguageOpen(true)}>
                       <Globe className="w-4 h-4 mr-2" />
                       Language & Region
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleSettingClick('Privacy')}>
+                    <DropdownMenuItem onClick={() => setPrivacyOpen(true)}>
                       <Shield className="w-4 h-4 mr-2" />
                       Privacy & Security
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleSettingClick('Data')}>
+                    <DropdownMenuItem onClick={() => setDataManagementOpen(true)}>
                       <Database className="w-4 h-4 mr-2" />
                       Data Management
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleSettingClick('Shortcuts')}>
+                    <DropdownMenuItem onClick={() => setKeyboardShortcutsOpen(true)}>
                       <Keyboard className="w-4 h-4 mr-2" />
                       Keyboard Shortcuts
                     </DropdownMenuItem>
@@ -944,6 +958,13 @@ const UserProfiles: React.FC = () => {
       <PersonalInfoModal isOpen={personalInfoOpen} onClose={() => setPersonalInfoOpen(false)} />
       <AccountSettingsModal isOpen={accountSettingsOpen} onClose={() => setAccountSettingsOpen(false)} />
       <BillingModal isOpen={billingOpen} onClose={() => setBillingOpen(false)} />
+      
+      {/* Settings Modals */}
+      <NotificationsModal isOpen={notificationsOpen} onClose={() => setNotificationsOpen(false)} />
+      <LanguageModal isOpen={languageOpen} onClose={() => setLanguageOpen(false)} />
+      <PrivacyModal isOpen={privacyOpen} onClose={() => setPrivacyOpen(false)} />
+      <DataManagementModal isOpen={dataManagementOpen} onClose={() => setDataManagementOpen(false)} />
+      <KeyboardShortcutsModal isOpen={keyboardShortcutsOpen} onClose={() => setKeyboardShortcutsOpen(false)} />
     </div>
   );
 };

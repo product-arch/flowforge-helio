@@ -11,6 +11,9 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Switch } from '@/components/ui/switch';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 
 interface PersonalInfoModalProps {
   isOpen: boolean;
@@ -23,6 +26,31 @@ interface AccountSettingsModalProps {
 }
 
 interface BillingModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+interface NotificationsModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+interface LanguageModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+interface PrivacyModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+interface DataManagementModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+interface KeyboardShortcutsModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
@@ -526,6 +554,1032 @@ export const BillingModal: React.FC<BillingModalProps> = ({ isOpen, onClose }) =
               </Button>
             </div>
           </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+export const NotificationsModal: React.FC<NotificationsModalProps> = ({ isOpen, onClose }) => {
+  const [settings, setSettings] = React.useState({
+    emailAlerts: true,
+    smsAlerts: false,
+    pushNotifications: true,
+    systemUpdates: true,
+    securityAlerts: true,
+    marketingEmails: false,
+    weeklyReports: true,
+    flowFailures: true,
+    alertSound: 'default',
+    quietHours: { enabled: false, start: '22:00', end: '07:00' },
+    frequency: 'immediate',
+    channels: ['email', 'push']
+  });
+
+  const handleSave = () => {
+    onClose();
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Notification Settings</DialogTitle>
+        </DialogHeader>
+        
+        <div className="space-y-6">
+          {/* Alert Types */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Alert Types</CardTitle>
+              <CardDescription>Choose which types of notifications you want to receive</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label className="font-medium">System Updates</Label>
+                  <p className="text-sm text-muted-foreground">New features and system maintenance</p>
+                </div>
+                <Switch 
+                  checked={settings.systemUpdates}
+                  onCheckedChange={(checked) => setSettings(prev => ({ ...prev, systemUpdates: checked }))}
+                />
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label className="font-medium">Security Alerts</Label>
+                  <p className="text-sm text-muted-foreground">Login attempts and security events</p>
+                </div>
+                <Switch 
+                  checked={settings.securityAlerts}
+                  onCheckedChange={(checked) => setSettings(prev => ({ ...prev, securityAlerts: checked }))}
+                />
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label className="font-medium">Flow Failures</Label>
+                  <p className="text-sm text-muted-foreground">When your flows encounter errors</p>
+                </div>
+                <Switch 
+                  checked={settings.flowFailures}
+                  onCheckedChange={(checked) => setSettings(prev => ({ ...prev, flowFailures: checked }))}
+                />
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label className="font-medium">Weekly Reports</Label>
+                  <p className="text-sm text-muted-foreground">Usage summaries and analytics</p>
+                </div>
+                <Switch 
+                  checked={settings.weeklyReports}
+                  onCheckedChange={(checked) => setSettings(prev => ({ ...prev, weeklyReports: checked }))}
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Delivery Channels */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Delivery Channels</CardTitle>
+              <CardDescription>How would you like to receive notifications</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between">
+                <Label className="font-medium">Email Notifications</Label>
+                <Switch 
+                  checked={settings.emailAlerts}
+                  onCheckedChange={(checked) => setSettings(prev => ({ ...prev, emailAlerts: checked }))}
+                />
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <Label className="font-medium">SMS Alerts</Label>
+                <Switch 
+                  checked={settings.smsAlerts}
+                  onCheckedChange={(checked) => setSettings(prev => ({ ...prev, smsAlerts: checked }))}
+                />
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <Label className="font-medium">Push Notifications</Label>
+                <Switch 
+                  checked={settings.pushNotifications}
+                  onCheckedChange={(checked) => setSettings(prev => ({ ...prev, pushNotifications: checked }))}
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Frequency & Timing */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Frequency & Timing</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label>Notification Frequency</Label>
+                <Select value={settings.frequency} onValueChange={(value) => setSettings(prev => ({ ...prev, frequency: value }))}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="immediate">Immediate</SelectItem>
+                    <SelectItem value="hourly">Hourly digest</SelectItem>
+                    <SelectItem value="daily">Daily digest</SelectItem>
+                    <SelectItem value="weekly">Weekly digest</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <Label className="font-medium">Quiet Hours</Label>
+                  <Switch 
+                    checked={settings.quietHours.enabled}
+                    onCheckedChange={(checked) => setSettings(prev => ({ 
+                      ...prev, 
+                      quietHours: { ...prev.quietHours, enabled: checked }
+                    }))}
+                  />
+                </div>
+                
+                {settings.quietHours.enabled && (
+                  <div className="grid grid-cols-2 gap-4 pl-4">
+                    <div className="space-y-2">
+                      <Label className="text-sm">Start time</Label>
+                      <Input 
+                        type="time" 
+                        value={settings.quietHours.start}
+                        onChange={(e) => setSettings(prev => ({ 
+                          ...prev, 
+                          quietHours: { ...prev.quietHours, start: e.target.value }
+                        }))}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-sm">End time</Label>
+                      <Input 
+                        type="time" 
+                        value={settings.quietHours.end}
+                        onChange={(e) => setSettings(prev => ({ 
+                          ...prev, 
+                          quietHours: { ...prev.quietHours, end: e.target.value }
+                        }))}
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+        
+        <div className="flex justify-end gap-2 pt-4">
+          <Button variant="outline" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button onClick={handleSave} className="bg-gradient-primary">
+            Save Settings
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+export const LanguageModal: React.FC<LanguageModalProps> = ({ isOpen, onClose }) => {
+  const [settings, setSettings] = React.useState({
+    language: 'English',
+    region: 'United States',
+    dateFormat: 'MM/DD/YYYY',
+    timeFormat: '12-hour',
+    timezone: 'America/New_York',
+    currency: 'USD',
+    numberFormat: 'US',
+    firstDayOfWeek: 'Sunday'
+  });
+
+  const languages = [
+    { code: 'en', name: 'English', native: 'English' },
+    { code: 'es', name: 'Spanish', native: 'Español' },
+    { code: 'fr', name: 'French', native: 'Français' },
+    { code: 'de', name: 'German', native: 'Deutsch' },
+    { code: 'it', name: 'Italian', native: 'Italiano' },
+    { code: 'pt', name: 'Portuguese', native: 'Português' },
+    { code: 'zh', name: 'Chinese', native: '中文' },
+    { code: 'ja', name: 'Japanese', native: '日本語' },
+    { code: 'ko', name: 'Korean', native: '한국어' },
+    { code: 'ar', name: 'Arabic', native: 'العربية' }
+  ];
+
+  const regions = [
+    'United States', 'Canada', 'United Kingdom', 'Australia', 'Germany', 
+    'France', 'Spain', 'Italy', 'Japan', 'South Korea', 'China', 'India', 'Brazil'
+  ];
+
+  const timezones = [
+    'America/New_York', 'America/Los_Angeles', 'America/Chicago', 'America/Denver',
+    'Europe/London', 'Europe/Paris', 'Europe/Berlin', 'Asia/Tokyo', 'Asia/Shanghai',
+    'Asia/Kolkata', 'Australia/Sydney', 'Pacific/Auckland'
+  ];
+
+  const handleSave = () => {
+    onClose();
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Language & Region Settings</DialogTitle>
+        </DialogHeader>
+        
+        <div className="space-y-6">
+          {/* Language Settings */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Language</CardTitle>
+              <CardDescription>Choose your preferred language for the interface</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label>Interface Language</Label>
+                <Select value={settings.language} onValueChange={(value) => setSettings(prev => ({ ...prev, language: value }))}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {languages.map(lang => (
+                      <SelectItem key={lang.code} value={lang.name}>
+                        {lang.name} ({lang.native})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Region Settings */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Region</CardTitle>
+              <CardDescription>Set your location and regional preferences</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label>Country/Region</Label>
+                <Select value={settings.region} onValueChange={(value) => setSettings(prev => ({ ...prev, region: value }))}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {regions.map(region => (
+                      <SelectItem key={region} value={region}>{region}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="space-y-2">
+                <Label>Timezone</Label>
+                <Select value={settings.timezone} onValueChange={(value) => setSettings(prev => ({ ...prev, timezone: value }))}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {timezones.map(tz => (
+                      <SelectItem key={tz} value={tz}>{tz}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="space-y-2">
+                <Label>Currency</Label>
+                <Select value={settings.currency} onValueChange={(value) => setSettings(prev => ({ ...prev, currency: value }))}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="USD">USD - US Dollar</SelectItem>
+                    <SelectItem value="EUR">EUR - Euro</SelectItem>
+                    <SelectItem value="GBP">GBP - British Pound</SelectItem>
+                    <SelectItem value="JPY">JPY - Japanese Yen</SelectItem>
+                    <SelectItem value="CAD">CAD - Canadian Dollar</SelectItem>
+                    <SelectItem value="AUD">AUD - Australian Dollar</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Format Settings */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Format Preferences</CardTitle>
+              <CardDescription>Customize how dates, times, and numbers are displayed</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Date Format</Label>
+                  <Select value={settings.dateFormat} onValueChange={(value) => setSettings(prev => ({ ...prev, dateFormat: value }))}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="MM/DD/YYYY">MM/DD/YYYY</SelectItem>
+                      <SelectItem value="DD/MM/YYYY">DD/MM/YYYY</SelectItem>
+                      <SelectItem value="YYYY-MM-DD">YYYY-MM-DD</SelectItem>
+                      <SelectItem value="DD-MM-YYYY">DD-MM-YYYY</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label>Time Format</Label>
+                  <Select value={settings.timeFormat} onValueChange={(value) => setSettings(prev => ({ ...prev, timeFormat: value }))}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="12-hour">12-hour (AM/PM)</SelectItem>
+                      <SelectItem value="24-hour">24-hour</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <Label>First Day of Week</Label>
+                <Select value={settings.firstDayOfWeek} onValueChange={(value) => setSettings(prev => ({ ...prev, firstDayOfWeek: value }))}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Sunday">Sunday</SelectItem>
+                    <SelectItem value="Monday">Monday</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+        
+        <div className="flex justify-end gap-2 pt-4">
+          <Button variant="outline" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button onClick={handleSave} className="bg-gradient-primary">
+            Save Settings
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+export const PrivacyModal: React.FC<PrivacyModalProps> = ({ isOpen, onClose }) => {
+  const [settings, setSettings] = React.useState({
+    profileVisibility: 'private',
+    shareAnalytics: false,
+    cookieConsent: true,
+    dataProcessing: true,
+    thirdPartySharing: false,
+    marketingConsent: false,
+    sessionTimeout: '30',
+    twoFactorAuth: false,
+    loginNotifications: true,
+    dataRetention: '12',
+    anonymizeData: true
+  });
+
+  const handleSave = () => {
+    onClose();
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Privacy & Security Settings</DialogTitle>
+        </DialogHeader>
+        
+        <div className="space-y-6">
+          {/* Account Security */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Account Security</CardTitle>
+              <CardDescription>Protect your account with these security measures</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label className="font-medium">Two-Factor Authentication</Label>
+                  <p className="text-sm text-muted-foreground">Add an extra layer of security to your account</p>
+                </div>
+                <Switch 
+                  checked={settings.twoFactorAuth}
+                  onCheckedChange={(checked) => setSettings(prev => ({ ...prev, twoFactorAuth: checked }))}
+                />
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label className="font-medium">Login Notifications</Label>
+                  <p className="text-sm text-muted-foreground">Get notified of new login attempts</p>
+                </div>
+                <Switch 
+                  checked={settings.loginNotifications}
+                  onCheckedChange={(checked) => setSettings(prev => ({ ...prev, loginNotifications: checked }))}
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label>Session Timeout (minutes)</Label>
+                <Select value={settings.sessionTimeout} onValueChange={(value) => setSettings(prev => ({ ...prev, sessionTimeout: value }))}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="15">15 minutes</SelectItem>
+                    <SelectItem value="30">30 minutes</SelectItem>
+                    <SelectItem value="60">1 hour</SelectItem>
+                    <SelectItem value="120">2 hours</SelectItem>
+                    <SelectItem value="480">8 hours</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Data Privacy */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Data Privacy</CardTitle>
+              <CardDescription>Control how your data is collected and used</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label className="font-medium">Share Usage Analytics</Label>
+                  <p className="text-sm text-muted-foreground">Help improve our service by sharing anonymous usage data</p>
+                </div>
+                <Switch 
+                  checked={settings.shareAnalytics}
+                  onCheckedChange={(checked) => setSettings(prev => ({ ...prev, shareAnalytics: checked }))}
+                />
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label className="font-medium">Cookie Consent</Label>
+                  <p className="text-sm text-muted-foreground">Allow non-essential cookies for enhanced experience</p>
+                </div>
+                <Switch 
+                  checked={settings.cookieConsent}
+                  onCheckedChange={(checked) => setSettings(prev => ({ ...prev, cookieConsent: checked }))}
+                />
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label className="font-medium">Anonymize Personal Data</Label>
+                  <p className="text-sm text-muted-foreground">Remove personally identifiable information from analytics</p>
+                </div>
+                <Switch 
+                  checked={settings.anonymizeData}
+                  onCheckedChange={(checked) => setSettings(prev => ({ ...prev, anonymizeData: checked }))}
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Marketing & Communications */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Marketing & Communications</CardTitle>
+              <CardDescription>Manage how we communicate with you</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label className="font-medium">Marketing Emails</Label>
+                  <p className="text-sm text-muted-foreground">Receive promotional emails and product updates</p>
+                </div>
+                <Switch 
+                  checked={settings.marketingConsent}
+                  onCheckedChange={(checked) => setSettings(prev => ({ ...prev, marketingConsent: checked }))}
+                />
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label className="font-medium">Third-Party Sharing</Label>
+                  <p className="text-sm text-muted-foreground">Allow sharing data with trusted partners</p>
+                </div>
+                <Switch 
+                  checked={settings.thirdPartySharing}
+                  onCheckedChange={(checked) => setSettings(prev => ({ ...prev, thirdPartySharing: checked }))}
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Data Retention */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Data Retention</CardTitle>
+              <CardDescription>Control how long your data is stored</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label>Data Retention Period (months)</Label>
+                <Select value={settings.dataRetention} onValueChange={(value) => setSettings(prev => ({ ...prev, dataRetention: value }))}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="3">3 months</SelectItem>
+                    <SelectItem value="6">6 months</SelectItem>
+                    <SelectItem value="12">12 months</SelectItem>
+                    <SelectItem value="24">24 months</SelectItem>
+                    <SelectItem value="36">36 months</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">
+                  How long to keep your activity logs and usage data
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Data Rights */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Your Data Rights</CardTitle>
+              <CardDescription>Request actions on your personal data</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <Button variant="outline" className="w-full justify-start">
+                Download My Data
+              </Button>
+              <Button variant="outline" className="w-full justify-start">
+                Request Data Correction
+              </Button>
+              <Button variant="outline" className="w-full justify-start text-red-600 hover:text-red-700">
+                Delete My Account
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+        
+        <div className="flex justify-end gap-2 pt-4">
+          <Button variant="outline" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button onClick={handleSave} className="bg-gradient-primary">
+            Save Settings
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+export const DataManagementModal: React.FC<DataManagementModalProps> = ({ isOpen, onClose }) => {
+  const [settings, setSettings] = React.useState({
+    autoBackup: true,
+    backupFrequency: 'daily',
+    dataEncryption: true,
+    compressionLevel: 'medium',
+    storageLimit: '10GB',
+    autoCleanup: true,
+    cleanupPeriod: '90'
+  });
+
+  const storageStats = {
+    used: '2.4GB',
+    total: '10GB',
+    percentage: 24,
+    flows: '1.2GB',
+    logs: '800MB',
+    media: '300MB',
+    backups: '100MB'
+  };
+
+  const handleSave = () => {
+    onClose();
+  };
+
+  const handleExportData = () => {
+    // Export logic here
+    console.log('Exporting data...');
+  };
+
+  const handleImportData = () => {
+    // Import logic here
+    console.log('Importing data...');
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Data Management</DialogTitle>
+        </DialogHeader>
+        
+        <div className="space-y-6">
+          {/* Storage Overview */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Storage Overview</CardTitle>
+              <CardDescription>Current usage and breakdown of your data storage</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span>Used Storage</span>
+                  <span>{storageStats.used} of {storageStats.total}</span>
+                </div>
+                <div className="w-full bg-secondary rounded-full h-3">
+                  <div 
+                    className="bg-primary h-3 rounded-full" 
+                    style={{ width: `${storageStats.percentage}%` }}
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {storageStats.percentage}% of storage limit used
+                </p>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4 pt-4">
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-sm">Flows</span>
+                    <span className="text-sm font-medium">{storageStats.flows}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm">Logs</span>
+                    <span className="text-sm font-medium">{storageStats.logs}</span>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-sm">Media</span>
+                    <span className="text-sm font-medium">{storageStats.media}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm">Backups</span>
+                    <span className="text-sm font-medium">{storageStats.backups}</span>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Backup Settings */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Backup Settings</CardTitle>
+              <CardDescription>Configure automatic backups of your data</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label className="font-medium">Automatic Backup</Label>
+                  <p className="text-sm text-muted-foreground">Automatically backup your flows and settings</p>
+                </div>
+                <Switch 
+                  checked={settings.autoBackup}
+                  onCheckedChange={(checked) => setSettings(prev => ({ ...prev, autoBackup: checked }))}
+                />
+              </div>
+              
+              {settings.autoBackup && (
+                <div className="space-y-2 pl-4">
+                  <Label>Backup Frequency</Label>
+                  <Select value={settings.backupFrequency} onValueChange={(value) => setSettings(prev => ({ ...prev, backupFrequency: value }))}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="hourly">Every hour</SelectItem>
+                      <SelectItem value="daily">Daily</SelectItem>
+                      <SelectItem value="weekly">Weekly</SelectItem>
+                      <SelectItem value="monthly">Monthly</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+              
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label className="font-medium">Data Encryption</Label>
+                  <p className="text-sm text-muted-foreground">Encrypt backups for enhanced security</p>
+                </div>
+                <Switch 
+                  checked={settings.dataEncryption}
+                  onCheckedChange={(checked) => setSettings(prev => ({ ...prev, dataEncryption: checked }))}
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Data Import/Export */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Data Import & Export</CardTitle>
+              <CardDescription>Import or export your flows and configurations</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <Button variant="outline" onClick={handleExportData} className="w-full">
+                  Export All Data
+                </Button>
+                <Button variant="outline" onClick={handleImportData} className="w-full">
+                  Import Data
+                </Button>
+              </div>
+              
+              <div className="space-y-2">
+                <Label>Compression Level</Label>
+                <Select value={settings.compressionLevel} onValueChange={(value) => setSettings(prev => ({ ...prev, compressionLevel: value }))}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="low">Low (faster, larger files)</SelectItem>
+                    <SelectItem value="medium">Medium (balanced)</SelectItem>
+                    <SelectItem value="high">High (slower, smaller files)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="p-4 bg-muted rounded-lg">
+                <h4 className="font-medium mb-2">Export Options</h4>
+                <div className="space-y-2">
+                  <div className="flex items-center space-x-2">
+                    <input type="checkbox" id="flows" defaultChecked />
+                    <Label htmlFor="flows" className="text-sm">Flows and configurations</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <input type="checkbox" id="settings" defaultChecked />
+                    <Label htmlFor="settings" className="text-sm">User settings</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <input type="checkbox" id="logs" />
+                    <Label htmlFor="logs" className="text-sm">Activity logs</Label>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Auto-Cleanup */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Auto-Cleanup</CardTitle>
+              <CardDescription>Automatically remove old data to free up storage</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label className="font-medium">Enable Auto-Cleanup</Label>
+                  <p className="text-sm text-muted-foreground">Automatically delete old logs and temporary files</p>
+                </div>
+                <Switch 
+                  checked={settings.autoCleanup}
+                  onCheckedChange={(checked) => setSettings(prev => ({ ...prev, autoCleanup: checked }))}
+                />
+              </div>
+              
+              {settings.autoCleanup && (
+                <div className="space-y-2 pl-4">
+                  <Label>Cleanup Period (days)</Label>
+                  <Select value={settings.cleanupPeriod} onValueChange={(value) => setSettings(prev => ({ ...prev, cleanupPeriod: value }))}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="30">30 days</SelectItem>
+                      <SelectItem value="60">60 days</SelectItem>
+                      <SelectItem value="90">90 days</SelectItem>
+                      <SelectItem value="180">180 days</SelectItem>
+                      <SelectItem value="365">1 year</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground">
+                    Files older than this will be automatically deleted
+                  </p>
+                </div>
+              )}
+              
+              <div className="pt-2">
+                <Button variant="outline" className="w-full">
+                  Run Cleanup Now
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+        
+        <div className="flex justify-end gap-2 pt-4">
+          <Button variant="outline" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button onClick={handleSave} className="bg-gradient-primary">
+            Save Settings
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+export const KeyboardShortcutsModal: React.FC<KeyboardShortcutsModalProps> = ({ isOpen, onClose }) => {
+  const [settings, setSettings] = React.useState({
+    enabled: true,
+    showTooltips: true,
+    customShortcuts: {},
+    globalShortcuts: true
+  });
+
+  const shortcuts = [
+    {
+      category: 'General',
+      items: [
+        { action: 'Search', shortcut: 'Ctrl + K', description: 'Open search dialog' },
+        { action: 'Save', shortcut: 'Ctrl + S', description: 'Save current work' },
+        { action: 'Help', shortcut: 'F1', description: 'Open help documentation' },
+        { action: 'Settings', shortcut: 'Ctrl + ,', description: 'Open settings menu' }
+      ]
+    },
+    {
+      category: 'Flow Builder',
+      items: [
+        { action: 'New Flow', shortcut: 'Ctrl + N', description: 'Create a new flow' },
+        { action: 'Duplicate Node', shortcut: 'Ctrl + D', description: 'Duplicate selected node' },
+        { action: 'Delete Node', shortcut: 'Delete', description: 'Delete selected node' },
+        { action: 'Undo', shortcut: 'Ctrl + Z', description: 'Undo last action' },
+        { action: 'Redo', shortcut: 'Ctrl + Y', description: 'Redo last undone action' },
+        { action: 'Zoom In', shortcut: 'Ctrl + +', description: 'Zoom into canvas' },
+        { action: 'Zoom Out', shortcut: 'Ctrl + -', description: 'Zoom out of canvas' },
+        { action: 'Fit to Screen', shortcut: 'Ctrl + 0', description: 'Fit flow to screen' }
+      ]
+    },
+    {
+      category: 'Navigation',
+      items: [
+        { action: 'Dashboard', shortcut: 'Alt + D', description: 'Go to dashboard' },
+        { action: 'Flows', shortcut: 'Alt + F', description: 'Go to flows page' },
+        { action: 'Analytics', shortcut: 'Alt + A', description: 'Go to analytics' },
+        { action: 'Settings', shortcut: 'Alt + S', description: 'Go to settings' }
+      ]
+    },
+    {
+      category: 'Data Management',
+      items: [
+        { action: 'Export Data', shortcut: 'Ctrl + E', description: 'Export current data' },
+        { action: 'Import Data', shortcut: 'Ctrl + I', description: 'Import data' },
+        { action: 'Refresh', shortcut: 'F5', description: 'Refresh current view' }
+      ]
+    }
+  ];
+
+  const handleSave = () => {
+    onClose();
+  };
+
+  const handleResetDefaults = () => {
+    setSettings(prev => ({ ...prev, customShortcuts: {} }));
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Keyboard Shortcuts</DialogTitle>
+        </DialogHeader>
+        
+        <div className="space-y-6">
+          {/* Settings */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Shortcut Settings</CardTitle>
+              <CardDescription>Configure how keyboard shortcuts work</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label className="font-medium">Enable Keyboard Shortcuts</Label>
+                  <p className="text-sm text-muted-foreground">Turn on/off all keyboard shortcuts</p>
+                </div>
+                <Switch 
+                  checked={settings.enabled}
+                  onCheckedChange={(checked) => setSettings(prev => ({ ...prev, enabled: checked }))}
+                />
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label className="font-medium">Show Shortcut Tooltips</Label>
+                  <p className="text-sm text-muted-foreground">Display keyboard shortcuts in button tooltips</p>
+                </div>
+                <Switch 
+                  checked={settings.showTooltips}
+                  onCheckedChange={(checked) => setSettings(prev => ({ ...prev, showTooltips: checked }))}
+                />
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label className="font-medium">Global Shortcuts</Label>
+                  <p className="text-sm text-muted-foreground">Enable shortcuts even when not focused on the app</p>
+                </div>
+                <Switch 
+                  checked={settings.globalShortcuts}
+                  onCheckedChange={(checked) => setSettings(prev => ({ ...prev, globalShortcuts: checked }))}
+                />
+              </div>
+              
+              <div className="pt-2">
+                <Button variant="outline" onClick={handleResetDefaults}>
+                  Reset to Defaults
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Shortcut Categories */}
+          {shortcuts.map((category, categoryIndex) => (
+            <Card key={categoryIndex}>
+              <CardHeader>
+                <CardTitle className="text-lg">{category.category}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {category.items.map((item, itemIndex) => (
+                    <div key={itemIndex} className="flex items-center justify-between py-2 border-b border-border last:border-b-0">
+                      <div className="flex-1">
+                        <p className="font-medium">{item.action}</p>
+                        <p className="text-sm text-muted-foreground">{item.description}</p>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <Badge variant="secondary" className="font-mono text-xs">
+                          {item.shortcut}
+                        </Badge>
+                        <Button variant="ghost" size="sm" className="text-xs">
+                          Edit
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+
+          {/* Custom Shortcuts */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Custom Shortcuts</CardTitle>
+              <CardDescription>Create your own keyboard shortcuts for frequently used actions</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-3">
+                <div className="grid grid-cols-3 gap-4">
+                  <Input placeholder="Action name" />
+                  <Input placeholder="Shortcut (e.g., Ctrl+Alt+X)" />
+                  <Button variant="outline">Add Shortcut</Button>
+                </div>
+              </div>
+              
+              <div className="text-sm text-muted-foreground p-4 bg-muted rounded-lg">
+                <h4 className="font-medium mb-2">Tips for creating shortcuts:</h4>
+                <ul className="space-y-1 text-xs">
+                  <li>• Use Ctrl, Alt, and Shift as modifiers</li>
+                  <li>• Avoid conflicts with existing shortcuts</li>
+                  <li>• Use function keys (F1-F12) for less common actions</li>
+                  <li>• Test shortcuts to ensure they work as expected</li>
+                </ul>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+        
+        <div className="flex justify-end gap-2 pt-4">
+          <Button variant="outline" onClick={onClose}>
+            Close
+          </Button>
+          <Button onClick={handleSave} className="bg-gradient-primary">
+            Save Settings
+          </Button>
         </div>
       </DialogContent>
     </Dialog>
