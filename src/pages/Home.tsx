@@ -54,16 +54,6 @@ import {
 import { useTheme, Theme } from '@/contexts/ThemeContext';
 import { useToast } from '@/hooks/use-toast';
 
-const themes: Array<{ value: Theme; label: string; color: string }> = [
-  { value: 'blue', label: 'Professional Blue', color: 'bg-blue-500' },
-  { value: 'emerald', label: 'Growth Green', color: 'bg-emerald-500' },
-  { value: 'purple', label: 'Creative Purple', color: 'bg-purple-500' },
-  { value: 'orange', label: 'Energy Orange', color: 'bg-orange-500' },
-  { value: 'rose', label: 'Warm Rose', color: 'bg-rose-500' },
-  { value: 'indigo', label: 'Deep Indigo', color: 'bg-indigo-500' },
-  { value: 'solarized-osaka', label: 'Solarized Osaka', color: 'bg-teal-600' },
-];
-
 const modules = [
   {
     id: 'routing',
@@ -139,14 +129,16 @@ const Home: React.FC = () => {
   const { theme, mode, setTheme, setMode } = useTheme();
   const { toast } = useToast();
 
-  const handleModuleClick = (route: string) => {
-    if (route === '/flow-builder') {
-      navigate('/flows');
-    } else {
-      // Navigate to other modules
-      navigate(route);
-    }
-  };
+  const themes: Array<{ value: Theme; label: string; color: string }> = [
+    { value: 'blue', label: 'Professional Blue', color: 'bg-blue-500' },
+    { value: 'emerald', label: 'Growth Green', color: 'bg-emerald-500' },
+    { value: 'purple', label: 'Creative Purple', color: 'bg-purple-500' },
+    { value: 'orange', label: 'Energy Orange', color: 'bg-orange-500' },
+    { value: 'rose', label: 'Warm Rose', color: 'bg-rose-500' },
+    { value: 'indigo', label: 'Deep Indigo', color: 'bg-indigo-500' },
+    { value: 'solarized-osaka', label: 'Solarized Osaka', color: 'bg-teal-600' },
+    { value: 'monochrome', label: 'Black & White', color: 'bg-gray-900' },
+  ];
 
   const handleThemeChange = (newTheme: Theme) => {
     setTheme(newTheme);
@@ -156,6 +148,16 @@ const Home: React.FC = () => {
       className: "border-status-success bg-status-success/10 text-status-success"
     });
   };
+
+  const handleModuleClick = (route: string) => {
+    if (route === '/flow-builder') {
+      navigate('/flows');
+    } else {
+      // Navigate to other modules
+      navigate(route);
+    }
+  };
+
 
   const handleSettingClick = (setting: string) => {
     toast({
@@ -237,6 +239,41 @@ const Home: React.FC = () => {
                     <Keyboard className="w-4 h-4 mr-2" />
                     Keyboard Shortcuts
                   </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  
+                  <div className="px-2 py-1">
+                    <div className="text-xs font-medium text-muted-foreground mb-2">Themes</div>
+                    <div className="grid grid-cols-3 gap-1">
+                      {themes.map((themeOption) => (
+                        <button
+                          key={themeOption.value}
+                          onClick={() => handleThemeChange(themeOption.value)}
+                          className={`w-6 h-6 rounded-full ${themeOption.color} hover:scale-110 transition-transform ${
+                            theme === themeOption.value ? 'ring-2 ring-ring ring-offset-2 ring-offset-background' : ''
+                          }`}
+                          title={themeOption.label}
+                        />
+                      ))}
+                    </div>
+                    <div className="mt-2 flex gap-1">
+                      <button
+                        onClick={() => setMode('light')}
+                        className={`px-2 py-1 text-xs rounded ${
+                          mode === 'light' ? 'bg-primary text-primary-foreground' : 'hover:bg-accent'
+                        }`}
+                      >
+                        Light
+                      </button>
+                      <button
+                        onClick={() => setMode('dark')}
+                        className={`px-2 py-1 text-xs rounded ${
+                          mode === 'dark' ? 'bg-primary text-primary-foreground' : 'hover:bg-accent'
+                        }`}
+                      >
+                        Dark
+                      </button>
+                    </div>
+                  </div>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => setMode(mode === 'light' ? 'dark' : 'light')}>
                     {mode === 'light' ? <Moon className="w-4 h-4 mr-2" /> : <Sun className="w-4 h-4 mr-2" />}
