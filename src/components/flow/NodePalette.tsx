@@ -48,7 +48,9 @@ import {
   MapPin,
   Gauge,
   Network,
-  Radio
+  Radio,
+  Activity,
+  TrendingUp
 } from 'lucide-react';
 import {
   Tooltip,
@@ -110,14 +112,14 @@ const nodeTypes: NodeType[] = [
     category: 'Channels',
   },
 
-  // Control Blocks
+  // Control Logic Blocks
   {
     id: 'converge',
     label: 'Converge',
     icon: Split,
     color: 'text-primary',
     description: 'Merge multiple paths into one',
-    category: 'Controls',
+    category: 'Control Logic',
   },
   {
     id: 'diverge',
@@ -125,7 +127,7 @@ const nodeTypes: NodeType[] = [
     icon: Route,
     color: 'text-primary',
     description: 'Split single path into multiple routes',
-    category: 'Controls',
+    category: 'Control Logic',
   },
   {
     id: 'timer',
@@ -133,7 +135,7 @@ const nodeTypes: NodeType[] = [
     icon: Clock,
     color: 'text-primary',
     description: 'Time-based flow control and delays',
-    category: 'Controls',
+    category: 'Control Logic',
   },
   {
     id: 'doevent',
@@ -141,17 +143,15 @@ const nodeTypes: NodeType[] = [
     icon: Zap,
     color: 'text-primary',
     description: 'Trigger custom actions or events',
-    category: 'Controls',
+    category: 'Control Logic',
   },
-
-  // Logic Blocks
   {
     id: 'conditional',
     label: 'If-Else',
     icon: GitMerge,
     color: 'text-primary',
     description: 'Conditional routing based on criteria',
-    category: 'Logic',
+    category: 'Control Logic',
   },
   {
     id: 'switch',
@@ -159,7 +159,7 @@ const nodeTypes: NodeType[] = [
     icon: Shuffle,
     color: 'text-primary',
     description: 'Multi-condition branching logic',
-    category: 'Logic',
+    category: 'Control Logic',
   },
   {
     id: 'filter',
@@ -167,70 +167,74 @@ const nodeTypes: NodeType[] = [
     icon: Filter,
     color: 'text-primary',
     description: 'Filter messages by properties',
-    category: 'Logic',
+    category: 'Control Logic',
   },
-
-  // Routing Nodes
-
-  // Monitoring Blocks
   {
-    id: 'audit',
-    label: 'Audit',
-    icon: Bug,
+    id: 'fallback',
+    label: 'Fallback',
+    icon: RotateCcw,
     color: 'text-primary',
-    description: 'Debug and logging checkpoint',
-    category: 'Monitoring',
+    description: 'Switch to backup vendor when primary fails',
+    category: 'Control Logic',
+  },
+  
+  // Routing Strategies Nodes
+  {
+    id: 'priority-route',
+    label: 'Priority Routing',
+    icon: ArrowUpDown,
+    color: 'rgb(239, 68, 68)',
+    description: 'Route based on vendor priority',
+    category: 'Routing Strategies'
   },
   {
-    id: 'analytics',
-    label: 'Analytics',
+    id: 'round-robin',
+    label: 'Round Robin',
+    icon: RotateCcw,
+    color: 'rgb(34, 197, 94)',
+    description: 'Distribute traffic evenly',
+    category: 'Routing Strategies'
+  },
+  {
+    id: 'least-cost',
+    label: 'Least Cost',
+    icon: DollarSign,
+    color: 'rgb(234, 179, 8)',
+    description: 'Route to lowest cost vendor',
+    category: 'Routing Strategies'
+  },
+  {
+    id: 'load-balancer',
+    label: 'Load Balancer',
+    icon: Gauge,
+    color: 'rgb(59, 130, 246)',
+    description: 'Balance load across vendors',
+    category: 'Routing Strategies'
+  },
+  {
+    id: 'geolocation',
+    label: 'Geolocation Routing',
+    icon: MapPin,
+    color: 'rgb(249, 115, 22)',
+    description: 'Route based on user location',
+    category: 'Routing Strategies'
+  },
+  {
+    id: 'failover',
+    label: 'Failover',
+    icon: Shield,
+    color: 'rgb(168, 85, 247)',
+    description: 'Automatic failover routing',
+    category: 'Routing Strategies'
+  },
+  {
+    id: 'weighted-distribution',
+    label: 'Weighted Distribution',
     icon: BarChart3,
-    color: 'text-primary',
-    description: 'Collect metrics and performance data',
-    category: 'Monitoring',
-  },
-  {
-    id: 'alert',
-    label: 'Alert',
-    icon: AlertTriangle,
-    color: 'text-primary',
-    description: 'Send alerts and notifications',
-    category: 'Monitoring',
-  },
-
-  // Integration Blocks
-  {
-    id: 'webhook',
-    label: 'Webhook',
-    icon: Webhook,
-    color: 'text-primary',
-    description: 'Send data to external systems',
-    category: 'Integration',
-  },
-  {
-    id: 'database',
-    label: 'Database',
-    icon: Database,
-    color: 'text-primary',
-    description: 'Store or retrieve data',
-    category: 'Integration',
-  },
-  {
-    id: 'transform',
-    label: 'Transform',
-    icon: Settings,
-    color: 'text-primary',
-    description: 'Transform message data and format',
-    category: 'Integration',
-  },
-  {
-    id: 'api',
-    label: 'API Call',
-    icon: Network,
-    color: 'text-primary',
-    description: 'Make external API requests',
-    category: 'Integration',
-  },
+    color: 'rgb(236, 72, 153)',
+    description: 'Distribute based on weights',
+    category: 'Routing Strategies'
+  }
 ];
 
 export const NodePalette: React.FC = () => {

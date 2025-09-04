@@ -1,6 +1,6 @@
 import React from 'react';
 import { Handle, Position, NodeProps } from '@xyflow/react';
-import { MessageCircle, Hash, Bot, X, CheckCircle, Settings } from 'lucide-react';
+import { MessageCircle, Hash, Bot, Trash2, CheckCircle, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useFlow } from '@/contexts/FlowContext';
@@ -38,9 +38,9 @@ export const WhatsAppNode: React.FC<NodeProps> = ({ id, data, selected }) => {
         variant="ghost"
         size="sm"
         onClick={() => deleteNode(id)}
-        className="absolute -top-2 -right-2 h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-full"
+        className="absolute -top-2 -right-2 w-6 h-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-full"
       >
-        <X className="h-3 w-3" />
+        <Trash2 className="w-3 h-3" />
       </Button>
 
       {/* Config Button */}
@@ -126,11 +126,13 @@ export const WhatsAppNode: React.FC<NodeProps> = ({ id, data, selected }) => {
       )}
 
 
-      {/* Invisible Connection Handles for full connectivity */}
-      <Handle type="target" position={Position.Left} id="left" className="w-3 h-3 opacity-0" />
+      {/* Invisible Connection Handles for full 4-side connectivity */}
+      <Handle type="target" position={Position.Left} id="left-in" className="w-3 h-3 opacity-0" />
       <Handle type="target" position={Position.Top} id="top-in" className="w-3 h-3 opacity-0" />
       <Handle type="target" position={Position.Bottom} id="bottom-in" className="w-3 h-3 opacity-0" />
-      <Handle type="source" position={Position.Right} id="right" className="w-3 h-3 opacity-0" />
+      <Handle type="target" position={Position.Right} id="right-in" className="w-3 h-3 opacity-0" />
+      <Handle type="source" position={Position.Left} id="left-out" className="w-3 h-3 opacity-0" />
+      <Handle type="source" position={Position.Right} id="right-out" className="w-3 h-3 opacity-0" />
       <Handle type="source" position={Position.Top} id="top-out" className="w-3 h-3 opacity-0" />
       <Handle type="source" position={Position.Bottom} id="bottom-out" className="w-3 h-3 opacity-0" />
     </div>

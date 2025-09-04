@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import {
   Dialog,
   DialogContent,
@@ -14,7 +15,7 @@ import { Switch } from '@/components/ui/switch';
 import { Slider } from '@/components/ui/slider';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Select,
@@ -23,11 +24,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from '@/components/ui/collapsible';
 import { 
   Plus, 
   X, 
@@ -135,7 +131,7 @@ export const ConfigurationModal: React.FC<ConfigurationModalProps> = ({ isOpen, 
   
   const [formData, setFormData] = useState<any>({});
   const [selectedVendors, setSelectedVendors] = useState<string[]>([]);
-  const [expandedVendorSections, setExpandedVendorSections] = useState(new Set(['premium']));
+  
 
   useEffect(() => {
     if (node) {
@@ -179,15 +175,6 @@ export const ConfigurationModal: React.FC<ConfigurationModalProps> = ({ isOpen, 
     );
   };
 
-  const toggleVendorSection = (section: string) => {
-    const newExpanded = new Set(expandedVendorSections);
-    if (newExpanded.has(section)) {
-      newExpanded.delete(section);
-    } else {
-      newExpanded.add(section);
-    }
-    setExpandedVendorSections(newExpanded);
-  };
 
   const getChannelVendors = () => {
     switch (node.type) {
@@ -598,536 +585,283 @@ export const ConfigurationModal: React.FC<ConfigurationModalProps> = ({ isOpen, 
           </div>
         );
 
+      case 'fallback':
+        return (
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Fallback Configuration</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* Fallback Criteria - Radio Buttons */}
+                <div>
+                  <Label className="text-sm font-medium mb-4 block">Fallback Criteria</Label>
+                  <RadioGroup
+                    value={formData.fallbackCriteria || 'vendor_failure'}
+                    onValueChange={(value) => setFormData({ ...formData, fallbackCriteria: value })}
+                    className="space-y-3"
+                  >
+                    <div className="flex items-center space-x-2 p-3 border rounded-lg hover:bg-accent/50">
+                      <RadioGroupItem value="vendor_failure" id="vendor_failure" />
+                      <div className="flex-1">
+                        <Label htmlFor="vendor_failure" className="font-medium cursor-pointer">Vendor Failure</Label>
+                        <p className="text-xs text-muted-foreground">Switch when primary vendor fails to deliver</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center space-x-2 p-3 border rounded-lg hover:bg-accent/50">
+                      <RadioGroupItem value="timeout" id="timeout" />
+                      <div className="flex-1">
+                        <Label htmlFor="timeout" className="font-medium cursor-pointer">Timeout</Label>
+                        <p className="text-xs text-muted-foreground">Switch after specified timeout period</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center space-x-2 p-3 border rounded-lg hover:bg-accent/50">
+                      <RadioGroupItem value="rate_limit" id="rate_limit" />
+                      <div className="flex-1">
+                        <Label htmlFor="rate_limit" className="font-medium cursor-pointer">Rate Limit Exceeded</Label>
+                        <p className="text-xs text-muted-foreground">Switch when vendor rate limits are hit</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center space-x-2 p-3 border rounded-lg hover:bg-accent/50">
+                      <RadioGroupItem value="cost_optimization" id="cost_optimization" />
+                      <div className="flex-1">
+                        <Label htmlFor="cost_optimization" className="font-medium cursor-pointer">Cost Optimization</Label>
+                        <p className="text-xs text-muted-foreground">Switch to lower cost vendor when available</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center space-x-2 p-3 border rounded-lg hover:bg-accent/50">
+                      <RadioGroupItem value="geographical_routing" id="geographical_routing" />
+                      <div className="flex-1">
+                        <Label htmlFor="geographical_routing" className="font-medium cursor-pointer">Geographical Routing</Label>
+                        <p className="text-xs text-muted-foreground">Switch based on recipient location</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center space-x-2 p-3 border rounded-lg hover:bg-accent/50">
+                      <RadioGroupItem value="load_balancing" id="load_balancing" />
+                      <div className="flex-1">
+                        <Label htmlFor="load_balancing" className="font-medium cursor-pointer">Load Balancing</Label>
+                        <p className="text-xs text-muted-foreground">Distribute load across multiple vendors</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center space-x-2 p-3 border rounded-lg hover:bg-accent/50">
+                      <RadioGroupItem value="smart_routing" id="smart_routing" />
+                      <div className="flex-1">
+                        <Label htmlFor="smart_routing" className="font-medium cursor-pointer">Smart Routing</Label>
+                        <p className="text-xs text-muted-foreground">AI-based routing optimization</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center space-x-2 p-3 border rounded-lg hover:bg-accent/50">
+                      <RadioGroupItem value="manual_override" id="manual_override" />
+                      <div className="flex-1">
+                        <Label htmlFor="manual_override" className="font-medium cursor-pointer">Manual Override</Label>
+                        <p className="text-xs text-muted-foreground">Manual control over vendor switching</p>
+                      </div>
+                    </div>
+                  </RadioGroup>
+                </div>
+
+                {/* Additional Configuration based on selected criteria */}
+                {formData.fallbackCriteria === 'timeout' && (
+                  <div>
+                    <Label htmlFor="timeoutDuration">Timeout Duration (seconds)</Label>
+                    <Input
+                      id="timeoutDuration"
+                      type="number"
+                      value={formData.timeoutDuration || '30'}
+                      onChange={(e) => setFormData({ ...formData, timeoutDuration: e.target.value })}
+                      placeholder="30"
+                      className="nodrag"
+                    />
+                  </div>
+                )}
+
+                {formData.fallbackCriteria === 'rate_limit' && (
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="rateLimit">Rate Limit (per minute)</Label>
+                      <Input
+                        id="rateLimit"
+                        type="number"
+                        value={formData.rateLimit || '100'}
+                        onChange={(e) => setFormData({ ...formData, rateLimit: e.target.value })}
+                        placeholder="100"
+                        className="nodrag"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="cooldownPeriod">Cooldown Period (minutes)</Label>
+                      <Input
+                        id="cooldownPeriod"
+                        type="number"
+                        value={formData.cooldownPeriod || '5'}
+                        onChange={(e) => setFormData({ ...formData, cooldownPeriod: e.target.value })}
+                        placeholder="5"
+                        className="nodrag"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {formData.fallbackCriteria === 'geographical_routing' && (
+                  <div>
+                    <Label htmlFor="targetRegions">Target Regions</Label>
+                    <Select
+                      value={formData.targetRegions || 'auto'}
+                      onValueChange={(value) => setFormData({ ...formData, targetRegions: value })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="auto">Auto-detect</SelectItem>
+                        <SelectItem value="north_america">North America</SelectItem>
+                        <SelectItem value="europe">Europe</SelectItem>
+                        <SelectItem value="asia_pacific">Asia Pacific</SelectItem>
+                        <SelectItem value="india">India</SelectItem>
+                        <SelectItem value="middle_east">Middle East</SelectItem>
+                        <SelectItem value="africa">Africa</SelectItem>
+                        <SelectItem value="south_america">South America</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="maxRetries">Max Retries</Label>
+                    <Input
+                      id="maxRetries"
+                      type="number"
+                      value={formData.maxRetries || '3'}
+                      onChange={(e) => setFormData({ ...formData, maxRetries: e.target.value })}
+                      placeholder="3"
+                      className="nodrag"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="retryDelay">Retry Delay (seconds)</Label>
+                    <Input
+                      id="retryDelay"
+                      type="number"
+                      value={formData.retryDelay || '5'}
+                      onChange={(e) => setFormData({ ...formData, retryDelay: e.target.value })}
+                      placeholder="5"
+                      className="nodrag"
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        );
+
       default:
         return null;
     }
   };
 
   const renderVendorSelection = () => {
-    if (!['sms', 'whatsapp', 'email', 'voice', 'rcs', 'vendorrouting'].includes(node.type)) {
-      return null;
+    const channelVendors = getChannelVendors();
+    
+    if (channelVendors.length === 0) {
+      return (
+        <div className="text-center py-8">
+          <p className="text-muted-foreground">No vendors available for this channel type.</p>
+        </div>
+      );
     }
-
-    // For vendorrouting nodes, get vendors from parent channel
-    let channelVendors = [];
-    if (node.type === 'vendorrouting') {
-      const parentChannelId = node.data.parentChannelId;
-      const parentChannel = nodes.find(n => n.id === parentChannelId);
-      if (parentChannel) {
-        switch (parentChannel.type) {
-          case 'sms': channelVendors = VENDORS.sms; break;
-          case 'whatsapp': channelVendors = VENDORS.whatsapp; break;
-          case 'email': channelVendors = VENDORS.email; break;
-          case 'voice': channelVendors = VENDORS.voice; break;
-          case 'rcs': channelVendors = VENDORS.rcs; break;
-          default: channelVendors = [];
-        }
-      }
-    } else {
-      channelVendors = getChannelVendors();
-    }
-
-    const vendorsByTier = {
-      premium: channelVendors.filter(v => v.tier === 'Premium' || v.tier === 'Official'),
-      standard: channelVendors.filter(v => v.tier === 'Standard')
-    };
 
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg flex items-center justify-between">
-            Vendor Selection
-            <Badge variant="secondary">
-              {selectedVendors.length} selected
-            </Badge>
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {/* Premium/Official Vendors */}
-          <Collapsible 
-            open={expandedVendorSections.has('premium')}
-            onOpenChange={() => toggleVendorSection('premium')}
-          >
-            <CollapsibleTrigger className="flex items-center justify-between w-full p-3 bg-accent/30 rounded-lg hover:bg-accent/50 transition-colors">
-              <div className="flex items-center gap-2">
-                <Shield className="w-4 h-4 text-primary" />
-                <span className="font-medium">Premium & Official Vendors</span>
-                <Badge variant="outline" className="text-xs">
-                  {vendorsByTier.premium.length} available
+      <div className="space-y-6">
+        <div>
+          <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
+            <Settings className="w-5 h-5" />
+            Available Vendors
+          </h3>
+          <p className="text-sm text-muted-foreground mb-4">
+            Click to select/deselect vendors for this {node.type} channel. Selected vendors will be highlighted.
+          </p>
+        </div>
+
+        {/* Vendor Chips Grid */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+          {channelVendors.map((vendor) => (
+            <div
+              key={vendor.id}
+              className={`
+                flex flex-col items-center p-3 border rounded-lg cursor-pointer transition-all hover:scale-105
+                ${selectedVendors.includes(vendor.id) 
+                  ? 'border-primary bg-primary text-primary-foreground shadow-md' 
+                  : 'border-border hover:border-primary/50 hover:bg-accent/30'
+                }
+              `}
+              onClick={() => toggleVendor(vendor.id)}
+            >
+              <span className="text-2xl mb-2">{vendor.logo}</span>
+              <div className="text-center">
+                <div className={`font-medium text-xs mb-1 ${selectedVendors.includes(vendor.id) ? 'text-primary-foreground' : ''}`}>
+                  {vendor.name}
+                </div>
+                <div className="flex items-center justify-center gap-1 mb-2">
+                  <Globe className="w-3 h-3" />
+                  <span className={`text-xs ${selectedVendors.includes(vendor.id) ? 'text-primary-foreground/80' : 'text-muted-foreground'}`}>
+                    {vendor.region}
+                  </span>
+                </div>
+                <Badge 
+                  variant={selectedVendors.includes(vendor.id) ? "secondary" : (vendor.tier === 'Official' ? 'default' : 'outline')}
+                  className="text-xs"
+                >
+                  {vendor.tier}
                 </Badge>
               </div>
-              {expandedVendorSections.has('premium') ? 
-                <ChevronDown className="w-4 h-4" /> : 
-                <ChevronRight className="w-4 h-4" />
-              }
-            </CollapsibleTrigger>
-            <CollapsibleContent className="mt-3">
-              <div className="grid grid-cols-1 gap-2">
-                {vendorsByTier.premium.map((vendor) => (
-                  <div
-                    key={vendor.id}
-                    className={`
-                      flex items-center justify-between p-3 border rounded-lg cursor-pointer transition-all
-                      ${selectedVendors.includes(vendor.id) 
-                        ? 'border-primary bg-primary/5' 
-                        : 'border-border hover:border-primary/50 hover:bg-accent/30'
-                      }
-                    `}
-                    onClick={() => toggleVendor(vendor.id)}
-                  >
-                    <div className="flex items-center gap-3">
-                      <Checkbox
-                        checked={selectedVendors.includes(vendor.id)}
-                        onChange={() => {}} // Handled by parent onClick
-                        className="pointer-events-none"
-                      />
-                      <span className="text-lg">{vendor.logo}</span>
-                      <div>
-                        <div className="font-medium text-sm">{vendor.name}</div>
-                        <div className="text-xs text-muted-foreground flex items-center gap-2">
-                          <Globe className="w-3 h-3" />
-                          {vendor.region}
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Badge 
-                        variant={vendor.tier === 'Official' ? 'default' : 'secondary'}
-                        className="text-xs"
-                      >
-                        {vendor.tier}
-                      </Badge>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CollapsibleContent>
-          </Collapsible>
+            </div>
+          ))}
+        </div>
 
-          {/* Standard Vendors */}
-          {vendorsByTier.standard.length > 0 && (
-            <Collapsible 
-              open={expandedVendorSections.has('standard')}
-              onOpenChange={() => toggleVendorSection('standard')}
-            >
-              <CollapsibleTrigger className="flex items-center justify-between w-full p-3 bg-accent/30 rounded-lg hover:bg-accent/50 transition-colors">
-                <div className="flex items-center gap-2">
-                  <Zap className="w-4 h-4 text-primary" />
-                  <span className="font-medium">Standard Vendors</span>
-                  <Badge variant="outline" className="text-xs">
-                    {vendorsByTier.standard.length} available
+        {/* Selected Vendors Summary */}
+        {selectedVendors.length > 0 && (
+          <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <Settings className="w-4 h-4 text-primary" />
+              <span className="font-medium text-sm">Selected Vendors ({selectedVendors.length})</span>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {selectedVendors.map(vendorId => {
+                const vendor = channelVendors.find(v => v.id === vendorId);
+                return vendor ? (
+                  <Badge key={vendorId} variant="outline" className="text-xs">
+                    {vendor.logo} {vendor.name}
                   </Badge>
-                </div>
-                {expandedVendorSections.has('standard') ? 
-                  <ChevronDown className="w-4 h-4" /> : 
-                  <ChevronRight className="w-4 h-4" />
-                }
-              </CollapsibleTrigger>
-              <CollapsibleContent className="mt-3">
-                <div className="grid grid-cols-1 gap-2">
-                  {vendorsByTier.standard.map((vendor) => (
-                    <div
-                      key={vendor.id}
-                      className={`
-                        flex items-center justify-between p-3 border rounded-lg cursor-pointer transition-all
-                        ${selectedVendors.includes(vendor.id) 
-                          ? 'border-primary bg-primary/5' 
-                          : 'border-border hover:border-primary/50 hover:bg-accent/30'
-                        }
-                      `}
-                      onClick={() => toggleVendor(vendor.id)}
-                    >
-                      <div className="flex items-center gap-3">
-                        <Checkbox
-                          checked={selectedVendors.includes(vendor.id)}
-                          onChange={() => {}} // Handled by parent onClick
-                          className="pointer-events-none"
-                        />
-                        <span className="text-lg">{vendor.logo}</span>
-                        <div>
-                          <div className="font-medium text-sm">{vendor.name}</div>
-                          <div className="text-xs text-muted-foreground flex items-center gap-2">
-                            <Globe className="w-3 h-3" />
-                            {vendor.region}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Badge variant="secondary" className="text-xs">
-                          {vendor.tier}
-                        </Badge>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CollapsibleContent>
-            </Collapsible>
-          )}
-
-          {/* Vendor Selection Summary */}
-          {selectedVendors.length > 0 && (
-            <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <Settings className="w-4 h-4 text-primary" />
-                <span className="font-medium text-sm">Selected Vendors</span>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {selectedVendors.map(vendorId => {
-                  const vendor = channelVendors.find(v => v.id === vendorId);
-                  return vendor ? (
-                    <Badge key={vendorId} variant="outline" className="text-xs">
-                      {vendor.logo} {vendor.name}
-                    </Badge>
-                  ) : null;
-                })}
-              </div>
+                ) : null;
+              })}
             </div>
-          )}
-
-          {/* Vendor Selection Warning */}
-          {selectedVendors.length === 0 && (
-            <div className="bg-status-warning/10 border border-status-warning/20 rounded-lg p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <AlertTriangle className="w-4 h-4 text-status-warning" />
-                <span className="font-medium text-sm text-status-warning">No Vendors Selected</span>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                Please select at least one vendor to enable message routing for this channel.
-              </p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-    );
-  };
-
-  const renderAdvancedConfiguration = () => {
-    // Only show fallback configuration for channel nodes, not routing nodes
-    const isChannelNode = ['sms', 'whatsapp', 'email', 'voice', 'rcs'].includes(node.type);
-    
-    if (!isChannelNode) {
-      return (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Advanced Settings</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="timeout">Timeout (seconds)</Label>
-                <Input
-                  id="timeout"
-                  type="number"
-                  value={formData.timeout || ''}
-                  onChange={(e) => setFormData({ ...formData, timeout: parseInt(e.target.value) })}
-                  placeholder="30"
-                  className="nodrag"
-                />
-              </div>
-              <div>
-                <Label htmlFor="retryAttempts">Retry Attempts</Label>
-                <Input
-                  id="retryAttempts"
-                  type="number"
-                  value={formData.retryAttempts || ''}
-                  onChange={(e) => setFormData({ ...formData, retryAttempts: parseInt(e.target.value) })}
-                  placeholder="3"
-                  className="nodrag"
-                />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      );
-    }
-
-    const channelTypes = [
-      { value: 'sms', label: 'SMS', icon: '💬' },
-      { value: 'whatsapp', label: 'WhatsApp', icon: '📱' },
-      { value: 'email', label: 'Email', icon: '📧' },
-      { value: 'voice', label: 'Voice', icon: '📞' },
-      { value: 'rcs', label: 'RCS', icon: '💎' }
-    ];
-
-    const fallbackChannels = formData.fallbackChannels || [];
-    const availableChannels = channelTypes.filter(ch => ch.value !== node.type);
-
-    const addFallbackChannel = () => {
-      const newFallback = {
-        id: `fallback-${Date.now()}`,
-        channel: '',
-        vendors: [],
-        priority: fallbackChannels.length + 1,
-        enabled: true
-      };
-      setFormData({
-        ...formData,
-        fallbackChannels: [...fallbackChannels, newFallback]
-      });
-    };
-
-    const removeFallbackChannel = (index: number) => {
-      const updatedFallbacks = fallbackChannels.filter((_: any, i: number) => i !== index);
-      setFormData({
-        ...formData,
-        fallbackChannels: updatedFallbacks
-      });
-    };
-
-    const updateFallbackChannel = (index: number, updates: any) => {
-      const updatedFallbacks = fallbackChannels.map((fallback: any, i: number) => 
-        i === index ? { ...fallback, ...updates } : fallback
-      );
-      setFormData({
-        ...formData,
-        fallbackChannels: updatedFallbacks
-      });
-    };
-
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg flex items-center gap-2">
-            <Shield className="w-5 h-5" />
-            Fallback Channel Configuration
-          </CardTitle>
-          <p className="text-sm text-muted-foreground">
-            Configure backup channels and vendors to handle traffic when the primary channel fails.
-          </p>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="enableChannelFallback"
-                checked={formData.enableChannelFallback || false}
-                onCheckedChange={(checked) => setFormData({ ...formData, enableChannelFallback: checked })}
-              />
-              <Label htmlFor="enableChannelFallback">Enable Channel Fallback</Label>
-            </div>
-            {formData.enableChannelFallback && (
-              <Button onClick={addFallbackChannel} size="sm" variant="outline">
-                <Plus className="w-4 h-4 mr-2" />
-                Add Fallback
-              </Button>
-            )}
           </div>
+        )}
 
-          {formData.enableChannelFallback && (
-            <div className="space-y-4">
-              {fallbackChannels.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  <Shield className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                  <p>No fallback channels configured</p>
-                  <p className="text-sm">Click "Add Fallback" to configure backup channels</p>
-                </div>
-              ) : (
-                fallbackChannels.map((fallback: any, index: number) => (
-                  <Card key={fallback.id} className="relative">
-                    <CardContent className="pt-4">
-                      <div className="flex justify-between items-start mb-4">
-                        <div className="flex items-center gap-2">
-                          <Badge variant="secondary">Priority {fallback.priority}</Badge>
-                          <div className="flex items-center space-x-2">
-                            <Switch
-                              checked={fallback.enabled}
-                              onCheckedChange={(checked) => updateFallbackChannel(index, { enabled: checked })}
-                            />
-                            <span className="text-sm">Enabled</span>
-                          </div>
-                        </div>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => removeFallbackChannel(index)}
-                          className="text-destructive hover:text-destructive"
-                        >
-                          <X className="w-4 h-4" />
-                        </Button>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <Label>Fallback Channel</Label>
-                          <Select
-                            value={fallback.channel}
-                            onValueChange={(value) => updateFallbackChannel(index, { channel: value, vendors: [] })}
-                          >
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select channel" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {availableChannels.map((channel) => (
-                                <SelectItem key={channel.value} value={channel.value}>
-                                  <div className="flex items-center gap-2">
-                                    <span>{channel.icon}</span>
-                                    <span>{channel.label}</span>
-                                  </div>
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-
-                        <div>
-                          <Label>Fallback Strategy</Label>
-                          <Select
-                            value={fallback.strategy || 'priority'}
-                            onValueChange={(value) => updateFallbackChannel(index, { strategy: value })}
-                          >
-                            <SelectTrigger>
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="priority">Priority Based</SelectItem>
-                              <SelectItem value="round_robin">Round Robin</SelectItem>
-                              <SelectItem value="least_cost">Least Cost</SelectItem>
-                              <SelectItem value="health_aware">Health Aware</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      </div>
-
-                      {fallback.channel && (
-                        <div className="mt-4">
-                          <Label>Fallback Vendors</Label>
-                          <div className="mt-2 space-y-2">
-                            {VENDORS[fallback.channel as keyof typeof VENDORS]?.map((vendor) => (
-                              <div key={vendor.id} className="flex items-center space-x-2">
-                                <Checkbox
-                                  id={`fallback-${index}-vendor-${vendor.id}`}
-                                  checked={fallback.vendors?.includes(vendor.id) || false}
-                                  onCheckedChange={(checked) => {
-                                    const currentVendors = fallback.vendors || [];
-                                    const updatedVendors = checked
-                                      ? [...currentVendors, vendor.id]
-                                      : currentVendors.filter((id: string) => id !== vendor.id);
-                                    updateFallbackChannel(index, { vendors: updatedVendors });
-                                  }}
-                                />
-                                <div className="flex items-center gap-2">
-                                  <span>{vendor.logo}</span>
-                                  <span className="text-sm">{vendor.name}</span>
-                                  <Badge variant="outline" className="text-xs">
-                                    {vendor.tier}
-                                  </Badge>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      <div className="grid grid-cols-3 gap-4 mt-4">
-                        <div>
-                          <Label>Delay (seconds)</Label>
-                          <Input
-                            type="number"
-                            value={fallback.delay || ''}
-                            onChange={(e) => updateFallbackChannel(index, { delay: parseInt(e.target.value) || 30 })}
-                            placeholder="30"
-                            className="nodrag"
-                          />
-                        </div>
-                        <div>
-                          <Label>Max Retries</Label>
-                          <Input
-                            type="number"
-                            value={fallback.maxRetries || ''}
-                            onChange={(e) => updateFallbackChannel(index, { maxRetries: parseInt(e.target.value) || 3 })}
-                            placeholder="3"
-                            className="nodrag"
-                          />
-                        </div>
-                        <div>
-                          <Label>Timeout (sec)</Label>
-                          <Input
-                            type="number"
-                            value={fallback.timeout || ''}
-                            onChange={(e) => updateFallbackChannel(index, { timeout: parseInt(e.target.value) || 60 })}
-                            placeholder="60"
-                            className="nodrag"
-                          />
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))
-              )}
-
-              <Card className="border-dashed">
-                <CardContent className="pt-4">
-                  <h4 className="font-medium mb-2">Fallback Triggers</h4>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <div className="flex items-center space-x-2">
-                        <Checkbox
-                          id="trigger-failure"
-                          checked={formData.fallbackTriggers?.includes('failure') || false}
-                          onCheckedChange={(checked) => {
-                            const triggers = formData.fallbackTriggers || [];
-                            const updatedTriggers = checked
-                              ? [...triggers, 'failure']
-                              : triggers.filter((t: string) => t !== 'failure');
-                            setFormData({ ...formData, fallbackTriggers: updatedTriggers });
-                          }}
-                        />
-                        <Label htmlFor="trigger-failure">Primary Channel Failure</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Checkbox
-                          id="trigger-timeout"
-                          checked={formData.fallbackTriggers?.includes('timeout') || false}
-                          onCheckedChange={(checked) => {
-                            const triggers = formData.fallbackTriggers || [];
-                            const updatedTriggers = checked
-                              ? [...triggers, 'timeout']
-                              : triggers.filter((t: string) => t !== 'timeout');
-                            setFormData({ ...formData, fallbackTriggers: updatedTriggers });
-                          }}
-                        />
-                        <Label htmlFor="trigger-timeout">Response Timeout</Label>
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <div className="flex items-center space-x-2">
-                        <Checkbox
-                          id="trigger-capacity"
-                          checked={formData.fallbackTriggers?.includes('capacity') || false}
-                          onCheckedChange={(checked) => {
-                            const triggers = formData.fallbackTriggers || [];
-                            const updatedTriggers = checked
-                              ? [...triggers, 'capacity']
-                              : triggers.filter((t: string) => t !== 'capacity');
-                            setFormData({ ...formData, fallbackTriggers: updatedTriggers });
-                          }}
-                        />
-                        <Label htmlFor="trigger-capacity">Capacity Limit Reached</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Checkbox
-                          id="trigger-cost"
-                          checked={formData.fallbackTriggers?.includes('cost') || false}
-                          onCheckedChange={(checked) => {
-                            const triggers = formData.fallbackTriggers || [];
-                            const updatedTriggers = checked
-                              ? [...triggers, 'cost']
-                              : triggers.filter((t: string) => t !== 'cost');
-                            setFormData({ ...formData, fallbackTriggers: updatedTriggers });
-                          }}
-                        />
-                        <Label htmlFor="trigger-cost">Cost Threshold Exceeded</Label>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+        {/* Vendor Selection Warning */}
+        {selectedVendors.length === 0 && (
+          <div className="bg-status-warning/10 border border-status-warning/20 rounded-lg p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <AlertTriangle className="w-4 h-4 text-status-warning" />
+              <span className="font-medium text-sm text-status-warning">No Vendors Selected</span>
             </div>
-          )}
-        </CardContent>
-      </Card>
+            <p className="text-sm text-muted-foreground">
+              Please select at least one vendor to enable message routing for this channel.
+            </p>
+          </div>
+        )}
+      </div>
     );
   };
+
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -1139,26 +873,17 @@ export const ConfigurationModal: React.FC<ConfigurationModalProps> = ({ isOpen, 
           </DialogTitle>
         </DialogHeader>
         
-        <div className="flex-1 overflow-y-auto">
-          <Tabs defaultValue="general" className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="general">General</TabsTrigger>
-              <TabsTrigger value="vendors">Vendors</TabsTrigger>
-              <TabsTrigger value="advanced">Advanced</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="general" className="space-y-4 mt-6">
-              {renderChannelConfiguration()}
-            </TabsContent>
-            
-            <TabsContent value="vendors" className="space-y-4 mt-6">
+        <div className="flex-1 overflow-y-auto space-y-6 p-6">
+          {/* Channel Configuration */}
+          {renderChannelConfiguration()}
+          
+          {/* Vendor Selection - Only show for channel nodes */}
+          {['sms', 'whatsapp', 'email', 'voice', 'rcs'].includes(node.type) && (
+            <>
+              <Separator />
               {renderVendorSelection()}
-            </TabsContent>
-            
-            <TabsContent value="advanced" className="space-y-4 mt-6">
-              {renderAdvancedConfiguration()}
-            </TabsContent>
-          </Tabs>
+            </>
+          )}
         </div>
         
         <Separator />

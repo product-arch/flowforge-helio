@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { PersonalInfoModal, AccountSettingsModal, BillingModal } from './AccountModals';
+import { SimulationModal } from './SimulationModal';
 import { 
   DropdownMenu,
   DropdownMenuContent,
@@ -57,16 +58,30 @@ const mockCampaigns = [
 
 export const FlowNavbar: React.FC = () => {
   const navigate = useNavigate();
-  const [flowName, setFlowName] = useState('SMS Marketing Flow');
+  const [flowName, setFlowName] = useState('UPI_payment notification');
   const [flowState, setFlowState] = useState<'draft' | 'active' | 'archived'>('draft');
   const [isEditing, setIsEditing] = useState(false);
   const [campaignCount] = useState(3);
   const [personalInfoOpen, setPersonalInfoOpen] = useState(false);
   const [accountSettingsOpen, setAccountSettingsOpen] = useState(false);
   const [billingOpen, setBillingOpen] = useState(false);
+  const [simulationModalOpen, setSimulationModalOpen] = useState(false);
   const { simulationMode, setSimulationMode } = useFlow();
   const { theme, mode, setTheme, setMode } = useTheme();
   const { toast } = useToast();
+
+  // Load flow name from localStorage on component mount
+  useEffect(() => {
+    const savedFlowName = localStorage.getItem('flowName');
+    if (savedFlowName) {
+      setFlowName(savedFlowName);
+    }
+  }, []);
+
+  // Save flow name to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem('flowName', flowName);
+  }, [flowName]);
 
   const handleSave = () => {
     toast({
@@ -95,12 +110,7 @@ export const FlowNavbar: React.FC = () => {
   };
 
   const handleSimulate = () => {
-    setSimulationMode(!simulationMode);
-    toast({
-      title: simulationMode ? "Simulation Stopped" : "Simulation Started",
-      description: simulationMode ? "Returned to normal view." : "Testing routing logic...",
-      className: "border-status-info bg-status-info/10 text-status-info"
-    });
+    setSimulationModalOpen(true);
   };
 
   const handleThemeChange = (newTheme: Theme) => {
@@ -334,6 +344,7 @@ export const FlowNavbar: React.FC = () => {
       <PersonalInfoModal isOpen={personalInfoOpen} onClose={() => setPersonalInfoOpen(false)} />
       <AccountSettingsModal isOpen={accountSettingsOpen} onClose={() => setAccountSettingsOpen(false)} />
       <BillingModal isOpen={billingOpen} onClose={() => setBillingOpen(false)} />
+      <SimulationModal isOpen={simulationModalOpen} onClose={() => setSimulationModalOpen(false)} />
     </TooltipProvider>
   );
 };

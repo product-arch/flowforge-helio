@@ -1,6 +1,6 @@
 import React from 'react';
 import { Handle, Position } from '@xyflow/react';
-import { Shuffle, X, Plus } from 'lucide-react';
+import { Shuffle, Trash2, Settings, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useFlow } from '@/contexts/FlowContext';
 
@@ -36,9 +36,9 @@ export const SwitchNode: React.FC<SwitchNodeProps> = ({ id, data, selected }) =>
         variant="ghost"
         size="sm"
         onClick={() => deleteNode(id)}
-        className="absolute -top-2 -right-2 h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-full"
+        className="absolute -top-2 -right-2 w-6 h-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-full"
       >
-        <X className="h-3 w-3" />
+        <Trash2 className="w-3 h-3" />
       </Button>
 
       {/* Config Button */}
@@ -48,7 +48,7 @@ export const SwitchNode: React.FC<SwitchNodeProps> = ({ id, data, selected }) =>
         onClick={() => onConfigClick?.(id)}
         className="absolute -bottom-2 -right-2 w-6 h-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity bg-primary text-primary-foreground hover:bg-primary/90 rounded-full"
       >
-        <Plus className="w-3 h-3" />
+        <Settings className="w-3 h-3" />
       </Button>
 
       {/* Node Header */}

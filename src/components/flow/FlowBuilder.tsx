@@ -8,9 +8,8 @@ import {
   Panel
 } from '@xyflow/react';
 import { useFlow } from '@/contexts/FlowContext';
-import { NodePalette } from './NodePalette';
+import { FloatingNodePalette } from './FloatingNodePalette';
 import { ConfigurationModal } from './ConfigurationModal';
-import { SimulationPanel } from './SimulationPanel';
 import { FlowNavbar } from './FlowNavbar';
 import { StartNode } from './nodes/StartNode';
 import { TerminalNode } from './nodes/TerminalNode';
@@ -39,6 +38,14 @@ import { ConvergeNode } from './nodes/ConvergeNode';
 import { DivergeNode } from './nodes/DivergeNode';
 import { TimerNode } from './nodes/TimerNode';
 import { DoEventNode } from './nodes/DoEventNode';
+import { FallbackNode } from './nodes/FallbackNode';
+import { PriorityRouteNode } from './nodes/PriorityRouteNode';
+import { NewRoundRobinNode } from './nodes/NewRoundRobinNode';
+import { NewLeastCostNode } from './nodes/NewLeastCostNode';
+import { NewLoadBalancerNode } from './nodes/NewLoadBalancerNode';
+import { GeolocationRoutingNode } from './nodes/GeolocationRoutingNode';
+import { FailoverNode } from './nodes/FailoverNode';
+import { WeightedDistributionNode } from './nodes/WeightedDistributionNode';
 
 const nodeTypes = {
   start: StartNode,
@@ -66,6 +73,14 @@ const nodeTypes = {
   diverge: DivergeNode,
   timer: TimerNode,
   doevent: DoEventNode,
+  fallback: FallbackNode,
+  'priority-route': PriorityRouteNode,
+  'round-robin': NewRoundRobinNode,
+  'least-cost': NewLeastCostNode,
+  'load-balancer': NewLoadBalancerNode,
+  'geolocation': GeolocationRoutingNode,
+  'failover': FailoverNode,
+  'weighted-distribution': WeightedDistributionNode,
 };
 
 const edgeTypes = {
@@ -117,9 +132,7 @@ export const FlowBuilder: React.FC = () => {
     <div className="h-screen w-full flex flex-col">
       <FlowNavbar />
       
-      <div className="flex-1 flex overflow-hidden">
-        <NodePalette />
-        
+      <div className="flex-1 flex overflow-hidden">        
         <div className={`flex-1 relative ${configModalOpen ? 'blur-sm' : ''}`}>
           <ReactFlow
             nodes={nodes.map(node => ({
@@ -159,10 +172,10 @@ export const FlowBuilder: React.FC = () => {
               <ZoomControls />
             </Panel>
           </ReactFlow>
+          
+          <FloatingNodePalette />
         </div>
       </div>
-      
-      <SimulationPanel />
       
       {configNodeId && (
         <ConfigurationModal

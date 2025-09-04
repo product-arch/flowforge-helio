@@ -16,6 +16,13 @@ import {
 } from '@/components/flow/AccountModals';
 import { SupportModal } from '@/components/flow/SupportModal';
 import { 
+  PrivacyPolicyModal, 
+  TermsOfServiceModal, 
+  CookiePreferencesModal, 
+  SystemStatusModal,
+  VersionModal
+} from '@/components/flow/FooterModals';
+import { 
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -46,10 +53,16 @@ import {
   Sun,
   Globe,
   Shield,
-  Palette,
   Database,
   Keyboard,
-  LogOut
+  LogOut,
+  Mail,
+  Phone,
+  MapPin,
+  Twitter,
+  Linkedin,
+  Facebook,
+  Github
 } from 'lucide-react';
 import { useTheme, Theme } from '@/contexts/ThemeContext';
 import { useToast } from '@/hooks/use-toast';
@@ -126,6 +139,11 @@ const Home: React.FC = () => {
   const [privacyOpen, setPrivacyOpen] = React.useState(false);
   const [dataManagementOpen, setDataManagementOpen] = React.useState(false);
   const [keyboardShortcutsOpen, setKeyboardShortcutsOpen] = React.useState(false);
+  const [footerPrivacyOpen, setFooterPrivacyOpen] = React.useState(false);
+  const [footerTermsOpen, setFooterTermsOpen] = React.useState(false);
+  const [cookiePreferencesOpen, setCookiePreferencesOpen] = React.useState(false);
+  const [systemStatusOpen, setSystemStatusOpen] = React.useState(false);
+  const [versionModalOpen, setVersionModalOpen] = React.useState(false);
   const { theme, mode, setTheme, setMode } = useTheme();
   const { toast } = useToast();
 
@@ -360,7 +378,7 @@ const Home: React.FC = () => {
           transition={{ duration: 0.6 }}
           className="text-center mb-16"
         >
-          <h2 className="text-5xl font-heading font-heading-bold mb-6 bg-gradient-to-r from-foreground via-foreground/90 to-foreground/70 bg-clip-text text-transparent">
+          <h2 className="text-5xl font-heading font-heading-bold mb-6 bg-gradient-to-r from-foreground via-foreground/90 to-foreground/70 bg-clip-text text-transparent leading-tight py-2">
             Build your first messaging flow with Hub
           </h2>
           <p className="text-xl font-body text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed">
@@ -629,19 +647,183 @@ const Home: React.FC = () => {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-border bg-card/30 backdrop-blur-sm mt-20">
-        <div className="container mx-auto px-6 py-8">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 bg-gradient-to-br from-primary to-primary/80 rounded-md flex items-center justify-center">
-                <Zap className="w-4 h-4 text-white" />
+      <footer className="relative mt-20">
+        {/* Main Footer */}
+        <div className="bg-gradient-to-br from-card/95 to-card/90 backdrop-blur-xl border-t border-border/50 dark:from-card/20 dark:to-card/10">
+          <div className="container mx-auto px-6 py-16">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+              
+              {/* Company Info & Logo */}
+              <div className="lg:col-span-1">
+                <div className="flex items-center gap-3 mb-6">
+                  <img 
+                    src="/lovable-uploads/7f409758-69d3-4918-a9f3-f2b8444f85a0.png" 
+                    alt="Helo.ai Logo" 
+                    className="h-10 w-auto"
+                  />
+                </div>
+                <p className="text-muted-foreground mb-6 leading-relaxed">
+                  Intelligent communication routing platform designed for enterprise-scale 
+                  messaging automation with multi-vendor support and advanced analytics.
+                </p>
+                
+                {/* Contact Info */}
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                    <Mail className="w-4 h-4 text-primary" />
+                    <span>contact@helo.ai</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                    <Phone className="w-4 h-4 text-primary" />
+                    <span>+1 (555) 123-4567</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                    <MapPin className="w-4 h-4 text-primary" />
+                    <span>San Francisco, CA</span>
+                  </div>
+                </div>
               </div>
-              <span className="text-sm font-body text-muted-foreground">
-                Hub - Intelligent Communication Routing Platform
-              </span>
+
+              {/* Products */}
+              <div>
+                <h3 className="font-semibold text-foreground mb-6">Products</h3>
+                <ul className="space-y-3">
+                  <li><a href="/flow-builder" className="text-muted-foreground hover:text-primary transition-colors">Flow Builder</a></li>
+                  <li><a href="/monitoring" className="text-muted-foreground hover:text-primary transition-colors">Analytics Dashboard</a></li>
+                  <li><a href="/templates" className="text-muted-foreground hover:text-primary transition-colors">Template Manager</a></li>
+                  <li><a href="/integration" className="text-muted-foreground hover:text-primary transition-colors">API Integration</a></li>
+                  <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors">Multi-Channel Routing</a></li>
+                  <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors">Vendor Management</a></li>
+                  <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors">Cost Optimization</a></li>
+                </ul>
+              </div>
+
+              {/* Company */}
+              <div>
+                <h3 className="font-semibold text-foreground mb-6">Company</h3>
+                <ul className="space-y-3">
+                  <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors">About Us</a></li>
+                  <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors">Careers</a></li>
+                  <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors">Press</a></li>
+                  <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors">Blog</a></li>
+                  <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors">Case Studies</a></li>
+                  <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors">Partners</a></li>
+                  <li><a href="/documentation" className="text-muted-foreground hover:text-primary transition-colors">Documentation</a></li>
+                </ul>
+              </div>
+
+              {/* Support & Legal */}
+              <div>
+                <h3 className="font-semibold text-foreground mb-6">Support & Legal</h3>
+                <ul className="space-y-3">
+                  <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors">Help Center</a></li>
+                  <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors">Contact Support</a></li>
+                  <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors">System Status</a></li>
+                  <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors">Privacy Policy</a></li>
+                  <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors">Terms of Service</a></li>
+                  <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors">Cookie Policy</a></li>
+                  <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors">Security</a></li>
+                </ul>
+              </div>
             </div>
-            <div className="text-sm font-body text-muted-foreground">
-              © {new Date().getFullYear()} Hub. All rights reserved.
+
+            {/* Social Media & Newsletter */}
+            <div className="border-t border-border/50 mt-12 pt-8">
+              <div className="flex flex-col lg:flex-row justify-between items-center gap-8">
+                
+                {/* Social Media */}
+                <div className="flex flex-col sm:flex-row items-center gap-6">
+                  <span className="text-sm font-medium text-muted-foreground">Follow us:</span>
+                  <div className="flex items-center gap-4">
+                    <a 
+                      href="#" 
+                      className="p-2 rounded-lg bg-muted/20 hover:bg-muted/40 text-muted-foreground hover:text-primary transition-all duration-200"
+                    >
+                      <Twitter className="w-5 h-5" />
+                    </a>
+                    <a 
+                      href="#" 
+                      className="p-2 rounded-lg bg-muted/20 hover:bg-muted/40 text-muted-foreground hover:text-primary transition-all duration-200"
+                    >
+                      <Linkedin className="w-5 h-5" />
+                    </a>
+                    <a 
+                      href="#" 
+                      className="p-2 rounded-lg bg-muted/20 hover:bg-muted/40 text-muted-foreground hover:text-primary transition-all duration-200"
+                    >
+                      <Github className="w-5 h-5" />
+                    </a>
+                    <a 
+                      href="#" 
+                      className="p-2 rounded-lg bg-muted/20 hover:bg-muted/40 text-muted-foreground hover:text-primary transition-all duration-200"
+                    >
+                      <Facebook className="w-5 h-5" />
+                    </a>
+                  </div>
+                </div>
+
+                {/* Newsletter Signup */}
+                <div className="flex flex-col sm:flex-row items-center gap-4">
+                  <span className="text-sm font-medium text-muted-foreground whitespace-nowrap">Stay updated:</span>
+                  <div className="flex items-center gap-2">
+                    <input 
+                      type="email" 
+                      placeholder="Enter your email" 
+                      className="px-4 py-2 bg-background/50 border border-border/50 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-all"
+                    />
+                    <Button size="sm" className="whitespace-nowrap">
+                      Subscribe
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom Bar */}
+        <div className="bg-gradient-to-r from-muted/80 to-muted/60 backdrop-blur-xl border-t border-border/30 dark:from-muted/10 dark:to-muted/5">
+          <div className="container mx-auto px-6 py-6">
+            <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+              <div className="flex items-center gap-6 text-sm text-muted-foreground">
+                <span>© {new Date().getFullYear()} Helo.ai by VivaConnect. All rights reserved.</span>
+                <div className="hidden sm:flex items-center gap-4">
+                  <button 
+                    onClick={() => setFooterPrivacyOpen(true)}
+                    className="hover:text-primary transition-colors"
+                  >
+                    Privacy
+                  </button>
+                  <button 
+                    onClick={() => setFooterTermsOpen(true)}
+                    className="hover:text-primary transition-colors"
+                  >
+                    Terms
+                  </button>
+                  <button 
+                    onClick={() => setCookiePreferencesOpen(true)}
+                    className="hover:text-primary transition-colors"
+                  >
+                    Cookies
+                  </button>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                <button 
+                  onClick={() => setSystemStatusOpen(true)}
+                  className="flex items-center gap-2 hover:text-primary transition-colors"
+                >
+                  <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
+                  <span>All systems operational</span>
+                </button>
+                <span 
+                  onClick={() => setVersionModalOpen(true)}
+                  className="text-xs bg-primary/10 text-primary px-2 py-1 rounded cursor-pointer hover:bg-primary/20 transition-colors"
+                >
+                  v2.4.1
+                </span>
+              </div>
             </div>
           </div>
         </div>
@@ -660,6 +842,13 @@ const Home: React.FC = () => {
       <KeyboardShortcutsModal isOpen={keyboardShortcutsOpen} onClose={() => setKeyboardShortcutsOpen(false)} />
       
       <SupportModal isOpen={supportModalOpen} onClose={() => setSupportModalOpen(false)} />
+      
+      {/* Footer Modals */}
+      <PrivacyPolicyModal isOpen={footerPrivacyOpen} onClose={() => setFooterPrivacyOpen(false)} />
+      <TermsOfServiceModal isOpen={footerTermsOpen} onClose={() => setFooterTermsOpen(false)} />
+      <CookiePreferencesModal isOpen={cookiePreferencesOpen} onClose={() => setCookiePreferencesOpen(false)} />
+      <SystemStatusModal isOpen={systemStatusOpen} onClose={() => setSystemStatusOpen(false)} />
+      <VersionModal isOpen={versionModalOpen} onClose={() => setVersionModalOpen(false)} />
       
       {/* Help Modal */}
       <Dialog open={helpModalOpen} onOpenChange={setHelpModalOpen}>

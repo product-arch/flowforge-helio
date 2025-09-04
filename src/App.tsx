@@ -10,6 +10,8 @@ import FlowBuilderPage from "./pages/FlowBuilder";
 import Monitoring from "./pages/Monitoring";
 import Integration from "./pages/Integration";
 import Templates from "./pages/Templates";
+import TemplateList from "./pages/TemplateList";
+import TemplateCreator from "./pages/TemplateCreator";
 import Documentation from "./pages/Documentation";
 import APIConsole from "./pages/APIConsole";
 import UserProfiles from "./pages/UserProfiles";
@@ -31,6 +33,8 @@ const App = () => (
             <Route path="/monitoring" element={<Monitoring />} />
             <Route path="/integration" element={<Integration />} />
             <Route path="/templates" element={<Templates />} />
+            <Route path="/template-list" element={<TemplateList />} />
+            <Route path="/template-creator" element={<TemplateCreator />} />
             <Route path="/documentation" element={<Documentation />} />
             <Route path="/api-console" element={<APIConsole />} />
             <Route path="/user-profiles" element={<UserProfiles />} />

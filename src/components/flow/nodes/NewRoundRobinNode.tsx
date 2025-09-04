@@ -1,10 +1,10 @@
 import React from 'react';
 import { Handle, Position, NodeProps } from '@xyflow/react';
-import { TrendingUp, Trash2, Settings } from 'lucide-react';
+import { RotateCcw, Trash2, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useFlow } from '@/contexts/FlowContext';
 
-export const PriorityRouteNode: React.FC<NodeProps> = ({ id, data, selected }) => {
+export const NewRoundRobinNode: React.FC<NodeProps> = ({ id, data, selected }) => {
   const { deleteNode, getConnectedChannelNode } = useFlow();
   const onConfigClick = data.onConfigClick as ((nodeId: string) => void) | undefined;
   
@@ -13,8 +13,9 @@ export const PriorityRouteNode: React.FC<NodeProps> = ({ id, data, selected }) =
   const hasVendorsConfigured = connectedChannel && connectedChannel.data.selectedVendors && 
     (connectedChannel.data.selectedVendors as string[]).length > 0;
 
-  const priorityOrder = (data.priorityOrder as string[]) || [];
-  const hasConfiguration = priorityOrder.length > 0;
+  const vendors = (data.vendors as string[]) || [];
+  const type = (data.type as string) || 'weighted';
+  const hasConfiguration = vendors.length > 0;
 
   const getDisplayMessage = () => {
     if (!hasChannelConnection) {
@@ -62,11 +63,11 @@ export const PriorityRouteNode: React.FC<NodeProps> = ({ id, data, selected }) =
 
       {/* Header */}
       <div className="flex items-center gap-2 mb-3">
-        <div className="p-1.5 rounded-md" style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)' }}>
-          <TrendingUp className="w-4 h-4" style={{ color: 'rgb(239, 68, 68)' }} />
+        <div className="p-1.5 rounded-md" style={{ backgroundColor: 'rgba(34, 197, 94, 0.1)' }}>
+          <RotateCcw className="w-4 h-4" style={{ color: 'rgb(34, 197, 94)' }} />
         </div>
         <div className="flex-1 min-w-0">
-          <div className="text-sm font-medium truncate text-primary">Priority Routing</div>
+          <div className="text-sm font-medium truncate text-primary">Round Robin</div>
           {connectedChannel && (
             <div className="text-xs text-muted-foreground truncate">
               {(connectedChannel.data.label as string) || connectedChannel.type.toUpperCase()}
@@ -84,13 +85,22 @@ export const PriorityRouteNode: React.FC<NodeProps> = ({ id, data, selected }) =
         <div className="space-y-2">
           <div className="bg-accent/30 rounded p-2">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-medium">Priority Order</span>
-              <span className="text-xs text-muted-foreground">
-                {priorityOrder.length} vendors
+              <span className="text-xs font-medium">Type</span>
+              <span className="text-xs text-muted-foreground capitalize">
+                {type}
               </span>
             </div>
           </div>
           
+          <div className="bg-accent/30 rounded p-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-medium">Vendors</span>
+              <span className="text-xs text-muted-foreground">
+                {vendors.length} configured
+              </span>
+            </div>
+          </div>
+
           {data.healthCheck && (
             <div className="bg-status-success/10 rounded p-1">
               <span className="text-xs text-status-success font-medium">✓ Health Check Enabled</span>
@@ -103,11 +113,13 @@ export const PriorityRouteNode: React.FC<NodeProps> = ({ id, data, selected }) =
         </div>
       )}
 
-      {/* Connection Handles */}
-      <Handle type="target" position={Position.Left} id="left" className="w-3 h-3 opacity-0" />
+      {/* Connection Handles - Full 4-side connectivity */}
+      <Handle type="target" position={Position.Left} id="left-in" className="w-3 h-3 opacity-0" />
       <Handle type="target" position={Position.Top} id="top-in" className="w-3 h-3 opacity-0" />
       <Handle type="target" position={Position.Bottom} id="bottom-in" className="w-3 h-3 opacity-0" />
-      <Handle type="source" position={Position.Right} id="right" className="w-3 h-3 opacity-0" />
+      <Handle type="target" position={Position.Right} id="right-in" className="w-3 h-3 opacity-0" />
+      <Handle type="source" position={Position.Left} id="left-out" className="w-3 h-3 opacity-0" />
+      <Handle type="source" position={Position.Right} id="right-out" className="w-3 h-3 opacity-0" />
       <Handle type="source" position={Position.Top} id="top-out" className="w-3 h-3 opacity-0" />
       <Handle type="source" position={Position.Bottom} id="bottom-out" className="w-3 h-3 opacity-0" />
     </div>

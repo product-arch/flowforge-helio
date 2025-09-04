@@ -9,6 +9,7 @@ interface FlowContextType {
   simulationMode: boolean;
   simulationResults: any[];
   currentFlowId: string | null;
+  channelRoutingMap: Map<string, string[]>;
   onNodesChange: (changes: NodeChange[]) => void;
   onEdgesChange: (changes: EdgeChange[]) => void;
   onConnect: (connection: Connection) => void;
@@ -20,6 +21,8 @@ interface FlowContextType {
   runSimulation: (testParams: any) => void;
   loadFlow: (flowId: string) => void;
   saveCurrentFlow: () => void;
+  getConnectedChannelNode: (routingNodeId: string) => Node | null;
+  resetRoutingNodeConfiguration: (routingNodeId: string) => void;
 }
 
 const FlowContext = createContext<FlowContextType | undefined>(undefined);
@@ -232,6 +235,7 @@ export const FlowProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [simulationMode, setSimulationMode] = useState(false);
   const [simulationResults, setSimulationResults] = useState<any[]>([]);
   const [currentFlowId, setCurrentFlowId] = useState<string | null>(null);
+  const [channelRoutingMap, setChannelRoutingMap] = useState<Map<string, string[]>>(new Map());
 
   // Load flow when URL parameter changes
   useEffect(() => {
@@ -250,14 +254,6 @@ export const FlowProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setNodes((nds) => applyNodeChanges(changes, nds));
   }, []);
 
-  const onEdgesChange = useCallback((changes: EdgeChange[]) => {
-    setEdges((eds) => applyEdgeChanges(changes, eds));
-  }, []);
-
-  const onConnect = useCallback((connection: Connection) => {
-    setEdges((eds) => addEdge({ ...connection, type: 'custom' }, eds));
-  }, []);
-
   const addNode = useCallback((type: string, position: { x: number; y: number }) => {
     const newNode: Node = {
       id: `${type}-${Date.now()}`,
@@ -269,39 +265,7 @@ export const FlowProvider: React.FC<{ children: React.ReactNode }> = ({ children
       },
     };
     
-    // For channel nodes, also create an attached routing node
-    const isChannelNode = ['sms', 'whatsapp', 'email', 'voice', 'rcs'].includes(type);
-    
-    if (isChannelNode) {
-      const routingNode: Node = {
-        id: `vendorrouting-${Date.now()}`,
-        type: 'vendorrouting',
-        position: { x: position.x, y: position.y + 120 },
-        data: {
-          label: 'Vendor Routing',
-          parentChannelId: newNode.id,
-          configType: 'default',
-          selectedVendors: [],
-          routingConfig: null,
-          ...getDefaultNodeData('vendorrouting')
-        },
-      };
-      
-      setNodes((nds) => [...nds, newNode, routingNode]);
-      
-      // Auto-connect channel to routing node
-      setTimeout(() => {
-        setEdges((eds) => addEdge({
-          id: `edge-${newNode.id}-${routingNode.id}`,
-          source: newNode.id,
-          target: routingNode.id,
-          type: 'custom',
-          style: { strokeDasharray: '5,5', stroke: 'hsl(var(--primary))', opacity: 0.6 }
-        }, eds));
-      }, 100);
-    } else {
-      setNodes((nds) => [...nds, newNode]);
-    }
+    setNodes((nds) => [...nds, newNode]);
   }, []);
 
   const deleteNode = useCallback((nodeId: string) => {
@@ -312,6 +276,24 @@ export const FlowProvider: React.FC<{ children: React.ReactNode }> = ({ children
     
     setNodes((nds) => nds.filter((node) => node.id !== nodeId));
     setEdges((eds) => eds.filter((edge) => edge.source !== nodeId && edge.target !== nodeId));
+    
+    // Clean up channel-routing relationships
+    setChannelRoutingMap(prev => {
+      const newMap = new Map(prev);
+      // Remove if node is a channel
+      newMap.delete(nodeId);
+      // Remove if node is a routing strategy
+      for (const [channelId, routingNodes] of newMap.entries()) {
+        const updatedRoutingNodes = routingNodes.filter(id => id !== nodeId);
+        if (updatedRoutingNodes.length === 0) {
+          newMap.delete(channelId);
+        } else {
+          newMap.set(channelId, updatedRoutingNodes);
+        }
+      }
+      return newMap;
+    });
+    
     if (selectedNode?.id === nodeId) {
       setSelectedNode(null);
     }
@@ -319,13 +301,26 @@ export const FlowProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const updateNodeData = useCallback((nodeId: string, data: any) => {
     setNodes((nds) => 
-      nds.map((node) => 
-        node.id === nodeId 
-          ? { ...node, data: { ...node.data, ...data } }
-          : node
-      )
+      nds.map((node) => {
+        if (node.id === nodeId) {
+          const updatedNode = { ...node, data: { ...node.data, ...data } };
+          
+          // If this is a channel node and vendors changed, reset connected routing nodes
+          if (['sms', 'whatsapp', 'email', 'voice', 'rcs'].includes(node.type) && 
+              data.selectedVendors && 
+              JSON.stringify(data.selectedVendors) !== JSON.stringify(node.data.selectedVendors)) {
+            const connectedRoutingNodes = channelRoutingMap.get(nodeId) || [];
+            connectedRoutingNodes.forEach(routingNodeId => {
+              resetRoutingNodeConfiguration(routingNodeId);
+            });
+          }
+          
+          return updatedNode;
+        }
+        return node;
+      })
     );
-  }, []);
+  }, [channelRoutingMap]);
 
   const runSimulation = useCallback((testParams: any) => {
     // Simulate routing logic
@@ -368,6 +363,124 @@ export const FlowProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [currentFlowId, nodes, edges]);
 
+  const getConnectedChannelNode = useCallback((routingNodeId: string) => {
+    // Find ALL edges where routing node is the target
+    const incomingEdges = edges.filter(edge => edge.target === routingNodeId);
+    if (incomingEdges.length === 0) return null;
+    
+    // Find edges coming from channel nodes (prioritize direct channel connections)
+    const channelEdges = incomingEdges.filter(edge => {
+      const sourceNode = nodes.find(node => node.id === edge.source);
+      return sourceNode && ['sms', 'whatsapp', 'email', 'voice', 'rcs'].includes(sourceNode.type);
+    });
+    
+    if (channelEdges.length === 0) return null;
+    
+    // Return the first channel node found (prefer most recent connection)
+    const channelEdge = channelEdges[channelEdges.length - 1]; // Get latest connection
+    const channelNode = nodes.find(node => node.id === channelEdge.source);
+    
+    return channelNode || null;
+  }, [edges, nodes]);
+
+  // Enhanced connection validation with debouncing
+  const [connectionChangeTimeout, setConnectionChangeTimeout] = useState<NodeJS.Timeout | null>(null);
+  
+  const debouncedConnectionUpdate = useCallback((callback: () => void) => {
+    if (connectionChangeTimeout) {
+      clearTimeout(connectionChangeTimeout);
+    }
+    
+    const timeout = setTimeout(callback, 100); // 100ms debounce
+    setConnectionChangeTimeout(timeout);
+  }, [connectionChangeTimeout]);
+
+  // Enhanced onConnect function with multi-connection support
+  const onConnect = useCallback(
+    (connection: Connection) => {
+      const { source, target, sourceHandle, targetHandle } = connection;
+      
+      // Validate connection types
+      const sourceNode = nodes.find(n => n.id === source);
+      const targetNode = nodes.find(n => n.id === target);
+      
+      if (!sourceNode || !targetNode) return;
+      
+      const newEdge: Edge = {
+        id: `${source}-${target}-${Date.now()}`,
+        source,
+        target,
+        sourceHandle,
+        targetHandle,
+        type: 'custom',
+        animated: simulationMode,
+        style: { strokeWidth: 2 },
+      };
+
+      setEdges((eds) => {
+        const newEdges = addEdge(newEdge, eds);
+        
+        // Update channel-routing relationships
+        if (sourceNode && targetNode && 
+            ['sms', 'whatsapp', 'email', 'voice', 'rcs'].includes(sourceNode.type) &&
+            ['priority-route', 'round-robin', 'least-cost', 'load-balancer', 'geolocation', 'failover', 'weighted-distribution'].includes(targetNode.type)) {
+          setChannelRoutingMap(prev => {
+            const newMap = new Map(prev);
+            const currentRoutingNodes = newMap.get(sourceNode.id) || [];
+            if (!currentRoutingNodes.includes(targetNode.id)) {
+              newMap.set(sourceNode.id, [...currentRoutingNodes, targetNode.id]);
+            }
+            return newMap;
+          });
+        }
+        
+        return newEdges;
+      });
+      
+      // Debounced update for routing node states
+      debouncedConnectionUpdate(() => {
+        // Force re-render of routing nodes by triggering a state update
+        setNodes((nds) => [...nds]);
+      });
+    },
+    [nodes, simulationMode, debouncedConnectionUpdate]
+  );
+
+  // Enhanced onEdgesChange to handle disconnections
+  const onEdgesChange = useCallback(
+    (changes: EdgeChange[]) => {
+      setEdges((eds) => applyEdgeChanges(changes, eds));
+      
+      // Check for edge removals and update affected routing nodes
+      const hasRemovals = changes.some(change => change.type === 'remove');
+      if (hasRemovals) {
+        debouncedConnectionUpdate(() => {
+          setNodes((nds) => [...nds]);
+        });
+      }
+    },
+    [debouncedConnectionUpdate]
+  );
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (connectionChangeTimeout) {
+        clearTimeout(connectionChangeTimeout);
+      }
+    };
+  }, [connectionChangeTimeout]);
+
+  const resetRoutingNodeConfiguration = useCallback((routingNodeId: string) => {
+    setNodes((nds) =>
+      nds.map((node) =>
+        node.id === routingNodeId
+          ? { ...node, data: { ...getDefaultNodeData(node.type), label: node.data.label } }
+          : node
+      )
+    );
+  }, []);
+
   return (
     <FlowContext.Provider value={{
       nodes,
@@ -376,6 +489,7 @@ export const FlowProvider: React.FC<{ children: React.ReactNode }> = ({ children
       simulationMode,
       simulationResults,
       currentFlowId,
+      channelRoutingMap,
       onNodesChange,
       onEdgesChange,
       onConnect,
@@ -387,6 +501,8 @@ export const FlowProvider: React.FC<{ children: React.ReactNode }> = ({ children
       runSimulation,
       loadFlow,
       saveCurrentFlow,
+      getConnectedChannelNode,
+      resetRoutingNodeConfiguration,
     }}>
       {children}
     </FlowContext.Provider>
@@ -538,54 +654,68 @@ function getDefaultNodeData(type: string) {
         label: 'Health Check'
       };
 
-    // Monitoring Nodes
-    case 'audit':
+    // Routing Strategy Nodes
+    case 'priority-route':
       return {
-        logLevel: 'info',
-        events: [],
-        label: 'Debug Log'
+        label: 'Priority Routing',
+        parentChannelId: null,
+        vendors: [],
+        priorityOrder: [],
+        healthCheck: true,
+        retryAttempts: 3
       };
-    case 'analytics':
+    case 'round-robin':
       return {
-        metrics: ['delivery_rate', 'latency'],
-        interval: '1m',
-        label: 'Analytics Tracker'
+        label: 'Round Robin',
+        parentChannelId: null,
+        vendors: [],
+        type: 'weighted',
+        healthCheck: true,
+        resetOnFailure: false
       };
-    case 'alert':
+    case 'least-cost':
       return {
-        conditions: [],
-        recipients: [],
-        severity: 'medium',
-        label: 'Alert System'
+        label: 'Least Cost',
+        parentChannelId: null,
+        vendors: [],
+        costThreshold: 0.05,
+        fallbackToHigherCost: true,
+        currency: 'INR'
       };
-
-    // Integration Nodes
-    case 'webhook':
+    case 'load-balancer':
       return {
-        url: '',
-        method: 'POST',
-        headers: {},
-        label: 'Webhook Call'
+        label: 'Load Balancer',
+        parentChannelId: null,
+        vendors: [],
+        algorithm: 'round_robin',
+        targets: [],
+        healthCheck: true
       };
-    case 'database':
+    case 'geolocation':
       return {
-        operation: 'insert',
-        table: '',
-        fields: [],
-        label: 'Database Op'
+        label: 'Geolocation Routing',
+        parentChannelId: null,
+        vendors: [],
+        strategy: 'proximity',
+        regions: [],
+        fallbackRegion: 'global'
       };
-    case 'transform':
+    case 'failover':
       return {
-        transformations: [],
-        outputFormat: 'json',
-        label: 'Data Transform'
+        label: 'Failover',
+        parentChannelId: null,
+        vendors: [],
+        primaryVendor: null,
+        backupVendors: [],
+        failoverCriteria: 'response_time'
       };
-    case 'api':
+    case 'weighted-distribution':
       return {
-        url: '',
-        method: 'GET',
-        headers: {},
-        label: 'API Call'
+        label: 'Weighted Distribution',
+        parentChannelId: null,
+        vendors: [],
+        weights: {},
+        normalizeWeights: true
       };
 
     // Core Nodes

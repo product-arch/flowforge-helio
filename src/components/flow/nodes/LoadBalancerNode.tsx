@@ -116,11 +116,13 @@ export const LoadBalancerNode: React.FC<NodeProps> = ({ id, data, selected }) =>
         </div>
       )}
 
-      {/* Invisible Connection Handles for full connectivity */}
-      <Handle type="target" position={Position.Left} id="left" className="w-3 h-3 opacity-0" />
+      {/* Invisible Connection Handles for full 4-side connectivity */}
+      <Handle type="target" position={Position.Left} id="left-in" className="w-3 h-3 opacity-0" />
       <Handle type="target" position={Position.Top} id="top-in" className="w-3 h-3 opacity-0" />
       <Handle type="target" position={Position.Bottom} id="bottom-in" className="w-3 h-3 opacity-0" />
-      <Handle type="source" position={Position.Right} id="right" className="w-3 h-3 opacity-0" />
+      <Handle type="target" position={Position.Right} id="right-in" className="w-3 h-3 opacity-0" />
+      <Handle type="source" position={Position.Left} id="left-out" className="w-3 h-3 opacity-0" />
+      <Handle type="source" position={Position.Right} id="right-out" className="w-3 h-3 opacity-0" />
       <Handle type="source" position={Position.Top} id="top-out" className="w-3 h-3 opacity-0" />
       <Handle type="source" position={Position.Bottom} id="bottom-out" className="w-3 h-3 opacity-0" />
     </div>

@@ -1,10 +1,10 @@
 import React from 'react';
 import { Handle, Position, NodeProps } from '@xyflow/react';
-import { TrendingUp, Trash2, Settings } from 'lucide-react';
+import { DollarSign, Trash2, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useFlow } from '@/contexts/FlowContext';
 
-export const PriorityRouteNode: React.FC<NodeProps> = ({ id, data, selected }) => {
+export const NewLeastCostNode: React.FC<NodeProps> = ({ id, data, selected }) => {
   const { deleteNode, getConnectedChannelNode } = useFlow();
   const onConfigClick = data.onConfigClick as ((nodeId: string) => void) | undefined;
   
@@ -13,8 +13,10 @@ export const PriorityRouteNode: React.FC<NodeProps> = ({ id, data, selected }) =
   const hasVendorsConfigured = connectedChannel && connectedChannel.data.selectedVendors && 
     (connectedChannel.data.selectedVendors as string[]).length > 0;
 
-  const priorityOrder = (data.priorityOrder as string[]) || [];
-  const hasConfiguration = priorityOrder.length > 0;
+  const vendors = (data.vendors as string[]) || [];
+  const costThreshold = (data.costThreshold as number) || 0.05;
+  const currency = (data.currency as string) || 'INR';
+  const hasConfiguration = vendors.length > 0;
 
   const getDisplayMessage = () => {
     if (!hasChannelConnection) {
@@ -62,11 +64,11 @@ export const PriorityRouteNode: React.FC<NodeProps> = ({ id, data, selected }) =
 
       {/* Header */}
       <div className="flex items-center gap-2 mb-3">
-        <div className="p-1.5 rounded-md" style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)' }}>
-          <TrendingUp className="w-4 h-4" style={{ color: 'rgb(239, 68, 68)' }} />
+        <div className="p-1.5 rounded-md" style={{ backgroundColor: 'rgba(234, 179, 8, 0.1)' }}>
+          <DollarSign className="w-4 h-4" style={{ color: 'rgb(234, 179, 8)' }} />
         </div>
         <div className="flex-1 min-w-0">
-          <div className="text-sm font-medium truncate text-primary">Priority Routing</div>
+          <div className="text-sm font-medium truncate text-primary">Least Cost</div>
           {connectedChannel && (
             <div className="text-xs text-muted-foreground truncate">
               {(connectedChannel.data.label as string) || connectedChannel.type.toUpperCase()}
@@ -84,16 +86,25 @@ export const PriorityRouteNode: React.FC<NodeProps> = ({ id, data, selected }) =
         <div className="space-y-2">
           <div className="bg-accent/30 rounded p-2">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-medium">Priority Order</span>
+              <span className="text-xs font-medium">Threshold</span>
               <span className="text-xs text-muted-foreground">
-                {priorityOrder.length} vendors
+                {costThreshold} {currency}
               </span>
             </div>
           </div>
           
-          {data.healthCheck && (
-            <div className="bg-status-success/10 rounded p-1">
-              <span className="text-xs text-status-success font-medium">✓ Health Check Enabled</span>
+          <div className="bg-accent/30 rounded p-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-medium">Vendors</span>
+              <span className="text-xs text-muted-foreground">
+                {vendors.length} configured
+              </span>
+            </div>
+          </div>
+
+          {data.fallbackToHigherCost && (
+            <div className="bg-status-warning/10 rounded p-1">
+              <span className="text-xs text-status-warning font-medium">⚡ Fallback Enabled</span>
             </div>
           )}
         </div>
