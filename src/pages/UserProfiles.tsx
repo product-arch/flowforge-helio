@@ -26,19 +26,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Separator } from '@/components/ui/separator';
-import { 
-  PersonalInfoModal, 
-  AccountSettingsModal, 
-  BillingModal,
-  NotificationsModal,
-  LanguageModal,
-  PrivacyModal,
-  DataManagementModal,
-  KeyboardShortcutsModal
-} from '@/components/flow/AccountModals';
-import { ThemeSelector } from '@/components/navigation/ThemeSelector';
-import { SettingsDropdown } from '@/components/navigation/SettingsDropdown';
-import { useModalStates } from '@/hooks/useModalStates';
+import { NavigationHeader } from '@/components/navigation/NavigationHeader';
 import { 
   ArrowLeft,
   Settings,

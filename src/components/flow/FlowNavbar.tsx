@@ -3,7 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { PersonalInfoModal, AccountSettingsModal, BillingModal } from './AccountModals';
+import { AccountMenu } from '@/components/navigation/AccountMenu';
+import { ThemeSelector } from '@/components/navigation/ThemeSelector';
+import { useModalStates } from '@/hooks/useModalStates';
+import { 
+  PersonalInfoModal, 
+  AccountSettingsModal, 
+  BillingModal
+} from '@/components/flow/AccountModals';
 import { SimulationModal } from './SimulationModal';
 import { 
   DropdownMenu,
@@ -39,17 +46,6 @@ import { useFlow } from '@/contexts/FlowContext';
 import { useTheme, Theme } from '@/contexts/ThemeContext';
 import { useToast } from '@/hooks/use-toast';
 
-const themes: Array<{ value: Theme; label: string; color: string }> = [
-  { value: 'blue', label: 'Professional Blue', color: 'bg-blue-500' },
-  { value: 'emerald', label: 'Growth Green', color: 'bg-emerald-500' },
-  { value: 'purple', label: 'Creative Purple', color: 'bg-purple-500' },
-  { value: 'orange', label: 'Energy Orange', color: 'bg-orange-500' },
-  { value: 'rose', label: 'Warm Rose', color: 'bg-rose-500' },
-  { value: 'indigo', label: 'Deep Indigo', color: 'bg-indigo-500' },
-  { value: 'solarized-osaka', label: 'Solarized Osaka', color: 'bg-teal-600' },
-  { value: 'monochrome', label: 'Black & White', color: 'bg-gray-900' },
-];
-
 const mockCampaigns = [
   'Summer Sale 2024',
   'Welcome Series',
@@ -62,13 +58,10 @@ export const FlowNavbar: React.FC = () => {
   const [flowState, setFlowState] = useState<'draft' | 'active' | 'archived'>('draft');
   const [isEditing, setIsEditing] = useState(false);
   const [campaignCount] = useState(3);
-  const [personalInfoOpen, setPersonalInfoOpen] = useState(false);
-  const [accountSettingsOpen, setAccountSettingsOpen] = useState(false);
-  const [billingOpen, setBillingOpen] = useState(false);
   const [simulationModalOpen, setSimulationModalOpen] = useState(false);
   const { simulationMode, setSimulationMode } = useFlow();
-  const { theme, mode, setTheme, setMode } = useTheme();
   const { toast } = useToast();
+  const modalStates = useModalStates();
 
   // Load flow name from localStorage on component mount
   useEffect(() => {
@@ -111,15 +104,6 @@ export const FlowNavbar: React.FC = () => {
 
   const handleSimulate = () => {
     setSimulationModalOpen(true);
-  };
-
-  const handleThemeChange = (newTheme: Theme) => {
-    setTheme(newTheme);
-    toast({
-      title: "Theme Changed",
-      description: `Switched to ${themes.find(t => t.value === newTheme)?.label}`,
-      className: "border-status-success bg-status-success/10 text-status-success"
-    });
   };
 
   const handleExport = () => {
@@ -244,63 +228,14 @@ export const FlowNavbar: React.FC = () => {
               {flowState === 'active' ? 'Deactivate' : 'Activate'}
             </Button>
 
-            {/* Account Menu */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm">
-                  <User className="w-4 h-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem onClick={() => setPersonalInfoOpen(true)}>
-                  <User className="w-4 h-4 mr-2" />
-                  Personal Info
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setAccountSettingsOpen(true)}>
-                  <Settings className="w-4 h-4 mr-2" />
-                  Account Settings
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setBillingOpen(true)}>
-                  <CreditCard className="w-4 h-4 mr-2" />
-                  Billing
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                
-                <div className="px-2 py-1">
-                  <div className="text-xs font-medium text-muted-foreground mb-2">Themes</div>
-                  <div className="grid grid-cols-3 gap-1">
-                    {themes.map((themeOption) => (
-                      <button
-                        key={themeOption.value}
-                        onClick={() => handleThemeChange(themeOption.value)}
-                        className={`w-6 h-6 rounded-full ${themeOption.color} hover:scale-110 transition-transform ${
-                          theme === themeOption.value ? 'ring-2 ring-ring ring-offset-2 ring-offset-background' : ''
-                        }`}
-                        title={themeOption.label}
-                      />
-                    ))}
-                  </div>
-                  <div className="mt-2 flex gap-1">
-                    <button
-                      onClick={() => setMode('light')}
-                      className={`px-2 py-1 text-xs rounded ${
-                        mode === 'light' ? 'bg-primary text-primary-foreground' : 'hover:bg-accent'
-                      }`}
-                    >
-                      Light
-                    </button>
-                    <button
-                      onClick={() => setMode('dark')}
-                      className={`px-2 py-1 text-xs rounded ${
-                        mode === 'dark' ? 'bg-primary text-primary-foreground' : 'hover:bg-accent'
-                      }`}
-                    >
-                      Dark
-                    </button>
-                  </div>
-                </div>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <AccountMenu
+              variant="outline"
+              onPersonalInfoClick={() => modalStates.setPersonalInfoOpen(true)}
+              onAccountSettingsClick={() => modalStates.setAccountSettingsOpen(true)}
+              onBillingClick={() => modalStates.setBillingOpen(true)}
+            />
+
+            <ThemeSelector size="sm" variant="outline" />
 
             {/* More Options */}
             <DropdownMenu>
@@ -341,9 +276,9 @@ export const FlowNavbar: React.FC = () => {
         </div>
       </div>
       
-      <PersonalInfoModal isOpen={personalInfoOpen} onClose={() => setPersonalInfoOpen(false)} />
-      <AccountSettingsModal isOpen={accountSettingsOpen} onClose={() => setAccountSettingsOpen(false)} />
-      <BillingModal isOpen={billingOpen} onClose={() => setBillingOpen(false)} />
+      <PersonalInfoModal isOpen={modalStates.personalInfoOpen} onClose={() => modalStates.setPersonalInfoOpen(false)} />
+      <AccountSettingsModal isOpen={modalStates.accountSettingsOpen} onClose={() => modalStates.setAccountSettingsOpen(false)} />
+      <BillingModal isOpen={modalStates.billingOpen} onClose={() => modalStates.setBillingOpen(false)} />
       <SimulationModal isOpen={simulationModalOpen} onClose={() => setSimulationModalOpen(false)} />
     </TooltipProvider>
   );

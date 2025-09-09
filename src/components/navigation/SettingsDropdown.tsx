@@ -11,20 +11,22 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 interface SettingsDropdownProps {
-  onPersonalInfoClick?: () => void;
-  onAccountSettingsClick?: () => void;
-  onBillingClick?: () => void;
-  onSupportClick?: () => void;
+  onNotificationsClick?: () => void;
+  onLanguageClick?: () => void;
+  onPrivacyClick?: () => void;
+  onDataManagementClick?: () => void;
+  onKeyboardShortcutsClick?: () => void;
   variant?: 'ghost' | 'outline' | 'default';
   size?: 'default' | 'sm' | 'lg';
   showLabel?: boolean;
 }
 
-export const SettingsDropdown: React.FC<SettingsDropdownProps> = ({
-  onPersonalInfoClick,
-  onAccountSettingsClick,
-  onBillingClick,
-  onSupportClick,
+export const SettingsDropdown: React.FC<SettingsDropdownProps> = ({ 
+  onNotificationsClick,
+  onLanguageClick,
+  onPrivacyClick,
+  onDataManagementClick,
+  onKeyboardShortcutsClick,
   variant = 'ghost',
   size = 'default',
   showLabel = false

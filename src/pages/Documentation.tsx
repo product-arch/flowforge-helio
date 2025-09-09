@@ -8,16 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { 
-  PersonalInfoModal, 
-  AccountSettingsModal, 
-  BillingModal,
-  NotificationsModal,
-  LanguageModal,
-  PrivacyModal,
-  DataManagementModal,
-  KeyboardShortcutsModal
-} from '@/components/flow/AccountModals';
+import { NavigationHeader } from '@/components/navigation/NavigationHeader';
 import {
   Collapsible,
   CollapsibleContent,
@@ -290,15 +281,6 @@ const Documentation: React.FC = () => {
   const [selectedEndpoint, setSelectedEndpoint] = useState<ApiEndpoint | null>(null);
   const [selectedLanguage, setSelectedLanguage] = useState('curl');
   const [expandedSections, setExpandedSections] = useState(new Set(['getting-started', 'flows']));
-  const [personalInfoOpen, setPersonalInfoOpen] = useState(false);
-  const [accountSettingsOpen, setAccountSettingsOpen] = useState(false);
-  const [billingOpen, setBillingOpen] = useState(false);
-  const [notificationsOpen, setNotificationsOpen] = useState(false);
-  const [languageOpen, setLanguageOpen] = useState(false);
-  const [privacyOpen, setPrivacyOpen] = useState(false);
-  const [dataManagementOpen, setDataManagementOpen] = useState(false);
-  const [keyboardShortcutsOpen, setKeyboardShortcutsOpen] = useState(false);
-  const { theme, mode, setTheme, setMode } = useTheme();
   const { toast } = useToast();
 
   useEffect(() => {
@@ -335,14 +317,6 @@ const Documentation: React.FC = () => {
     });
   };
 
-  const handleThemeChange = (newTheme: Theme) => {
-    setTheme(newTheme);
-    toast({
-      title: "Theme Changed",
-      description: `Switched to ${THEMES.find(t => t.value === newTheme)?.name}`,
-      className: "border-status-success bg-status-success/10 text-status-success"
-    });
-  };
 
   const handleSettingClick = (setting: string) => {
     toast({
