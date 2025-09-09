@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -18,13 +18,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { 
   Home,
   Play,
@@ -57,9 +50,7 @@ import {
   AlertTriangle,
   Info
 } from 'lucide-react';
-import { useTheme, Theme } from '@/contexts/ThemeContext';
 import { useToast } from '@/hooks/use-toast';
-import { THEMES } from '@/constants/themes';
 
 interface RequestHistory {
   id: string;
@@ -326,15 +317,6 @@ const APIConsole: React.FC = () => {
     });
   };
 
-
-  const handleSettingClick = (setting: string) => {
-    toast({
-      title: "Setting Updated",
-      description: `${setting} setting has been updated`,
-      className: "border-status-info bg-status-info/10 text-status-info"
-    });
-  };
-
   const getStatusColor = (status: number) => {
     if (status >= 200 && status < 300) return 'text-status-success';
     if (status >= 400 && status < 500) return 'text-status-warning';
@@ -364,403 +346,257 @@ const APIConsole: React.FC = () => {
       />
 
       {/* Main Content */}
-      <div className="flex min-h-[calc(100vh-73px)] py-6">
-        {/* Request Builder Panel */}
-        <div className="w-1/2 border-r border-border flex flex-col">
-          <div className="p-6 border-b border-border">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold">Request Builder</h2>
-              <Button 
-                onClick={executeRequest}
-                disabled={isLoading}
-                className="bg-gradient-primary hover:opacity-90"
-              >
-                <Play className="w-4 h-4 mr-2" />
-                {isLoading ? 'Sending...' : 'Send Request'}
-              </Button>
-            </div>
-
-            {/* Method and URL */}
-            <div className="flex gap-2 mb-4">
-              <Select value={method} onValueChange={setMethod}>
-                <SelectTrigger className="w-32">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="GET">GET</SelectItem>
-                  <SelectItem value="POST">POST</SelectItem>
-                  <SelectItem value="PUT">PUT</SelectItem>
-                  <SelectItem value="DELETE">DELETE</SelectItem>
-                  <SelectItem value="PATCH">PATCH</SelectItem>
-                </SelectContent>
-              </Select>
-              <Input
-                value={url}
-                onChange={(e) => setUrl(e.target.value)}
-                placeholder="https://api.flowforge.com/v1/flows"
-                className="flex-1"
-              />
-            </div>
-
-            {/* Authentication */}
-            <div className="mb-4">
-              <Label className="text-sm font-medium mb-2 block">Authentication</Label>
-              <Input
-                type="password"
-                value={apiKey}
-                onChange={(e) => setApiKey(e.target.value)}
-                placeholder="Enter your API key"
-                className="w-full"
-              />
-            </div>
-          </div>
-
-          <div className="flex-1 overflow-hidden">
-            <Tabs defaultValue="headers" className="h-full flex flex-col">
-              <TabsList className="w-full rounded-none border-b">
-                <TabsTrigger value="headers">Headers</TabsTrigger>
-                <TabsTrigger value="params">Query Params</TabsTrigger>
-                <TabsTrigger value="body">Request Body</TabsTrigger>
-                <TabsTrigger value="code">Code</TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="headers" className="flex-1 overflow-y-auto p-4">
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <Label className="text-sm font-medium">Request Headers</Label>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => addKeyValuePair('headers')}
-                    >
-                      <Plus className="w-4 h-4 mr-2" />
-                      Add Header
-                    </Button>
-                  </div>
-                  
-                  {headers.map((header) => (
-                    <div key={header.id} className="flex items-center gap-2">
-                      <input
-                        type="checkbox"
-                        checked={header.enabled}
-                        onChange={(e) => updateKeyValuePair('headers', header.id, 'enabled', e.target.checked)}
-                        className="w-4 h-4"
-                      />
-                      <Input
-                        value={header.key}
-                        onChange={(e) => updateKeyValuePair('headers', header.id, 'key', e.target.value)}
-                        placeholder="Header name"
-                        className="flex-1"
-                      />
-                      <Input
-                        value={header.value}
-                        onChange={(e) => updateKeyValuePair('headers', header.id, 'value', e.target.value)}
-                        placeholder="Header value"
-                        className="flex-1"
-                      />
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => removeKeyValuePair('headers', header.id)}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  ))}
+      <main className="container mx-auto px-6 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Request Builder */}
+          <div className="lg:col-span-2 space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Code className="w-5 h-5" />
+                  Request Builder
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {/* API Key */}
+                <div>
+                  <Label htmlFor="apiKey">API Key</Label>
+                  <Input
+                    id="apiKey"
+                    type="password"
+                    placeholder="Enter your API key"
+                    value={apiKey}
+                    onChange={(e) => setApiKey(e.target.value)}
+                  />
                 </div>
-              </TabsContent>
 
-              <TabsContent value="params" className="flex-1 overflow-y-auto p-4">
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <Label className="text-sm font-medium">Query Parameters</Label>
-                    <Button
-                      variant="outline"
-                      size="sm"
+                {/* Method and URL */}
+                <div className="flex gap-2">
+                  <Select value={method} onValueChange={setMethod}>
+                    <SelectTrigger className="w-24">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="GET">GET</SelectItem>
+                      <SelectItem value="POST">POST</SelectItem>
+                      <SelectItem value="PUT">PUT</SelectItem>
+                      <SelectItem value="DELETE">DELETE</SelectItem>
+                      <SelectItem value="PATCH">PATCH</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Input
+                    placeholder="Enter request URL"
+                    value={url}
+                    onChange={(e) => setUrl(e.target.value)}
+                    className="flex-1"
+                  />
+                  <Button 
+                    onClick={executeRequest} 
+                    disabled={isLoading}
+                    className="bg-gradient-primary hover:opacity-90"
+                  >
+                    {isLoading ? 'Sending...' : 'Send'}
+                  </Button>
+                </div>
+
+                <Tabs defaultValue="params" className="w-full">
+                  <TabsList>
+                    <TabsTrigger value="params">Query Params</TabsTrigger>
+                    <TabsTrigger value="headers">Headers</TabsTrigger>
+                    <TabsTrigger value="body">Body</TabsTrigger>
+                  </TabsList>
+                  
+                  <TabsContent value="params" className="space-y-2">
+                    {queryParams.map((param) => (
+                      <div key={param.id} className="flex items-center gap-2">
+                        <Input
+                          placeholder="Key"
+                          value={param.key}
+                          onChange={(e) => updateKeyValuePair('queryParams', param.id, 'key', e.target.value)}
+                        />
+                        <Input
+                          placeholder="Value"
+                          value={param.value}
+                          onChange={(e) => updateKeyValuePair('queryParams', param.id, 'value', e.target.value)}
+                        />
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => removeKeyValuePair('queryParams', param.id)}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    ))}
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
                       onClick={() => addKeyValuePair('queryParams')}
                     >
                       <Plus className="w-4 h-4 mr-2" />
                       Add Parameter
                     </Button>
-                  </div>
-                  
-                  {queryParams.map((param) => (
-                    <div key={param.id} className="flex items-center gap-2">
-                      <input
-                        type="checkbox"
-                        checked={param.enabled}
-                        onChange={(e) => updateKeyValuePair('queryParams', param.id, 'enabled', e.target.checked)}
-                        className="w-4 h-4"
-                      />
-                      <Input
-                        value={param.key}
-                        onChange={(e) => updateKeyValuePair('queryParams', param.id, 'key', e.target.value)}
-                        placeholder="Parameter name"
-                        className="flex-1"
-                      />
-                      <Input
-                        value={param.value}
-                        onChange={(e) => updateKeyValuePair('queryParams', param.id, 'value', e.target.value)}
-                        placeholder="Parameter value"
-                        className="flex-1"
-                      />
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => removeKeyValuePair('queryParams', param.id)}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              </TabsContent>
+                  </TabsContent>
 
-              <TabsContent value="body" className="flex-1 overflow-y-auto p-4">
-                <div className="space-y-3">
-                  <Label className="text-sm font-medium">Request Body (JSON)</Label>
-                  <Textarea
-                    value={requestBody}
-                    onChange={(e) => setRequestBody(e.target.value)}
-                    placeholder="Enter JSON request body"
-                    className="min-h-[300px] font-mono text-sm"
-                    disabled={!['POST', 'PUT', 'PATCH'].includes(method)}
-                  />
-                  {!['POST', 'PUT', 'PATCH'].includes(method) && (
-                    <p className="text-xs text-muted-foreground">
-                      Request body is only available for POST, PUT, and PATCH methods
-                    </p>
-                  )}
-                </div>
-              </TabsContent>
-
-              <TabsContent value="code" className="flex-1 overflow-y-auto p-4">
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <Label className="text-sm font-medium">Generated Code</Label>
-                    <div className="flex items-center gap-2">
-                      <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
-                        <SelectTrigger className="w-32">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="curl">cURL</SelectItem>
-                          <SelectItem value="javascript">JavaScript</SelectItem>
-                          <SelectItem value="python">Python</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => copyToClipboard(generateCodeSnippet())}
-                      >
-                        <Copy className="w-4 h-4 mr-2" />
-                        Copy
-                      </Button>
-                    </div>
-                  </div>
-                  
-                  <div className="bg-slate-900 rounded-lg p-4 overflow-x-auto">
-                    <pre className="text-sm text-slate-100">
-                      <code>{generateCodeSnippet()}</code>
-                    </pre>
-                  </div>
-                </div>
-              </TabsContent>
-            </Tabs>
-          </div>
-        </div>
-
-        {/* Response and History Panel */}
-        <div className="w-1/2 flex flex-col">
-          <Tabs defaultValue="response" className="h-full flex flex-col">
-            <TabsList className="w-full rounded-none border-b">
-              <TabsTrigger value="response">Response</TabsTrigger>
-              <TabsTrigger value="history">
-                History
-                {history.length > 0 && (
-                  <Badge variant="secondary" className="ml-2 text-xs">
-                    {history.length}
-                  </Badge>
-                )}
-              </TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="response" className="flex-1 overflow-hidden">
-              {response ? (
-                <div className="h-full flex flex-col">
-                  {/* Response Status */}
-                  <div className="p-4 border-b border-border">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        {React.createElement(getStatusIcon(response.status), {
-                          className: `w-5 h-5 ${getStatusColor(response.status)}`
-                        })}
-                        <span className={`text-lg font-semibold ${getStatusColor(response.status)}`}>
-                          {response.status} {response.statusText}
-                        </span>
+                  <TabsContent value="headers" className="space-y-2">
+                    {headers.map((header) => (
+                      <div key={header.id} className="flex items-center gap-2">
+                        <Input
+                          placeholder="Header Name"
+                          value={header.key}
+                          onChange={(e) => updateKeyValuePair('headers', header.id, 'key', e.target.value)}
+                        />
+                        <Input
+                          placeholder="Header Value"
+                          value={header.value}
+                          onChange={(e) => updateKeyValuePair('headers', header.id, 'value', e.target.value)}
+                        />
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => removeKeyValuePair('headers', header.id)}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
                       </div>
+                    ))}
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => addKeyValuePair('headers')}
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Add Header
+                    </Button>
+                  </TabsContent>
+
+                  <TabsContent value="body">
+                    <Textarea
+                      placeholder="Request body (JSON)"
+                      value={requestBody}
+                      onChange={(e) => setRequestBody(e.target.value)}
+                      className="min-h-[200px] font-mono text-sm"
+                    />
+                  </TabsContent>
+                </Tabs>
+              </CardContent>
+            </Card>
+
+            {/* Code Generation */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Terminal className="w-5 h-5" />
+                  Code Generation
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center justify-between mb-4">
+                  <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
+                    <SelectTrigger className="w-32">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="curl">cURL</SelectItem>
+                      <SelectItem value="javascript">JavaScript</SelectItem>
+                      <SelectItem value="python">Python</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => copyToClipboard(generateCodeSnippet())}
+                  >
+                    <Copy className="w-4 h-4 mr-2" />
+                    Copy
+                  </Button>
+                </div>
+                <ScrollArea className="h-[200px] w-full">
+                  <pre className="text-sm bg-muted p-4 rounded-lg overflow-auto">
+                    <code>{generateCodeSnippet()}</code>
+                  </pre>
+                </ScrollArea>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Response & History */}
+          <div className="space-y-6">
+            {/* Response */}
+            {response && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center justify-between">
+                    <span className="flex items-center gap-2">
+                      <CheckCircle className={`w-5 h-5 ${getStatusColor(response.status)}`} />
+                      Response
+                    </span>
+                    <div className="flex items-center gap-2 text-sm">
+                      <Badge variant={response.status >= 200 && response.status < 300 ? 'default' : 'destructive'}>
+                        {response.status} {response.statusText}
+                      </Badge>
                       {responseTime && (
-                        <Badge variant="outline">
-                          <Clock className="w-3 h-3 mr-1" />
-                          {responseTime}ms
-                        </Badge>
+                        <Badge variant="outline">{responseTime}ms</Badge>
                       )}
                     </div>
-                    
-                    {/* Response Headers */}
-                    <details className="mt-3">
-                      <summary className="text-sm font-medium cursor-pointer hover:text-primary">
-                        Response Headers ({Object.keys(response.headers).length})
-                      </summary>
-                      <div className="mt-2 space-y-1">
-                        {Object.entries(response.headers).map(([key, value]) => (
-                          <div key={key} className="flex items-center gap-2 text-xs">
-                            <span className="font-medium text-muted-foreground">{key}:</span>
-                            <span className="font-mono">{value as string}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </details>
-                  </div>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ScrollArea className="h-[300px] w-full">
+                    <pre className="text-sm bg-muted p-4 rounded-lg overflow-auto">
+                      <code>{JSON.stringify(response.data, null, 2)}</code>
+                    </pre>
+                  </ScrollArea>
+                </CardContent>
+              </Card>
+            )}
 
-                  {/* Response Body */}
-                  <div className="flex-1 overflow-y-auto p-4">
-                    <div className="flex items-center justify-between mb-3">
-                      <Label className="text-sm font-medium">Response Body</Label>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => copyToClipboard(JSON.stringify(response.data, null, 2))}
-                      >
-                        <Copy className="w-4 h-4 mr-2" />
-                        Copy
-                      </Button>
-                    </div>
-                    
-                    <div className="bg-slate-900 rounded-lg p-4 overflow-x-auto">
-                      <pre className="text-sm text-slate-100">
-                        <code>{JSON.stringify(response.data, null, 2)}</code>
-                      </pre>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div className="flex-1 flex items-center justify-center">
-                  <div className="text-center">
-                    <Terminal className="w-16 h-16 mx-auto mb-4 text-muted-foreground opacity-50" />
-                    <h3 className="text-lg font-semibold mb-2">No Response Yet</h3>
-                    <p className="text-muted-foreground">
-                      Configure your request and click "Send Request" to see the response here.
-                    </p>
-                  </div>
-                </div>
-              )}
-            </TabsContent>
-
-            <TabsContent value="history" className="flex-1 overflow-y-auto p-4">
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <Label className="text-sm font-medium">Request History</Label>
-                  {history.length > 0 && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setHistory([])}
-                    >
-                      <Trash2 className="w-4 h-4 mr-2" />
-                      Clear
-                    </Button>
-                  )}
-                </div>
-
-                {history.length === 0 ? (
-                  <div className="text-center py-8 text-muted-foreground">
-                    <Clock className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                    <p>No requests in history yet.</p>
-                  </div>
-                ) : (
+            {/* History */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Clock className="w-5 h-5" />
+                  Request History
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ScrollArea className="h-[300px] w-full">
                   <div className="space-y-2">
-                    {history.map((item) => (
-                      <Card 
-                        key={item.id} 
-                        className="cursor-pointer hover:bg-accent/50 transition-colors"
-                        onClick={() => loadFromHistory(item)}
-                      >
-                        <CardContent className="p-3">
-                          <div className="flex items-center justify-between mb-2">
-                            <div className="flex items-center gap-2">
-                              <Badge 
-                                variant="outline"
-                                className={`text-xs ${
-                                  item.method === 'GET' ? 'text-green-600 border-green-600' :
-                                  item.method === 'POST' ? 'text-blue-600 border-blue-600' :
-                                  item.method === 'PUT' ? 'text-orange-600 border-orange-600' :
-                                  'text-red-600 border-red-600'
-                                }`}
-                              >
-                                {item.method}
-                              </Badge>
-                              {item.status && (
-                                <Badge 
-                                  variant="outline"
-                                  className={`text-xs ${getStatusColor(item.status)}`}
-                                >
-                                  {item.status}
-                                </Badge>
-                              )}
-                            </div>
-                            {item.responseTime && (
-                              <span className="text-xs text-muted-foreground">
-                                {item.responseTime}ms
-                              </span>
-                            )}
-                          </div>
-                          <div className="text-sm font-mono truncate mb-1">
-                            {item.url}
+                    {history.map((item) => {
+                      const StatusIcon = getStatusIcon(item.status || 0);
+                      return (
+                        <div
+                          key={item.id}
+                          className="flex items-center justify-between p-2 rounded-lg border cursor-pointer hover:bg-accent"
+                          onClick={() => loadFromHistory(item)}
+                        >
+                          <div className="flex items-center gap-2">
+                            <StatusIcon className={`w-4 h-4 ${getStatusColor(item.status || 0)}`} />
+                            <Badge variant="outline" className="text-xs">
+                              {item.method}
+                            </Badge>
+                            <span className="text-sm font-mono truncate max-w-[120px]">
+                              {new URL(item.url).pathname}
+                            </span>
                           </div>
                           <div className="text-xs text-muted-foreground">
-                            {new Date(item.timestamp).toLocaleString()}
+                            {item.responseTime}ms
                           </div>
-                        </CardContent>
-                      </Card>
-                    ))}
+                        </div>
+                      );
+                    })}
+                    {history.length === 0 && (
+                      <div className="text-center text-muted-foreground py-8">
+                        No requests yet
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
-            </TabsContent>
-          </Tabs>
-        </div>
-      </div>
-
-      {/* Footer */}
-      <footer className="border-t border-border bg-card/30 backdrop-blur-sm">
-        <div className="container mx-auto px-6 py-8">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 bg-gradient-to-br from-primary to-primary/80 rounded-md flex items-center justify-center">
-                <Zap className="w-4 h-4 text-white" />
-              </div>
-              <span className="text-sm text-muted-foreground">
-                Hub - Intelligent Communication Routing Platform
-              </span>
-            </div>
-            <div className="text-sm text-muted-foreground">
-              © {new Date().getFullYear()} Hub. All rights reserved.
-            </div>
+                </ScrollArea>
+              </CardContent>
+            </Card>
           </div>
         </div>
-      </footer>
-      
-      {/* Modals */}
-      <PersonalInfoModal isOpen={personalInfoOpen} onClose={() => setPersonalInfoOpen(false)} />
-      <AccountSettingsModal isOpen={accountSettingsOpen} onClose={() => setAccountSettingsOpen(false)} />
-      <BillingModal isOpen={billingOpen} onClose={() => setBillingOpen(false)} />
-      <NotificationsModal isOpen={notificationsOpen} onClose={() => setNotificationsOpen(false)} />
-      <LanguageModal isOpen={languageOpen} onClose={() => setLanguageOpen(false)} />
-      <PrivacyModal isOpen={privacyOpen} onClose={() => setPrivacyOpen(false)} />
-      <DataManagementModal isOpen={dataManagementOpen} onClose={() => setDataManagementOpen(false)} />
-      <KeyboardShortcutsModal isOpen={keyboardShortcutsOpen} onClose={() => setKeyboardShortcutsOpen(false)} />
+      </main>
     </div>
   );
 };

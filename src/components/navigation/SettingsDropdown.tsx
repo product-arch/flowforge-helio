@@ -1,14 +1,14 @@
 import React from 'react';
-import { Settings, User, CreditCard, HelpCircle, Building } from 'lucide-react';
+import { Bell, Globe, Shield, Database, Keyboard, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger,
   DropdownMenuSeparator,
-  DropdownMenuLabel,
+  DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface SettingsDropdownProps {
   onNotificationsClick?: () => void;
@@ -31,6 +31,8 @@ export const SettingsDropdown: React.FC<SettingsDropdownProps> = ({
   size = 'default',
   showLabel = false
 }) => {
+  const { mode, setMode } = useTheme();
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -39,30 +41,30 @@ export const SettingsDropdown: React.FC<SettingsDropdownProps> = ({
           {showLabel && 'Settings'}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-56">
-        <DropdownMenuLabel>Account Settings</DropdownMenuLabel>
+      <DropdownMenuContent align="end" className="w-48">
+        <DropdownMenuItem onClick={onNotificationsClick}>
+          <Bell className="w-4 h-4 mr-2" />
+          Notifications
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={onLanguageClick}>
+          <Globe className="w-4 h-4 mr-2" />
+          Language & Region
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={onPrivacyClick}>
+          <Shield className="w-4 h-4 mr-2" />
+          Privacy & Security
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={onDataManagementClick}>
+          <Database className="w-4 h-4 mr-2" />
+          Data Management
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={onKeyboardShortcutsClick}>
+          <Keyboard className="w-4 h-4 mr-2" />
+          Keyboard Shortcuts
+        </DropdownMenuItem>
         <DropdownMenuSeparator />
-        
-        <DropdownMenuItem onClick={onPersonalInfoClick}>
-          <User className="w-4 h-4 mr-2" />
-          Personal Information
-        </DropdownMenuItem>
-        
-        <DropdownMenuItem onClick={onAccountSettingsClick}>
-          <Building className="w-4 h-4 mr-2" />
-          Account Settings
-        </DropdownMenuItem>
-        
-        <DropdownMenuItem onClick={onBillingClick}>
-          <CreditCard className="w-4 h-4 mr-2" />
-          Billing & Subscription
-        </DropdownMenuItem>
-        
-        <DropdownMenuSeparator />
-        
-        <DropdownMenuItem onClick={onSupportClick}>
-          <HelpCircle className="w-4 h-4 mr-2" />
-          Support & Help
+        <DropdownMenuItem onClick={() => setMode(mode === 'light' ? 'dark' : 'light')}>
+          {mode === 'light' ? '🌙 Dark Mode' : '☀️ Light Mode'}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
