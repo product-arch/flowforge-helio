@@ -71,6 +71,18 @@ const themes: Array<{ value: Theme; label: string; color: string }> = [
 // Business data with generated codes
 const businessProfiles = [
   {
+    name: "UPI Switch",
+    code: "hdfc-upis-8z8o",
+    status: "active",
+    channels: ["sms", "rcs", "email"]
+  },
+  {
+    name: "Net Banking",
+    code: "hdfc-netb-4a3e",
+    status: "active",
+    channels: ["sms", "email", "whatsapp"]
+  },
+  {
     name: "Auto Loans",
     code: "hdfc-auto-7x9m",
     status: "active",
@@ -992,7 +1004,7 @@ const UserProfiles: React.FC = () => {
                   <p>• Created: {new Date().toLocaleDateString()}</p>
                   <p>• Last Updated: {new Date().toLocaleDateString()}</p>
                   <p>• Total Messages Sent: {Math.floor(Math.random() * 50000 + 10000).toLocaleString()}</p>
-                  <p>• Success Rate: {(Math.random() * 10 + 90).toFixed(1)}%</p>
+                  <p>• Success Rate: {(Math.random() * 10 + 90).toFixed(2)}%</p>
                 </div>
               </div>
             </div>
