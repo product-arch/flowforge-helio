@@ -233,7 +233,7 @@ const FlowList: React.FC = () => {
                     <GitBranch className="w-5 h-5 text-white" />
                   </div>
                   <h1 className="text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
-                    Routing Flows
+                    Routing Plans
                   </h1>
                 </div>
               </div>
