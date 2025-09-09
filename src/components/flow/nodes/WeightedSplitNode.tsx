@@ -102,7 +102,7 @@ export const WeightedSplitNode: React.FC<NodeProps> = ({ id, data, selected }) =
         {/* Unconfigured state notice */}
         {!hasConfiguration && (
           <div className="text-center mb-2">
-            <span className="text-xs text-muted-foreground">Not configured</span>
+            <span className="text-xs text-muted-foreground">Ready to configure</span>
           </div>
         )}
 

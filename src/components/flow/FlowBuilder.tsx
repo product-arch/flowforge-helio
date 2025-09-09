@@ -9,7 +9,7 @@ import {
 } from '@xyflow/react';
 import { useFlow } from '@/contexts/FlowContext';
 import { FloatingNodePalette } from './FloatingNodePalette';
-import { ConfigurationModal } from './ConfigurationModal';
+import ConfigurationModal from './ConfigurationModal';
 import { FlowNavbar } from './FlowNavbar';
 import { StartNode } from './nodes/StartNode';
 import { TerminalNode } from './nodes/TerminalNode';
@@ -158,8 +158,8 @@ export const FlowBuilder: React.FC = () => {
             <Background 
               color="hsl(var(--border))" 
               gap={20} 
-              size={1.5}
-              style={{ opacity: 0.5 }}
+              size={1.8}
+              style={{ opacity: 0.8 }}
             />
             <Panel position="bottom-left">
               <MiniMap 
