@@ -75,10 +75,11 @@ const Templates: React.FC = () => {
               
               {/* Settings Menu */}
               <SettingsDropdown 
-                onPersonalInfoClick={() => modalStates.setPersonalInfoOpen(true)}
-                onAccountSettingsClick={() => modalStates.setAccountSettingsOpen(true)}
-                onBillingClick={() => modalStates.setBillingOpen(true)}
-                onSupportClick={() => modalStates.setSupportOpen(true)}
+                onNotificationsClick={() => modalStates.setNotificationsOpen(true)}
+                onLanguageClick={() => modalStates.setLanguageOpen(true)}
+                onPrivacyClick={() => modalStates.setPrivacyOpen(true)}
+                onDataManagementClick={() => modalStates.setDataManagementOpen(true)}
+                onKeyboardShortcutsClick={() => modalStates.setKeyboardShortcutsOpen(true)}
               />
 
               {/* Theme Selector */}
