@@ -67,9 +67,6 @@ import {
 import { useTheme, Theme } from '@/contexts/ThemeContext';
 import { useToast } from '@/hooks/use-toast';
 import { THEMES } from '@/constants/themes';
-  { value: 'indigo', label: 'Deep Indigo', color: 'bg-indigo-500' },
-  { value: 'solarized-osaka', label: 'Solarized Osaka', color: 'bg-teal-600' },
-];
 
 interface ApiEndpoint {
   id: string;
@@ -478,14 +475,14 @@ const Documentation: React.FC = () => {
                     <div className="px-2 py-1">
                       <div className="text-xs font-medium text-muted-foreground mb-2">Themes</div>
                       <div className="grid grid-cols-3 gap-1">
-                        {themes.map((themeOption) => (
+                        {THEMES.map((themeOption) => (
                           <button
                             key={themeOption.value}
                             onClick={() => handleThemeChange(themeOption.value)}
-                            className={`w-6 h-6 rounded-full ${themeOption.color} hover:scale-110 transition-transform ${
+                            className={`w-6 h-6 rounded-full ${themeOption.preview} hover:scale-110 transition-transform ${
                               theme === themeOption.value ? 'ring-2 ring-ring ring-offset-2 ring-offset-background' : ''
                             }`}
-                            title={themeOption.label}
+                            title={themeOption.name}
                           />
                         ))}
                       </div>

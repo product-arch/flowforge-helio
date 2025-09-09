@@ -8,6 +8,7 @@ import { ArrowLeft, Plus, User, Settings, CreditCard, MoreVertical, FileDown, Fi
 import { useTheme, Theme } from '@/contexts/ThemeContext';
 import { PersonalInfoModal, AccountSettingsModal, BillingModal } from '@/components/flow/AccountModals';
 import { useToast } from '@/hooks/use-toast';
+import { THEMES } from '@/constants/themes';
 
 const TemplateCreator: React.FC = () => {
   const navigate = useNavigate();
@@ -17,10 +18,6 @@ const TemplateCreator: React.FC = () => {
   const [accountSettingsOpen, setAccountSettingsOpen] = useState(false);
   const [billingOpen, setBillingOpen] = useState(false);
 
-    { value: 'indigo', label: 'Deep Indigo', color: 'bg-indigo-500' },
-    { value: 'solarized-osaka', label: 'Solarized Osaka', color: 'bg-teal-600' },
-    { value: 'monochrome', label: 'Black & White', color: 'bg-gray-900' },
-  ];
 
   const handleThemeChange = (newTheme: Theme) => {
     setTheme(newTheme);
@@ -90,14 +87,14 @@ const TemplateCreator: React.FC = () => {
                       <div className="px-2 py-1">
                         <div className="text-xs font-medium text-muted-foreground mb-2">Themes</div>
                         <div className="grid grid-cols-3 gap-1">
-                          {themes.map((themeOption) => (
+                      {THEMES.map((themeOption) => (
                             <button
                               key={themeOption.value}
                               onClick={() => handleThemeChange(themeOption.value)}
-                              className={`w-6 h-6 rounded-full ${themeOption.color} hover:scale-110 transition-transform ${
+                              className={`w-6 h-6 rounded-full ${themeOption.preview} hover:scale-110 transition-transform ${
                                 theme === themeOption.value ? 'ring-2 ring-ring ring-offset-2 ring-offset-background' : ''
                               }`}
-                              title={themeOption.label}
+                              title={themeOption.name}
                             />
                           ))}
                         </div>
@@ -148,14 +145,14 @@ const TemplateCreator: React.FC = () => {
                       <div className="px-2 py-1">
                         <div className="text-xs font-medium text-muted-foreground mb-2">Themes</div>
                         <div className="grid grid-cols-3 gap-1">
-                          {themes.map((themeOption) => (
+                          {THEMES.map((themeOption) => (
                             <button
                               key={themeOption.value}
                               onClick={() => handleThemeChange(themeOption.value)}
-                              className={`w-6 h-6 rounded-full ${themeOption.color} hover:scale-110 transition-transform ${
+                              className={`w-6 h-6 rounded-full ${themeOption.preview} hover:scale-110 transition-transform ${
                                 theme === themeOption.value ? 'ring-2 ring-ring ring-offset-2 ring-offset-background' : ''
                               }`}
-                              title={themeOption.label}
+                              title={themeOption.name}
                             />
                           ))}
                         </div>
