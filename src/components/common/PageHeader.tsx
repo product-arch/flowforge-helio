@@ -77,10 +77,10 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
               {children}
               {showSettings && (
                 <SettingsDropdown 
-                  onNotificationsClick={onPersonalInfoClick}
-                  onLanguageClick={onAccountSettingsClick}
-                  onPrivacyClick={onBillingClick}
-                  onDataManagementClick={onSupportClick}
+                  onPersonalInfoClick={onPersonalInfoClick}
+                  onAccountSettingsClick={onAccountSettingsClick}
+                  onBillingClick={onBillingClick}
+                  onSupportClick={onSupportClick}
                 />
               )}
               {showThemeSelector && <ThemeSelector />}
