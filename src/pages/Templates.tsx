@@ -14,54 +14,32 @@ import {
   KeyboardShortcutsModal
 } from '@/components/flow/AccountModals';
 import { SupportModal } from '@/components/flow/SupportModal';
-import { 
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { ThemeSelector } from '@/components/navigation/ThemeSelector';
+import { SettingsDropdown } from '@/components/navigation/SettingsDropdown';
+import { useModalStates } from '@/hooks/useModalStates';
 import { ArrowLeft, FileText, Sparkles, List, Plus, Zap, Settings, HelpCircle, User, Bell, Moon, Sun, Globe, Shield, Database, Keyboard, LogOut } from 'lucide-react';
 import { useTheme, Theme } from '@/contexts/ThemeContext';
 import { useToast } from '@/hooks/use-toast';
+import { THEMES } from '@/constants/themes';
 
 const Templates: React.FC = () => {
   const navigate = useNavigate();
-  const [personalInfoOpen, setPersonalInfoOpen] = React.useState(false);
-  const [accountSettingsOpen, setAccountSettingsOpen] = React.useState(false);
-  const [billingOpen, setBillingOpen] = React.useState(false);
-  const [supportModalOpen, setSupportModalOpen] = React.useState(false);
+  const modalStates = useModalStates();
   const [helpModalOpen, setHelpModalOpen] = React.useState(false);
-  const [notificationsOpen, setNotificationsOpen] = React.useState(false);
-  const [languageOpen, setLanguageOpen] = React.useState(false);
-  const [privacyOpen, setPrivacyOpen] = React.useState(false);
-  const [dataManagementOpen, setDataManagementOpen] = React.useState(false);
-  const [keyboardShortcutsOpen, setKeyboardShortcutsOpen] = React.useState(false);
   const { theme, mode, setTheme, setMode } = useTheme();
   const { toast } = useToast();
-
-  const themes: Array<{ value: Theme; label: string; color: string }> = [
-    { value: 'blue', label: 'Professional Blue', color: 'bg-blue-500' },
-    { value: 'emerald', label: 'Growth Green', color: 'bg-emerald-500' },
-    { value: 'purple', label: 'Creative Purple', color: 'bg-purple-500' },
-    { value: 'orange', label: 'Energy Orange', color: 'bg-orange-500' },
-    { value: 'rose', label: 'Warm Rose', color: 'bg-rose-500' },
-    { value: 'indigo', label: 'Deep Indigo', color: 'bg-indigo-500' },
-    { value: 'solarized-osaka', label: 'Solarized Osaka', color: 'bg-teal-600' },
-    { value: 'monochrome', label: 'Black & White', color: 'bg-gray-900' },
-  ];
 
   const handleThemeChange = (newTheme: Theme) => {
     setTheme(newTheme);
     toast({
       title: "Theme Changed",
-      description: `Switched to ${themes.find(t => t.value === newTheme)?.label}`,
+      description: `Switched to ${THEMES.find(t => t.value === newTheme)?.name}`,
       className: "border-status-success bg-status-success/10 text-status-success"
     });
   };
@@ -86,7 +64,7 @@ const Templates: React.FC = () => {
               <nav className="hidden md:flex items-center gap-6">
                 <Button variant="ghost" className="text-sm" onClick={() => navigate('/')}>Home</Button>
                 <Button variant="ghost" className="text-sm">Templates</Button>
-                <Button variant="ghost" className="text-sm" onClick={() => setSupportModalOpen(true)}>Support</Button>
+                <Button variant="ghost" className="text-sm" onClick={() => modalStates.setSupportOpen(true)}>Support</Button>
               </nav>
             </div>
 
@@ -96,139 +74,15 @@ const Templates: React.FC = () => {
               </Button>
               
               {/* Settings Menu */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm">
-                    <Settings className="w-4 h-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuItem onClick={() => setNotificationsOpen(true)}>
-                    <Bell className="w-4 h-4 mr-2" />
-                    Notifications
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setLanguageOpen(true)}>
-                    <Globe className="w-4 h-4 mr-2" />
-                    Language & Region
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setPrivacyOpen(true)}>
-                    <Shield className="w-4 h-4 mr-2" />
-                    Privacy & Security
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setDataManagementOpen(true)}>
-                    <Database className="w-4 h-4 mr-2" />
-                    Data Management
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setKeyboardShortcutsOpen(true)}>
-                    <Keyboard className="w-4 h-4 mr-2" />
-                    Keyboard Shortcuts
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  
-                  <div className="px-2 py-1">
-                    <div className="text-xs font-medium text-muted-foreground mb-2">Themes</div>
-                    <div className="grid grid-cols-3 gap-1">
-                      {themes.map((themeOption) => (
-                        <button
-                          key={themeOption.value}
-                          onClick={() => handleThemeChange(themeOption.value)}
-                          className={`w-6 h-6 rounded-full ${themeOption.color} hover:scale-110 transition-transform ${
-                            theme === themeOption.value ? 'ring-2 ring-ring ring-offset-2 ring-offset-background' : ''
-                          }`}
-                          title={themeOption.label}
-                        />
-                      ))}
-                    </div>
-                    <div className="mt-2 flex gap-1">
-                      <button
-                        onClick={() => setMode('light')}
-                        className={`px-2 py-1 text-xs rounded ${
-                          mode === 'light' ? 'bg-primary text-primary-foreground' : 'hover:bg-accent'
-                        }`}
-                      >
-                        Light
-                      </button>
-                      <button
-                        onClick={() => setMode('dark')}
-                        className={`px-2 py-1 text-xs rounded ${
-                          mode === 'dark' ? 'bg-primary text-primary-foreground' : 'hover:bg-accent'
-                        }`}
-                      >
-                        Dark
-                      </button>
-                    </div>
-                  </div>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => setMode(mode === 'light' ? 'dark' : 'light')}>
-                    {mode === 'light' ? <Moon className="w-4 h-4 mr-2" /> : <Sun className="w-4 h-4 mr-2" />}
-                    {mode === 'light' ? 'Dark Mode' : 'Light Mode'}
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <SettingsDropdown 
+                onPersonalInfoClick={() => modalStates.setPersonalInfoOpen(true)}
+                onAccountSettingsClick={() => modalStates.setAccountSettingsOpen(true)}
+                onBillingClick={() => modalStates.setBillingOpen(true)}
+                onSupportClick={() => modalStates.setSupportOpen(true)}
+              />
 
-              {/* Account Menu */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm">
-                    <User className="w-4 h-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
-                  <DropdownMenuItem onClick={() => setPersonalInfoOpen(true)}>
-                    <User className="w-4 h-4 mr-2" />
-                    Personal Info
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setAccountSettingsOpen(true)}>
-                    <Settings className="w-4 h-4 mr-2" />
-                    Account Settings
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setBillingOpen(true)}>
-                    <Settings className="w-4 h-4 mr-2" />
-                    Billing
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  
-                  <div className="px-2 py-1">
-                    <div className="text-xs font-medium text-muted-foreground mb-2">Themes</div>
-                    <div className="grid grid-cols-3 gap-1">
-                      {themes.map((themeOption) => (
-                        <button
-                          key={themeOption.value}
-                          onClick={() => handleThemeChange(themeOption.value)}
-                          className={`w-6 h-6 rounded-full ${themeOption.color} hover:scale-110 transition-transform ${
-                            theme === themeOption.value ? 'ring-2 ring-ring ring-offset-2 ring-offset-background' : ''
-                          }`}
-                          title={themeOption.label}
-                        />
-                      ))}
-                    </div>
-                    <div className="mt-2 flex gap-1">
-                      <button
-                        onClick={() => setMode('light')}
-                        className={`px-2 py-1 text-xs rounded ${
-                          mode === 'light' ? 'bg-primary text-primary-foreground' : 'hover:bg-accent'
-                        }`}
-                      >
-                        Light
-                      </button>
-                      <button
-                        onClick={() => setMode('dark')}
-                        className={`px-2 py-1 text-xs rounded ${
-                          mode === 'dark' ? 'bg-primary text-primary-foreground' : 'hover:bg-accent'
-                        }`}
-                      >
-                        Dark
-                      </button>
-                    </div>
-                  </div>
-                  
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem className="text-destructive focus:text-destructive">
-                    <LogOut className="w-4 h-4 mr-2" />
-                    Sign Out
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              {/* Theme Selector */}
+              <ThemeSelector />
             </div>
           </div>
         </div>
@@ -341,15 +195,15 @@ const Templates: React.FC = () => {
           </motion.div>
         </main>
 
-        <PersonalInfoModal isOpen={personalInfoOpen} onClose={() => setPersonalInfoOpen(false)} />
-        <AccountSettingsModal isOpen={accountSettingsOpen} onClose={() => setAccountSettingsOpen(false)} />
-        <BillingModal isOpen={billingOpen} onClose={() => setBillingOpen(false)} />
-        <NotificationsModal isOpen={notificationsOpen} onClose={() => setNotificationsOpen(false)} />
-        <LanguageModal isOpen={languageOpen} onClose={() => setLanguageOpen(false)} />
-        <PrivacyModal isOpen={privacyOpen} onClose={() => setPrivacyOpen(false)} />
-        <DataManagementModal isOpen={dataManagementOpen} onClose={() => setDataManagementOpen(false)} />
-        <KeyboardShortcutsModal isOpen={keyboardShortcutsOpen} onClose={() => setKeyboardShortcutsOpen(false)} />
-        <SupportModal isOpen={supportModalOpen} onClose={() => setSupportModalOpen(false)} />
+        <PersonalInfoModal isOpen={modalStates.personalInfoOpen} onClose={() => modalStates.setPersonalInfoOpen(false)} />
+        <AccountSettingsModal isOpen={modalStates.accountSettingsOpen} onClose={() => modalStates.setAccountSettingsOpen(false)} />
+        <BillingModal isOpen={modalStates.billingOpen} onClose={() => modalStates.setBillingOpen(false)} />
+        <NotificationsModal isOpen={modalStates.settingsOpen} onClose={() => modalStates.setSettingsOpen(false)} />
+        <LanguageModal isOpen={modalStates.settingsOpen} onClose={() => modalStates.setSettingsOpen(false)} />
+        <PrivacyModal isOpen={modalStates.settingsOpen} onClose={() => modalStates.setSettingsOpen(false)} />
+        <DataManagementModal isOpen={modalStates.settingsOpen} onClose={() => modalStates.setSettingsOpen(false)} />
+        <KeyboardShortcutsModal isOpen={modalStates.settingsOpen} onClose={() => modalStates.setSettingsOpen(false)} />
+        <SupportModal isOpen={modalStates.supportOpen} onClose={() => modalStates.setSupportOpen(false)} />
         
         <Dialog open={helpModalOpen} onOpenChange={setHelpModalOpen}>
           <DialogContent>

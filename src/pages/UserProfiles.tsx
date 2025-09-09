@@ -36,6 +36,9 @@ import {
   DataManagementModal,
   KeyboardShortcutsModal
 } from '@/components/flow/AccountModals';
+import { ThemeSelector } from '@/components/navigation/ThemeSelector';
+import { SettingsDropdown } from '@/components/navigation/SettingsDropdown';
+import { useModalStates } from '@/hooks/useModalStates';
 import { 
   ArrowLeft,
   Settings,
@@ -57,16 +60,7 @@ import {
 } from 'lucide-react';
 import { useTheme, Theme } from '@/contexts/ThemeContext';
 import { useToast } from '@/hooks/use-toast';
-
-const themes: Array<{ value: Theme; label: string; color: string }> = [
-  { value: 'blue', label: 'Professional Blue', color: 'bg-blue-500' },
-  { value: 'emerald', label: 'Growth Green', color: 'bg-emerald-500' },
-  { value: 'purple', label: 'Creative Purple', color: 'bg-purple-500' },
-  { value: 'orange', label: 'Energy Orange', color: 'bg-orange-500' },
-  { value: 'rose', label: 'Warm Rose', color: 'bg-rose-500' },
-  { value: 'indigo', label: 'Deep Indigo', color: 'bg-indigo-500' },
-  { value: 'solarized-osaka', label: 'Solarized Osaka', color: 'bg-teal-600' },
-];
+import { THEMES } from '@/constants/themes';
 
 // Business data with generated codes
 const businessProfiles = [

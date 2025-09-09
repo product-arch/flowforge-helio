@@ -68,13 +68,7 @@ import {
 } from 'lucide-react';
 import { useTheme, Theme } from '@/contexts/ThemeContext';
 import { useToast } from '@/hooks/use-toast';
-
-const themes: Array<{ value: Theme; label: string; color: string }> = [
-  { value: 'blue', label: 'Professional Blue', color: 'bg-blue-500' },
-  { value: 'emerald', label: 'Growth Green', color: 'bg-emerald-500' },
-  { value: 'purple', label: 'Creative Purple', color: 'bg-purple-500' },
-  { value: 'orange', label: 'Energy Orange', color: 'bg-orange-500' },
-  { value: 'rose', label: 'Warm Rose', color: 'bg-rose-500' },
+import { THEMES } from '@/constants/themes';
   { value: 'indigo', label: 'Deep Indigo', color: 'bg-indigo-500' },
   { value: 'solarized-osaka', label: 'Solarized Osaka', color: 'bg-teal-600' },
 ];
@@ -357,7 +351,7 @@ const APIConsole: React.FC = () => {
     setTheme(newTheme);
     toast({
       title: "Theme Changed",
-      description: `Switched to ${themes.find(t => t.value === newTheme)?.label}`,
+      description: `Switched to ${THEMES.find(t => t.value === newTheme)?.name}`,
       className: "border-status-success bg-status-success/10 text-status-success"
     });
   };
