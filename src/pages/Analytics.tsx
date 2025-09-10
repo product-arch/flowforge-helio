@@ -9,8 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Area, AreaChart, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Area, AreaChart, ResponsiveContainer, Tooltip } from 'recharts';
 import { BarChart3, ArrowLeft, HelpCircle, Settings, User, Bell, Moon, Sun, Globe, Shield, Database, Keyboard, LogOut, AlertTriangle, Server, TrendingUp, Users } from 'lucide-react';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -507,9 +506,22 @@ const Analytics: React.FC = () => {
                     <ResponsiveContainer width="100%" height="100%">
                       <AreaChart data={trafficData}>
                         <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="timestamp" />
-                        <YAxis />
-                        <ChartTooltip content={<ChartTooltipContent />} />
+                        <XAxis 
+                          dataKey="timestamp" 
+                          tick={{ fontSize: 12 }}
+                          tickLine={{ stroke: 'hsl(var(--muted-foreground))' }}
+                        />
+                        <YAxis 
+                          tick={{ fontSize: 12 }}
+                          tickLine={{ stroke: 'hsl(var(--muted-foreground))' }}
+                        />
+                        <Tooltip 
+                          contentStyle={{
+                            backgroundColor: 'hsl(var(--popover))',
+                            border: '1px solid hsl(var(--border))',
+                            borderRadius: '6px'
+                          }}
+                        />
                         <Area 
                           type="monotone" 
                           dataKey="messages" 
