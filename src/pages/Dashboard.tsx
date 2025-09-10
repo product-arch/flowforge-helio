@@ -7,13 +7,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { ArrowLeft, BarChart3, Activity, AlertTriangle, TrendingUp, Home, HelpCircle, Settings, User, Bell, Moon, Sun, Globe, Shield, Database, Keyboard, LogOut } from 'lucide-react';
+import { TrendingUp, ArrowLeft, HelpCircle, Settings, User, Bell, Moon, Sun, Globe, Shield, Database, Keyboard, LogOut } from 'lucide-react';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useToast } from '@/hooks/use-toast';
 import { THEMES, Theme } from '@/constants/themes';
 
-const Monitoring: React.FC = () => {
+const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const { theme, mode, setTheme, setMode } = useTheme();
   const { toast } = useToast();
@@ -48,17 +48,17 @@ const Monitoring: React.FC = () => {
                 <div className="flex items-center gap-8">
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-lg flex items-center justify-center">
-                      <BarChart3 className="w-5 h-5 text-white" />
+                      <TrendingUp className="w-5 h-5 text-white" />
                     </div>
                     <h1 className="text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
-                      Monitoring Dashboard
+                      Dashboard
                     </h1>
                   </div>
                   
                   <nav className="hidden md:flex items-center gap-6">
-                    <Button variant="ghost" className="text-sm" onClick={() => navigate('/')}>
-                      <Home className="w-4 h-4 mr-2" />
-                      Home
+                    <Button variant="ghost" className="text-sm" onClick={() => navigate('/monitoring')}>
+                      <ArrowLeft className="w-4 h-4 mr-2" />
+                      Back to Monitoring
                     </Button>
                   </nav>
                 </div>
@@ -212,168 +212,118 @@ const Monitoring: React.FC = () => {
           </div>
         </header>
 
-      {/* Content */}
-      <main className="container mx-auto px-6 py-12">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="text-center"
-        >
-          <Card className="max-w-2xl mx-auto">
-            <CardHeader>
-              <div className="flex items-center justify-center mb-4">
-                <div className="p-4 bg-emerald-500/10 rounded-full">
-                  <BarChart3 className="w-12 h-12 text-emerald-500" />
+        {/* Content */}
+        <main className="container mx-auto px-6 py-12">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="text-center"
+          >
+            <Card className="max-w-2xl mx-auto">
+              <CardHeader>
+                <div className="flex items-center justify-center mb-4">
+                  <div className="p-4 bg-emerald-500/10 rounded-full">
+                    <TrendingUp className="w-12 h-12 text-emerald-500" />
+                  </div>
                 </div>
-              </div>
-              <CardTitle className="text-3xl font-heading font-heading-bold mb-4">Monitoring Module</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <p className="text-lg font-body text-muted-foreground">
-                Real-time analytics, performance tracking, and comprehensive reporting dashboards 
-                for your communication flows.
-              </p>
-              
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="p-4 bg-accent/30 rounded-lg">
-                  <Activity className="w-6 h-6 text-emerald-500 mb-2" />
-                  <div className="text-sm font-body-medium">Real-time Metrics</div>
-                </div>
-                <div className="p-4 bg-accent/30 rounded-lg">
-                  <TrendingUp className="w-6 h-6 text-emerald-500 mb-2" />
-                  <div className="text-sm font-body-medium">Performance Analytics</div>
-                </div>
-                <div className="p-4 bg-accent/30 rounded-lg">
-                  <AlertTriangle className="w-6 h-6 text-emerald-500 mb-2" />
-                  <div className="text-sm font-body-medium">Alert Management</div>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <Card 
-                  className="cursor-pointer transition-all duration-300 hover:shadow-lg hover:shadow-emerald-500/10 hover:border-emerald-500/50 group"
-                  onClick={() => navigate('/analytics')}
-                >
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-center mb-4">
-                      <div className="p-3 bg-emerald-500/10 rounded-full group-hover:bg-emerald-500/20 transition-colors">
-                        <BarChart3 className="w-8 h-8 text-emerald-500" />
-                      </div>
-                    </div>
-                    <h3 className="text-xl font-heading font-heading-semibold mb-2 text-center">Analytics</h3>
-                    <p className="text-muted-foreground text-center font-body">Get real time updates</p>
-                  </CardContent>
-                </Card>
-
-                <Card 
-                  className="cursor-pointer transition-all duration-300 hover:shadow-lg hover:shadow-emerald-500/10 hover:border-emerald-500/50 group"
-                  onClick={() => navigate('/dashboard')}
-                >
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-center mb-4">
-                      <div className="p-3 bg-emerald-500/10 rounded-full group-hover:bg-emerald-500/20 transition-colors">
-                        <TrendingUp className="w-8 h-8 text-emerald-500" />
-                      </div>
-                    </div>
-                    <h3 className="text-xl font-heading font-heading-semibold mb-2 text-center">Dashboards</h3>
-                    <p className="text-muted-foreground text-center font-body">Get actionable insights</p>
-                  </CardContent>
-                </Card>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-      </main>
-
-      {/* Help Modal - Monitoring specific content */}
-      <Dialog open={helpModalOpen} onOpenChange={setHelpModalOpen}>
-        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <HelpCircle className="w-5 h-5 text-emerald-500" />
-              About Monitoring Dashboard
-            </DialogTitle>
-          </DialogHeader>
-          
-          <div className="space-y-6">
-            <div>
-              <h3 className="text-lg font-semibold mb-3">Monitoring Features</h3>
-              <div className="space-y-2 text-sm text-muted-foreground">
-                <p>
-                  <strong className="text-foreground">Real-time Analytics:</strong> Monitor your communication flows 
-                  with live metrics, delivery rates, and performance tracking across all channels.
+                <CardTitle className="text-3xl font-heading font-heading-bold mb-4">Dashboard Module</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <p className="text-lg font-body text-muted-foreground">
+                  Advanced analytics, custom reporting, and comprehensive insights 
+                  for your communication infrastructure.
                 </p>
-                <p>
-                  <strong className="text-foreground">Performance Tracking:</strong> Track response times, 
-                  throughput, error rates, and vendor performance to optimize your messaging workflows.
-                </p>
-                <p>
-                  <strong className="text-foreground">Alert Management:</strong> Configure intelligent alerts 
-                  for performance issues, delivery failures, and system anomalies with automated notifications.
-                </p>
-              </div>
-            </div>
-            
-            <Separator />
-            
-            <div>
-              <h3 className="text-lg font-semibold mb-3">Key Metrics</h3>
-              <div className="space-y-2 text-sm text-muted-foreground">
-                <p>
-                  <strong className="text-foreground">Message Volume:</strong> Track total messages sent, 
-                  delivered, and failed across all communication channels.
-                </p>
-                <p>
-                  <strong className="text-foreground">Vendor Health:</strong> Monitor the status and 
-                  performance of your configured vendors with real-time health checks.
-                </p>
-                <p>
-                  <strong className="text-foreground">Cost Analytics:</strong> Analyze messaging costs 
-                  and optimize routing strategies for better cost efficiency.
-                </p>
-              </div>
-            </div>
-            
-            <Separator />
-            
-            <div>
-              <h3 className="text-lg font-semibold mb-3">Coming Features</h3>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between p-3 bg-accent/30 rounded-lg">
-                  <span className="text-sm font-medium">Dashboard Version</span>
-                  <Badge variant="secondary">v1.0.0 (In Development)</Badge>
-                </div>
                 
-                <div className="space-y-2">
-                  <h4 className="text-sm font-medium">Upcoming Features</h4>
-                  <div className="text-xs text-muted-foreground space-y-1">
-                    <div className="flex justify-between">
-                      <span>Custom Dashboard Widgets</span>
-                      <span>Q1 2025</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Advanced Analytics</span>
-                      <span>Q1 2025</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Report Generation</span>
-                      <span>Q2 2025</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>API Monitoring</span>
-                      <span>Q2 2025</span>
+                <div className="bg-muted/50 border border-border rounded-lg p-6">
+                  <h3 className="text-lg font-heading font-heading-semibold mb-2">Coming Soon</h3>
+                  <p className="font-body text-muted-foreground">
+                    The dashboard module is currently under development. 
+                    It will provide advanced analytics, custom widgets, and comprehensive 
+                    reporting capabilities for your communication flows.
+                  </p>
+                </div>
+
+                <Button 
+                  onClick={() => navigate('/monitoring')}
+                  className="w-full font-body-medium"
+                >
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Back to Monitoring
+                </Button>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </main>
+
+        {/* Help Modal - Dashboard specific content */}
+        <Dialog open={helpModalOpen} onOpenChange={setHelpModalOpen}>
+          <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <HelpCircle className="w-5 h-5 text-emerald-500" />
+                About Dashboard Module
+              </DialogTitle>
+            </DialogHeader>
+            
+            <div className="space-y-6">
+              <div>
+                <h3 className="text-lg font-semibold mb-3">Dashboard Features</h3>
+                <div className="space-y-2 text-sm text-muted-foreground">
+                  <p>
+                    <strong className="text-foreground">Custom Widgets:</strong> Create personalized 
+                    dashboard widgets to monitor specific metrics and KPIs relevant to your business.
+                  </p>
+                  <p>
+                    <strong className="text-foreground">Advanced Analytics:</strong> Deep dive into 
+                    performance data with advanced analytics, trends, and predictive insights.
+                  </p>
+                  <p>
+                    <strong className="text-foreground">Reporting:</strong> Generate comprehensive 
+                    reports with customizable parameters and automated scheduling.
+                  </p>
+                </div>
+              </div>
+              
+              <Separator />
+              
+              <div>
+                <h3 className="text-lg font-semibold mb-3">Coming Features</h3>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between p-3 bg-accent/30 rounded-lg">
+                    <span className="text-sm font-medium">Dashboard Version</span>
+                    <Badge variant="secondary">v1.0.0 (In Development)</Badge>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <h4 className="text-sm font-medium">Upcoming Features</h4>
+                    <div className="text-xs text-muted-foreground space-y-1">
+                      <div className="flex justify-between">
+                        <span>Custom Widget Builder</span>
+                        <span>Q1 2025</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Scheduled Reports</span>
+                        <span>Q1 2025</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Predictive Analytics</span>
+                        <span>Q2 2025</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Data Export Tools</span>
+                        <span>Q2 2025</span>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+          </DialogContent>
+        </Dialog>
       </div>
     </ThemeProvider>
   );
 };
 
-export default Monitoring;
+export default Dashboard;
