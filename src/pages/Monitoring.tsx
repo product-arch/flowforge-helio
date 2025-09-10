@@ -276,7 +276,7 @@ const Monitoring: React.FC = () => {
                         <TrendingUp className="w-8 h-8 text-emerald-500" />
                       </div>
                     </div>
-                    <h3 className="text-xl font-heading font-heading-semibold mb-2 text-center">Dashboards</h3>
+                    <h3 className="text-xl font-heading font-heading-semibold mb-2 text-center">Dashboards & Reports</h3>
                     <p className="text-muted-foreground text-center font-body">Get actionable insights</p>
                   </CardContent>
                 </Card>
