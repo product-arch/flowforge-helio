@@ -261,7 +261,7 @@ const Monitoring: React.FC = () => {
                         <BarChart3 className="w-8 h-8 text-emerald-500" />
                       </div>
                     </div>
-                    <h3 className="text-xl font-heading font-heading-semibold mb-2 text-center">Analytics</h3>
+                    <h3 className="text-xl font-heading font-heading-semibold mb-2 text-center">Live Analytics</h3>
                     <p className="text-muted-foreground text-center font-body">Get real time updates</p>
                   </CardContent>
                 </Card>
