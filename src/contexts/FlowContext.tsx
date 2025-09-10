@@ -53,12 +53,12 @@ const initialNodes: Node[] = [
 // Predefined flow configurations
 const flowConfigurations: Record<string, { nodes: Node[], edges: Edge[] }> = {
   'flow-1': {
-    // Welcome Onboarding Campaign - Complex multi-channel flow
+    // Welcome Onboarding Campaign - Modern multi-channel flow with advanced routing and analytics
     nodes: [
       {
         id: 'start-1',
         type: 'start',
-        position: { x: 100, y: 100 },
+        position: { x: 100, y: 200 },
         data: { 
           label: 'Start',
           channel: 'SMS',
@@ -68,92 +68,219 @@ const flowConfigurations: Record<string, { nodes: Node[], edges: Edge[] }> = {
         deletable: false,
       },
       {
+        id: 'rate-limit-1',
+        type: 'ratelimit',
+        position: { x: 280, y: 200 },
+        data: {
+          label: 'Rate Limiter',
+          maxRequests: 1000,
+          timeWindow: 60,
+          unit: 'minute',
+          strategy: 'sliding_window'
+        }
+      },
+      {
+        id: 'user-data-api',
+        type: 'api',
+        position: { x: 460, y: 200 },
+        data: {
+          label: 'Fetch User Profile',
+          url: 'https://api.company.com/users/{userId}',
+          method: 'GET',
+          headers: { 'Authorization': 'Bearer {{token}}' },
+          timeout: 5000
+        }
+      },
+      {
+        id: 'user-analytics',
+        type: 'analytics',
+        position: { x: 640, y: 120 },
+        data: {
+          label: 'Track User Event',
+          eventName: 'onboarding_started',
+          properties: ['userId', 'channel', 'timestamp'],
+          destination: 'mixpanel'
+        }
+      },
+      {
+        id: 'preference-conditional',
+        type: 'conditional',
+        position: { x: 640, y: 280 },
+        data: {
+          label: 'Check Preferences',
+          conditions: [
+            { field: 'channel_preference', operator: 'equals', value: 'sms' },
+            { field: 'email_verified', operator: 'equals', value: 'true' }
+          ],
+          operator: 'OR'
+        }
+      },
+      {
         id: 'sms-welcome',
         type: 'sms',
-        position: { x: 300, y: 100 },
+        position: { x: 860, y: 180 },
         data: {
           label: 'Welcome SMS',
           senderId: 'WELCOME',
           messageType: 'transactional',
-          encoding: 'utf8'
+          encoding: 'utf8',
+          template: 'Hi {{name}}, welcome to our platform! 🎉'
         }
       },
       {
-        id: 'routing-sms',
-        type: 'vendorrouting',
-        position: { x: 300, y: 220 },
+        id: 'sms-routing',
+        type: 'priority-route',
+        position: { x: 1040, y: 120 },
         data: {
-          label: 'SMS Routing',
-          parentChannelId: 'sms-welcome',
-          configType: 'priority',
-          selectedVendors: ['TextLocal', 'Twilio'],
-          strategy: 'priority'
+          label: 'SMS Priority Routing',
+          routes: [
+            { vendorId: 'twilio', priority: 1, weight: 70 },
+            { vendorId: 'textlocal', priority: 2, weight: 30 }
+          ],
+          fallbackStrategy: 'next_priority'
         }
       },
       {
-        id: 'conditional-email',
-        type: 'conditional',
-        position: { x: 550, y: 100 },
-        data: {
-          label: 'Check Email Preference',
-          conditions: [{ field: 'emailOptIn', operator: 'equals', value: 'true' }],
-          operator: 'AND'
-        }
-      },
-      {
-        id: 'email-follow',
+        id: 'email-welcome',
         type: 'email',
-        position: { x: 800, y: 50 },
+        position: { x: 860, y: 340 },
         data: {
-          label: 'Follow-up Email',
+          label: 'Welcome Email',
           fromAddress: 'welcome@company.com',
           messageType: 'transactional',
-          template: 'welcome-email-template'
+          template: 'welcome-email-v2',
+          subject: 'Welcome to our platform, {{name}}!'
         }
       },
       {
-        id: 'routing-email',
-        type: 'vendorrouting',
-        position: { x: 800, y: 170 },
+        id: 'email-routing',
+        type: 'load-balancer',
+        position: { x: 1040, y: 280 },
         data: {
-          label: 'Email Routing',
-          parentChannelId: 'email-follow',
-          configType: 'priority',
-          selectedVendors: ['SendGrid', 'Mailgun'],
-          strategy: 'priority'
+          label: 'Email Load Balancer',
+          algorithm: 'round_robin',
+          targets: [
+            { vendorId: 'sendgrid', weight: 60, healthCheck: true },
+            { vendorId: 'mailgun', weight: 40, healthCheck: true }
+          ],
+          healthCheckInterval: 30
         }
       },
       {
-        id: 'whatsapp-welcome',
+        id: 'delay-follow-up',
+        type: 'delay',
+        position: { x: 1220, y: 200 },
+        data: {
+          label: 'Wait 24 Hours',
+          duration: 24,
+          unit: 'hours'
+        }
+      },
+      {
+        id: 'engagement-check',
+        type: 'conditional',
+        position: { x: 1400, y: 200 },
+        data: {
+          label: 'Check Engagement',
+          conditions: [
+            { field: 'email_opened', operator: 'equals', value: 'true' },
+            { field: 'app_opened', operator: 'equals', value: 'true' }
+          ],
+          operator: 'OR'
+        }
+      },
+      {
+        id: 'whatsapp-follow-up',
         type: 'whatsapp',
-        position: { x: 800, y: 300 },
+        position: { x: 1580, y: 120 },
         data: {
-          label: 'WhatsApp Welcome',
-          businessId: 'WELCOME_WA',
-          templateType: 'text',
-          botName: 'WelcomeBot'
+          label: 'WhatsApp Follow-up',
+          businessId: 'FOLLOW_UP_WA',
+          wabaNumber: '+1234567890',
+          templateType: 'interactive',
+          botName: 'OnboardingBot'
         }
       },
       {
-        id: 'routing-whatsapp',
-        type: 'vendorrouting',
-        position: { x: 800, y: 420 },
+        id: 'whatsapp-routing',
+        type: 'failover',
+        position: { x: 1760, y: 120 },
         data: {
-          label: 'WhatsApp Routing',
-          parentChannelId: 'whatsapp-welcome',
-          configType: 'priority',
-          selectedVendors: ['WhatsApp Business', 'Gupshup'],
-          strategy: 'priority'
+          label: 'WhatsApp Failover',
+          primaryVendor: 'whatsapp_business',
+          secondaryVendors: ['gupshup', 'twilio_whatsapp'],
+          failoverDelay: 30,
+          maxRetries: 2
+        }
+      },
+      {
+        id: 'voice-call',
+        type: 'voice',
+        position: { x: 1580, y: 280 },
+        data: {
+          label: 'Welcome Call',
+          callerId: '+1800WELCOME',
+          voiceType: 'text-to-speech',
+          message: 'Hello {{name}}, thank you for joining our platform!',
+          language: 'en-US'
+        }
+      },
+      {
+        id: 'voice-routing',
+        type: 'weighted-distribution',
+        position: { x: 1760, y: 280 },
+        data: {
+          label: 'Voice Distribution',
+          distribution: [
+            { vendorId: 'twilio_voice', weight: 50 },
+            { vendorId: 'plivo', weight: 30 },
+            { vendorId: 'vonage', weight: 20 }
+          ],
+          strategy: 'weighted_random'
+        }
+      },
+      {
+        id: 'completion-analytics',
+        type: 'analytics',
+        position: { x: 1940, y: 200 },
+        data: {
+          label: 'Track Completion',
+          eventName: 'onboarding_completed',
+          properties: ['userId', 'completion_time', 'channels_used'],
+          destination: 'amplitude'
+        }
+      },
+      {
+        id: 'database-update',
+        type: 'database',
+        position: { x: 2120, y: 200 },
+        data: {
+          label: 'Update User Status',
+          operation: 'UPDATE',
+          table: 'users',
+          conditions: 'user_id = {{userId}}',
+          fields: { onboarding_completed: true, completed_at: '{{timestamp}}' }
         }
       },
       {
         id: 'terminal-success',
         type: 'terminal',
-        position: { x: 1050, y: 200 },
+        position: { x: 2300, y: 200 },
         data: {
-          label: 'Campaign Complete',
-          state: 'sent',
-          reason: 'Onboarding flow completed successfully'
+          label: 'Onboarding Complete',
+          state: 'completed',
+          reason: 'Multi-channel onboarding flow completed successfully'
+        }
+      },
+      {
+        id: 'audit-log',
+        type: 'audit',
+        position: { x: 1220, y: 350 },
+        data: {
+          label: 'Audit Trail',
+          eventType: 'onboarding_flow',
+          logLevel: 'INFO',
+          includeFields: ['userId', 'timestamp', 'channel', 'status']
         }
       }
     ],
@@ -161,67 +288,146 @@ const flowConfigurations: Record<string, { nodes: Node[], edges: Edge[] }> = {
       {
         id: 'e1',
         source: 'start-1',
-        target: 'sms-welcome',
+        target: 'rate-limit-1',
         type: 'custom',
         style: { stroke: 'hsl(var(--primary))' }
       },
       {
         id: 'e2',
-        source: 'sms-welcome',
-        target: 'routing-sms',
+        source: 'rate-limit-1',
+        target: 'user-data-api',
         type: 'custom',
-        style: { strokeDasharray: '5,5', stroke: 'hsl(var(--primary))', opacity: 0.6 }
+        style: { stroke: 'hsl(var(--primary))' }
       },
       {
         id: 'e3',
-        source: 'sms-welcome',
-        target: 'conditional-email',
+        source: 'user-data-api',
+        target: 'user-analytics',
         type: 'custom',
         style: { stroke: 'hsl(var(--primary))' }
       },
       {
         id: 'e4',
-        source: 'conditional-email',
-        target: 'email-follow',
+        source: 'user-data-api',
+        target: 'preference-conditional',
         type: 'custom',
-        label: 'Email Opted In',
         style: { stroke: 'hsl(var(--primary))' }
       },
       {
         id: 'e5',
-        source: 'email-follow',
-        target: 'routing-email',
+        source: 'preference-conditional',
+        target: 'sms-welcome',
         type: 'custom',
-        style: { strokeDasharray: '5,5', stroke: 'hsl(var(--primary))', opacity: 0.6 }
+        label: 'SMS Preferred',
+        style: { stroke: 'hsl(var(--primary))' }
       },
       {
         id: 'e6',
-        source: 'conditional-email',
-        target: 'whatsapp-welcome',
+        source: 'preference-conditional',
+        target: 'email-welcome',
         type: 'custom',
-        label: 'WhatsApp Preferred',
+        label: 'Email Preferred',
         style: { stroke: 'hsl(var(--primary))' }
       },
       {
         id: 'e7',
-        source: 'whatsapp-welcome',
-        target: 'routing-whatsapp',
+        source: 'sms-welcome',
+        target: 'sms-routing',
         type: 'custom',
         style: { strokeDasharray: '5,5', stroke: 'hsl(var(--primary))', opacity: 0.6 }
       },
       {
         id: 'e8',
-        source: 'email-follow',
+        source: 'email-welcome',
+        target: 'email-routing',
+        type: 'custom',
+        style: { strokeDasharray: '5,5', stroke: 'hsl(var(--primary))', opacity: 0.6 }
+      },
+      {
+        id: 'e9',
+        source: 'sms-routing',
+        target: 'delay-follow-up',
+        type: 'custom',
+        style: { stroke: 'hsl(var(--primary))' }
+      },
+      {
+        id: 'e10',
+        source: 'email-routing',
+        target: 'delay-follow-up',
+        type: 'custom',
+        style: { stroke: 'hsl(var(--primary))' }
+      },
+      {
+        id: 'e11',
+        source: 'delay-follow-up',
+        target: 'engagement-check',
+        type: 'custom',
+        style: { stroke: 'hsl(var(--primary))' }
+      },
+      {
+        id: 'e12',
+        source: 'engagement-check',
+        target: 'whatsapp-follow-up',
+        type: 'custom',
+        label: 'Engaged',
+        style: { stroke: 'hsl(var(--primary))' }
+      },
+      {
+        id: 'e13',
+        source: 'engagement-check',
+        target: 'voice-call',
+        type: 'custom',
+        label: 'Not Engaged',
+        style: { stroke: 'hsl(var(--primary))' }
+      },
+      {
+        id: 'e14',
+        source: 'whatsapp-follow-up',
+        target: 'whatsapp-routing',
+        type: 'custom',
+        style: { strokeDasharray: '5,5', stroke: 'hsl(var(--primary))', opacity: 0.6 }
+      },
+      {
+        id: 'e15',
+        source: 'voice-call',
+        target: 'voice-routing',
+        type: 'custom',
+        style: { strokeDasharray: '5,5', stroke: 'hsl(var(--primary))', opacity: 0.6 }
+      },
+      {
+        id: 'e16',
+        source: 'whatsapp-routing',
+        target: 'completion-analytics',
+        type: 'custom',
+        style: { stroke: 'hsl(var(--primary))' }
+      },
+      {
+        id: 'e17',
+        source: 'voice-routing',
+        target: 'completion-analytics',
+        type: 'custom',
+        style: { stroke: 'hsl(var(--primary))' }
+      },
+      {
+        id: 'e18',
+        source: 'completion-analytics',
+        target: 'database-update',
+        type: 'custom',
+        style: { stroke: 'hsl(var(--primary))' }
+      },
+      {
+        id: 'e19',
+        source: 'database-update',
         target: 'terminal-success',
         type: 'custom',
         style: { stroke: 'hsl(var(--primary))' }
       },
       {
-        id: 'e9',
-        source: 'whatsapp-welcome',
-        target: 'terminal-success',
+        id: 'e20',
+        source: 'delay-follow-up',
+        target: 'audit-log',
         type: 'custom',
-        style: { stroke: 'hsl(var(--primary))' }
+        style: { strokeDasharray: '5,5', stroke: 'hsl(var(--muted-foreground))', opacity: 0.4 }
       }
     ]
   }

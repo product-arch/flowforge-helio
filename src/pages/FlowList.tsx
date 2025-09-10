@@ -68,14 +68,14 @@ const mockFlows: Flow[] = [
   {
     id: 'flow-1',
     name: 'Welcome Onboarding Campaign',
-    description: 'Multi-channel welcome flow for new users with SMS and email sequences',
+    description: 'Advanced multi-channel onboarding with intelligent routing, analytics, and failover mechanisms',
     status: 'active',
-    channels: ['SMS', 'Email', 'WhatsApp'],
+    channels: ['SMS', 'Email', 'WhatsApp', 'Voice'],
     lastModified: '2 hours ago',
     createdBy: 'Marketing Team',
     messagesProcessed: 15420,
     successRate: 98.5,
-    nodeCount: 8
+    nodeCount: 20
   },
   {
     id: 'flow-2',
