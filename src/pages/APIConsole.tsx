@@ -34,9 +34,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { ThemeSelector } from '@/components/navigation/ThemeSelector';
-import { SettingsDropdown } from '@/components/navigation/SettingsDropdown';
-import { AccountMenu } from '@/components/navigation/AccountMenu';
 import { 
   Home,
   Play,
@@ -99,6 +96,7 @@ const APIConsole: React.FC = () => {
   const [privacyOpen, setPrivacyOpen] = useState(false);
   const [dataManagementOpen, setDataManagementOpen] = useState(false);
   const [keyboardShortcutsOpen, setKeyboardShortcutsOpen] = useState(false);
+  const { theme, mode, setTheme, setMode } = useTheme();
   const { toast } = useToast();
 
   // Request state
@@ -346,6 +344,14 @@ const APIConsole: React.FC = () => {
     });
   };
 
+  const handleThemeChange = (newTheme: Theme) => {
+    setTheme(newTheme);
+    toast({
+      title: "Theme Changed",
+      description: `Switched to ${THEMES.find(t => t.value === newTheme)?.name}`,
+      className: "border-status-success bg-status-success/10 text-status-success"
+    });
+  };
 
   const handleSettingClick = (setting: string) => {
     toast({
@@ -406,26 +412,105 @@ const APIConsole: React.FC = () => {
                   Documentation
                 </Button>
                 
-                <SettingsDropdown 
-                  onPersonalInfoClick={() => setPersonalInfoOpen(true)}
-                  onAccountSettingsClick={() => setAccountSettingsOpen(true)}
-                  onBillingClick={() => setBillingOpen(true)}
-                  variant="ghost"
-                  size="sm"
-                />
+                {/* Settings Menu */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="sm">
+                      <Settings className="w-4 h-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56">
+                    <DropdownMenuItem onClick={() => setNotificationsOpen(true)}>
+                      <Bell className="w-4 h-4 mr-2" />
+                      Notifications
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setLanguageOpen(true)}>
+                      <Globe className="w-4 h-4 mr-2" />
+                      Language & Region
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setPrivacyOpen(true)}>
+                      <Shield className="w-4 h-4 mr-2" />
+                      Privacy & Security
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setDataManagementOpen(true)}>
+                      <Database className="w-4 h-4 mr-2" />
+                      Data Management
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setKeyboardShortcutsOpen(true)}>
+                      <Keyboard className="w-4 h-4 mr-2" />
+                      Keyboard Shortcuts
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => setMode(mode === 'light' ? 'dark' : 'light')}>
+                      {mode === 'light' ? <Moon className="w-4 h-4 mr-2" /> : <Sun className="w-4 h-4 mr-2" />}
+                      {mode === 'light' ? 'Dark Mode' : 'Light Mode'}
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
 
-                <ThemeSelector 
-                  variant="ghost"
-                  size="sm"
-                />
-
-                <AccountMenu 
-                  onPersonalInfoClick={() => setPersonalInfoOpen(true)}
-                  onAccountSettingsClick={() => setAccountSettingsOpen(true)}
-                  onBillingClick={() => setBillingOpen(true)}
-                  variant="ghost"
-                  size="sm"
-                />
+                {/* Account Menu */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="sm">
+                      <User className="w-4 h-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48">
+                    <DropdownMenuItem onClick={() => setPersonalInfoOpen(true)}>
+                      <User className="w-4 h-4 mr-2" />
+                      Personal Info
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setAccountSettingsOpen(true)}>
+                      <Settings className="w-4 h-4 mr-2" />
+                      Account Settings
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setBillingOpen(true)}>
+                      <CreditCard className="w-4 h-4 mr-2" />
+                      Billing
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    
+                    <div className="px-2 py-1">
+                      <div className="text-xs font-medium text-muted-foreground mb-2">Themes</div>
+                      <div className="grid grid-cols-3 gap-1">
+                        {THEMES.map((themeOption) => (
+                          <button
+                            key={themeOption.value}
+                            onClick={() => handleThemeChange(themeOption.value)}
+                            className={`w-6 h-6 rounded-full ${themeOption.preview} hover:scale-110 transition-transform ${
+                              theme === themeOption.value ? 'ring-2 ring-ring ring-offset-2 ring-offset-background' : ''
+                            }`}
+                            title={themeOption.name}
+                          />
+                        ))}
+                      </div>
+                      <div className="mt-2 flex gap-1">
+                        <button
+                          onClick={() => setMode('light')}
+                          className={`px-2 py-1 text-xs rounded ${
+                            mode === 'light' ? 'bg-primary text-primary-foreground' : 'hover:bg-accent'
+                          }`}
+                        >
+                          Light
+                        </button>
+                        <button
+                          onClick={() => setMode('dark')}
+                          className={`px-2 py-1 text-xs rounded ${
+                            mode === 'dark' ? 'bg-primary text-primary-foreground' : 'hover:bg-accent'
+                          }`}
+                        >
+                          Dark
+                        </button>
+                      </div>
+                    </div>
+                  
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem className="text-destructive focus:text-destructive">
+                      <LogOut className="w-4 h-4 mr-2" />
+                      Sign Out
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </div>
           </div>
