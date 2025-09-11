@@ -62,7 +62,8 @@ import {
   Twitter,
   Linkedin,
   Facebook,
-  Github
+  Github,
+  Store
 } from 'lucide-react';
 import { useTheme, Theme } from '@/contexts/ThemeContext';
 import { useToast } from '@/hooks/use-toast';
@@ -117,6 +118,18 @@ const modules = [
     hoverColor: 'hover:border-orange-500/40',
     route: '/templates',
     features: ['AI template generation', 'Multi-channel support', 'Version control']
+  },
+  {
+    id: 'vendors',
+    title: 'Vendors',
+    description: 'Manage vendor relationships, onboarding, and health monitoring for all channels',
+    icon: Store,
+    color: 'from-cyan-500 to-cyan-600',
+    bgColor: 'bg-cyan-500/10',
+    borderColor: 'border-cyan-500/20',
+    hoverColor: 'hover:border-cyan-500/40',
+    route: '/vendors',
+    features: ['Vendor marketplace', 'Health monitoring', 'Onboarding flows']
   }
 ];
 
