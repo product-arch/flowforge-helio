@@ -200,39 +200,6 @@ const TemplateList: React.FC = () => {
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       
-                      <div className="px-2 py-1">
-                        <div className="text-xs font-medium text-muted-foreground mb-2">Themes</div>
-                        <div className="grid grid-cols-3 gap-1">
-                      {THEMES.map((themeOption) => (
-                            <button
-                              key={themeOption.value}
-                              onClick={() => handleThemeChange(themeOption.value)}
-                              className={`w-6 h-6 rounded-full ${themeOption.preview} hover:scale-110 transition-transform ${
-                                theme === themeOption.value ? 'ring-2 ring-ring ring-offset-2 ring-offset-background' : ''
-                              }`}
-                              title={themeOption.name}
-                            />
-                          ))}
-                        </div>
-                        <div className="mt-2 flex gap-1">
-                          <button
-                            onClick={() => setMode('light')}
-                            className={`px-2 py-1 text-xs rounded ${
-                              mode === 'light' ? 'bg-primary text-primary-foreground' : 'hover:bg-accent'
-                            }`}
-                          >
-                            Light
-                          </button>
-                          <button
-                            onClick={() => setMode('dark')}
-                            className={`px-2 py-1 text-xs rounded ${
-                              mode === 'dark' ? 'bg-primary text-primary-foreground' : 'hover:bg-accent'
-                            }`}
-                          >
-                            Dark
-                          </button>
-                        </div>
-                      </div>
                     </DropdownMenuContent>
                   </DropdownMenu>
 
@@ -258,39 +225,6 @@ const TemplateList: React.FC = () => {
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       
-                      <div className="px-2 py-1">
-                        <div className="text-xs font-medium text-muted-foreground mb-2">Themes</div>
-                        <div className="grid grid-cols-3 gap-1">
-                          {THEMES.map((themeOption) => (
-                            <button
-                              key={themeOption.value}
-                              onClick={() => handleThemeChange(themeOption.value)}
-                              className={`w-6 h-6 rounded-full ${themeOption.preview} hover:scale-110 transition-transform ${
-                                theme === themeOption.value ? 'ring-2 ring-ring ring-offset-2 ring-offset-background' : ''
-                              }`}
-                              title={themeOption.name}
-                            />
-                          ))}
-                        </div>
-                        <div className="mt-2 flex gap-1">
-                          <button
-                            onClick={() => setMode('light')}
-                            className={`px-2 py-1 text-xs rounded ${
-                              mode === 'light' ? 'bg-primary text-primary-foreground' : 'hover:bg-accent'
-                            }`}
-                          >
-                            Light
-                          </button>
-                          <button
-                            onClick={() => setMode('dark')}
-                            className={`px-2 py-1 text-xs rounded ${
-                              mode === 'dark' ? 'bg-primary text-primary-foreground' : 'hover:bg-accent'
-                            }`}
-                          >
-                            Dark
-                          </button>
-                        </div>
-                      </div>
                       
                       <DropdownMenuSeparator />
                       <DropdownMenuItem className="text-destructive focus:text-destructive">
