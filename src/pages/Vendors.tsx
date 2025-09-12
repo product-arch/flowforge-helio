@@ -3,44 +3,20 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip } from 'recharts';
-import { Store, ArrowLeft, Activity, TrendingUp, TrendingDown, AlertTriangle, CheckCircle, Clock, Plus, ExternalLink, Settings } from 'lucide-react';
+import { Store, ArrowLeft, Activity, TrendingUp, TrendingDown, AlertTriangle, Settings, CheckCircle } from 'lucide-react';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useToast } from '@/hooks/use-toast';
 import { ALL_VENDORS, getVendorsByType, Vendor } from '@/constants/vendors';
-
-// Types for vendor data
-interface VendorHealth {
-  id: string;
-  vendorName: string;
-  channel: 'sms' | 'email' | 'rcs' | 'voice' | 'whatsapp';
-  uptimePercentage: number;
-  errorRate: number;
-  avgLatency: number;
-  incidents: number;
-  lastIncident?: Date;
-  status: 'healthy' | 'warning' | 'critical';
-}
-
-interface VendorOnboardingData {
-  vendorId: string;
-  businessName: string;
-  contactEmail: string;
-  contactPhone: string;
-  useCases: string;
-  expectedVolume: string;
-  additionalNotes: string;
-}
+import { VendorOnboardingModal } from '@/components/vendor/VendorOnboardingModal';
+import { MyVendorsSection } from '@/components/vendor/MyVendorsSection';
+import type { VendorIntegration, VendorHealth } from '@/types/vendor-integration';
 
 interface HealthMetricData {
   timestamp: string;
@@ -60,33 +36,62 @@ const Vendors: React.FC = () => {
   const [channelFilter, setChannelFilter] = useState('all');
   const [onboardingModalOpen, setOnboardingModalOpen] = useState(false);
   const [selectedVendor, setSelectedVendor] = useState<Vendor | null>(null);
-  const [onboardingData, setOnboardingData] = useState<VendorOnboardingData>({
-    vendorId: '',
-    businessName: '',
-    contactEmail: '',
-    contactPhone: '',
-    useCases: '',
-    expectedVolume: '',
-    additionalNotes: ''
-  });
   
   // Data state
+  const [vendorIntegrations, setVendorIntegrations] = useState<VendorIntegration[]>([]);
   const [vendorHealthData, setVendorHealthData] = useState<VendorHealth[]>([]);
   const [healthMetrics, setHealthMetrics] = useState<HealthMetricData[]>([]);
 
-  // Generate vendor health data
+  // Generate sample vendor integrations
+  const generateSampleIntegrations = (): VendorIntegration[] => {
+    return [
+      {
+        id: 'int-1',
+        vendor: ALL_VENDORS.find(v => v.id === 'twilio')!,
+        channel: 'sms',
+        status: 'active',
+        credentials: { apiKey: '***', apiSecret: '***' },
+        configuration: { tpsLimit: 100, priority: 1 },
+        healthMetrics: {
+          id: 'health-1',
+          vendorIntegrationId: 'int-1',
+          uptimePercentage: 99.2,
+          errorRate: 0.5,
+          avgLatency: 120,
+          incidents: 0,
+          status: 'healthy',
+          lastUpdated: new Date()
+        },
+        createdAt: new Date('2024-01-15'),
+        updatedAt: new Date()
+      },
+      {
+        id: 'int-2',
+        vendor: ALL_VENDORS.find(v => v.id === 'meta')!,
+        channel: 'whatsapp',
+        status: 'active',
+        credentials: { accessToken: '***', phoneNumberId: '***' },
+        configuration: { tpsLimit: 50, priority: 1 },
+        healthMetrics: {
+          id: 'health-2',
+          vendorIntegrationId: 'int-2',
+          uptimePercentage: 98.8,
+          errorRate: 1.2,
+          avgLatency: 180,
+          incidents: 1,
+          status: 'healthy',
+          lastUpdated: new Date()
+        },
+        createdAt: new Date('2024-01-20'),
+        updatedAt: new Date()
+      }
+    ];
+  };
+
+  // Generate vendor health data from integrations
   const generateVendorHealthData = (): VendorHealth[] => {
-    return ALL_VENDORS.slice(0, 8).map((vendor, index) => ({
-      id: `health-${index}`,
-      vendorName: vendor.name,
-      channel: vendor.type,
-      uptimePercentage: 95 + Math.random() * 4.5, // 95-99.5%
-      errorRate: Math.random() * 2, // 0-2%
-      avgLatency: 100 + Math.random() * 150, // 100-250ms
-      incidents: Math.floor(Math.random() * 3),
-      lastIncident: Math.random() > 0.7 ? new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000) : undefined,
-      status: Math.random() > 0.8 ? 'warning' : Math.random() > 0.95 ? 'critical' : 'healthy'
-    }));
+    return vendorIntegrations.filter(integration => integration.healthMetrics)
+      .map(integration => integration.healthMetrics!);
   };
 
   // Generate health metrics timeline
@@ -110,42 +115,82 @@ const Vendors: React.FC = () => {
 
   // Initialize data
   useEffect(() => {
-    setVendorHealthData(generateVendorHealthData());
+    const integrations = generateSampleIntegrations();
+    setVendorIntegrations(integrations);
     setHealthMetrics(generateHealthMetrics());
   }, [dateFilter]);
+
+  useEffect(() => {
+    setVendorHealthData(generateVendorHealthData());
+  }, [vendorIntegrations]);
 
   // Handle vendor onboarding
   const handleVendorOnboarding = (vendor: Vendor) => {
     setSelectedVendor(vendor);
-    setOnboardingData(prev => ({ ...prev, vendorId: vendor.id }));
     setOnboardingModalOpen(true);
   };
 
-  const handleOnboardingSubmit = () => {
-    if (!onboardingData.businessName || !onboardingData.contactEmail) {
-      toast({
-        title: "Missing Information",
-        description: "Please fill in all required fields",
-        variant: "destructive"
-      });
-      return;
-    }
+  const handleOnboardingComplete = (integrationData: any) => {
+    // Create new integration
+    const newIntegration: VendorIntegration = {
+      id: `int-${Date.now()}`,
+      vendor: integrationData.vendor,
+      channel: integrationData.channel,
+      status: 'configuring',
+      credentials: {},
+      configuration: {},
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
 
+    setVendorIntegrations(prev => [...prev, newIntegration]);
+  };
+
+  // Integration management handlers
+  const handleConfigure = (integration: VendorIntegration) => {
     toast({
-      title: "Onboarding Request Submitted",
-      description: `Your request for ${selectedVendor?.name} has been submitted successfully`,
-      className: "border-status-success bg-status-success/10 text-status-success"
+      title: "Configuration",
+      description: `Opening configuration for ${integration.vendor.name} ${integration.channel.toUpperCase()}`,
     });
+  };
 
-    setOnboardingModalOpen(false);
-    setOnboardingData({
-      vendorId: '',
-      businessName: '',
-      contactEmail: '',
-      contactPhone: '',
-      useCases: '',
-      expectedVolume: '',
-      additionalNotes: ''
+  const handleTest = (integration: VendorIntegration) => {
+    toast({
+      title: "Testing Integration",
+      description: `Testing ${integration.vendor.name} ${integration.channel.toUpperCase()} connection`,
+    });
+  };
+
+  const handleViewHealth = (integration: VendorIntegration) => {
+    toast({
+      title: "Health Dashboard",
+      description: `Viewing health metrics for ${integration.vendor.name}`,
+    });
+  };
+
+  const handleToggleStatus = (integration: VendorIntegration) => {
+    const newStatus = integration.status === 'active' ? 'suspended' : 'active';
+    setVendorIntegrations(prev => 
+      prev.map(int => 
+        int.id === integration.id 
+          ? { ...int, status: newStatus, updatedAt: new Date() }
+          : int
+      )
+    );
+    
+    toast({
+      title: `Integration ${newStatus}`,
+      description: `${integration.vendor.name} ${integration.channel.toUpperCase()} has been ${newStatus}`,
+      className: newStatus === 'active' ? "border-status-success bg-status-success/10 text-status-success" : ""
+    });
+  };
+
+  const handleDelete = (integration: VendorIntegration) => {
+    setVendorIntegrations(prev => prev.filter(int => int.id !== integration.id));
+    toast({
+      title: "Integration Deleted",
+      description: `${integration.vendor.name} ${integration.channel.toUpperCase()} has been removed`,
+      variant: "destructive"
     });
   };
 
@@ -204,7 +249,11 @@ const Vendors: React.FC = () => {
 
   const filteredHealthData = channelFilter === 'all'
     ? vendorHealthData
-    : vendorHealthData.filter(v => v.channel === channelFilter);
+    : vendorHealthData.filter(v => {
+        // Find the integration this health data belongs to
+        const integration = vendorIntegrations.find(int => int.healthMetrics?.id === v.id);
+        return integration?.channel === channelFilter;
+      });
 
   // Calculate summary metrics
   const avgUptime = filteredHealthData.reduce((sum, v) => sum + v.uptimePercentage, 0) / filteredHealthData.length || 0;
@@ -377,32 +426,14 @@ const Vendors: React.FC = () => {
 
             {/* My Vendors Tab */}
             <TabsContent value="my-vendors" className="space-y-6">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6 }}
-              >
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Settings className="w-5 h-5" />
-                      My Configured Vendors
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-center py-12">
-                      <Store className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                      <h3 className="text-lg font-semibold mb-2">No Vendors Configured</h3>
-                      <p className="text-muted-foreground mb-4">
-                        Start by adding vendors from the marketplace to manage your integrations.
-                      </p>
-                      <Button onClick={() => setActiveTab('marketplace')}>
-                        Browse Marketplace
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
+              <MyVendorsSection
+                integrations={vendorIntegrations}
+                onConfigure={handleConfigure}
+                onTest={handleTest}
+                onViewHealth={handleViewHealth}
+                onToggleStatus={handleToggleStatus}
+                onDelete={handleDelete}
+              />
             </TabsContent>
 
             {/* Health Tab */}
@@ -561,25 +592,30 @@ const Vendors: React.FC = () => {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {filteredHealthData.map((vendor) => (
-                          <TableRow key={vendor.id}>
-                            <TableCell className="font-medium">{vendor.vendorName}</TableCell>
-                            <TableCell>
-                              <Badge variant={getChannelColor(vendor.channel)}>
-                                {vendor.channel.toUpperCase()}
-                              </Badge>
-                            </TableCell>
-                            <TableCell>{vendor.uptimePercentage.toFixed(2)}%</TableCell>
-                            <TableCell>{vendor.errorRate.toFixed(2)}%</TableCell>
-                            <TableCell>{Math.round(vendor.avgLatency)}ms</TableCell>
-                            <TableCell>{vendor.incidents}</TableCell>
-                            <TableCell>
-                              <Badge variant={getStatusColor(vendor.status)}>
-                                {vendor.status}
-                              </Badge>
-                            </TableCell>
-                          </TableRow>
-                        ))}
+                        {filteredHealthData.map((healthData) => {
+                          const integration = vendorIntegrations.find(int => int.healthMetrics?.id === healthData.id);
+                          if (!integration) return null;
+                          
+                          return (
+                            <TableRow key={healthData.id}>
+                              <TableCell className="font-medium">{integration.vendor.name}</TableCell>
+                              <TableCell>
+                                <Badge variant={getChannelColor(integration.channel)}>
+                                  {integration.channel.toUpperCase()}
+                                </Badge>
+                              </TableCell>
+                              <TableCell>{healthData.uptimePercentage.toFixed(2)}%</TableCell>
+                              <TableCell>{healthData.errorRate.toFixed(2)}%</TableCell>
+                              <TableCell>{Math.round(healthData.avgLatency)}ms</TableCell>
+                              <TableCell>{healthData.incidents}</TableCell>
+                              <TableCell>
+                                <Badge variant={getStatusColor(healthData.status)}>
+                                  {healthData.status}
+                                </Badge>
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
                       </TableBody>
                     </Table>
                   </CardContent>
@@ -589,98 +625,13 @@ const Vendors: React.FC = () => {
           </Tabs>
         </main>
 
-        {/* Onboarding Modal */}
-        <Dialog open={onboardingModalOpen} onOpenChange={setOnboardingModalOpen}>
-          <DialogContent className="sm:max-w-[500px]">
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
-                <Store className="w-5 h-5" />
-                Vendor Onboarding - {selectedVendor?.name}
-              </DialogTitle>
-            </DialogHeader>
-            
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="businessName">Business Name *</Label>
-                  <Input
-                    id="businessName"
-                    value={onboardingData.businessName}
-                    onChange={(e) => setOnboardingData(prev => ({ ...prev, businessName: e.target.value }))}
-                    placeholder="Your business name"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="contactEmail">Contact Email *</Label>
-                  <Input
-                    id="contactEmail"
-                    type="email"
-                    value={onboardingData.contactEmail}
-                    onChange={(e) => setOnboardingData(prev => ({ ...prev, contactEmail: e.target.value }))}
-                    placeholder="contact@company.com"
-                  />
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="contactPhone">Contact Phone</Label>
-                  <Input
-                    id="contactPhone"
-                    value={onboardingData.contactPhone}
-                    onChange={(e) => setOnboardingData(prev => ({ ...prev, contactPhone: e.target.value }))}
-                    placeholder="+1 (555) 123-4567"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="expectedVolume">Expected Volume</Label>
-                  <Select value={onboardingData.expectedVolume} onValueChange={(value) => setOnboardingData(prev => ({ ...prev, expectedVolume: value }))}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select volume" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="low">Low (&lt; 1K/month)</SelectItem>
-                      <SelectItem value="medium">Medium (1K-10K/month)</SelectItem>
-                      <SelectItem value="high">High (10K-100K/month)</SelectItem>
-                      <SelectItem value="enterprise">Enterprise (&gt; 100K/month)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="useCases">Use Cases</Label>
-                <Textarea
-                  id="useCases"
-                  value={onboardingData.useCases}
-                  onChange={(e) => setOnboardingData(prev => ({ ...prev, useCases: e.target.value }))}
-                  placeholder="Describe your use cases..."
-                  rows={3}
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="additionalNotes">Additional Notes</Label>
-                <Textarea
-                  id="additionalNotes"
-                  value={onboardingData.additionalNotes}
-                  onChange={(e) => setOnboardingData(prev => ({ ...prev, additionalNotes: e.target.value }))}
-                  placeholder="Any additional information..."
-                  rows={2}
-                />
-              </div>
-            </div>
-
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setOnboardingModalOpen(false)}>
-                Cancel
-              </Button>
-              <Button onClick={handleOnboardingSubmit}>
-                Submit Request
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        {/* Enhanced Onboarding Modal */}
+        <VendorOnboardingModal
+          isOpen={onboardingModalOpen}
+          onClose={() => setOnboardingModalOpen(false)}
+          vendor={selectedVendor}
+          onComplete={handleOnboardingComplete}
+        />
       </div>
     </ThemeProvider>
   );
