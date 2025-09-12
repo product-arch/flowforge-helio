@@ -12,6 +12,7 @@ import { FloatingNodePalette } from './FloatingNodePalette';
 import ConfigurationModal from './ConfigurationModal';
 import { FlowNavbar } from './FlowNavbar';
 import { StartNode } from './nodes/StartNode';
+import { StartNodeModal } from './StartNodeModal';
 import { TerminalNode } from './nodes/TerminalNode';
 import { SMSNode } from './nodes/SMSNode';
 import { WhatsAppNode } from './nodes/WhatsAppNode';
@@ -101,6 +102,8 @@ export const FlowBuilder: React.FC = () => {
   
   const [configModalOpen, setConfigModalOpen] = React.useState(false);
   const [configNodeId, setConfigNodeId] = React.useState<string | null>(null);
+  const [startModalOpen, setStartModalOpen] = React.useState(false);
+  const [startNodeId, setStartNodeId] = React.useState<string | null>(null);
 
   const { setViewport } = useReactFlow();
 
@@ -113,13 +116,24 @@ export const FlowBuilder: React.FC = () => {
   }, [setSelectedNode]);
 
   const openConfigModal = useCallback((nodeId: string) => {
-    setConfigNodeId(nodeId);
-    setConfigModalOpen(true);
-  }, []);
+    const node = nodes.find(n => n.id === nodeId);
+    if (node?.type === 'start') {
+      setStartNodeId(nodeId);
+      setStartModalOpen(true);
+    } else {
+      setConfigNodeId(nodeId);
+      setConfigModalOpen(true);
+    }
+  }, [nodes]);
 
   const closeConfigModal = useCallback(() => {
     setConfigModalOpen(false);
     setConfigNodeId(null);
+  }, []);
+
+  const closeStartModal = useCallback(() => {
+    setStartModalOpen(false);
+    setStartNodeId(null);
   }, []);
 
   const defaultEdgeOptions = useMemo(() => ({
@@ -182,6 +196,14 @@ export const FlowBuilder: React.FC = () => {
           isOpen={configModalOpen}
           onClose={closeConfigModal}
           nodeId={configNodeId}
+        />
+      )}
+
+      {startNodeId && (
+        <StartNodeModal
+          isOpen={startModalOpen}
+          onClose={closeStartModal}
+          nodeId={startNodeId}
         />
       )}
     </div>

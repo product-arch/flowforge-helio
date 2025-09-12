@@ -144,6 +144,11 @@ export default function ConfigurationModal({ isOpen, onClose, nodeId }: Configur
 
   if (!node) return null;
 
+  // Handle Start node configuration in dedicated modal
+  if (node.type === 'start') {
+    return null; // Start node has its own modal
+  }
+
   const handleSave = () => {
     const updatedData = {
       ...formData,

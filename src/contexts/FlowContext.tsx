@@ -717,6 +717,15 @@ export const FlowProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
 function getDefaultNodeData(type: string) {
   switch (type) {
+    // Start Node
+    case 'start':
+      return {
+        trigger: 'manual',
+        lockPosition: true,
+        label: 'Start Node',
+        environment: 'dev'
+      };
+
     // Vendor Routing Node (attached to channels)
     case 'vendorrouting':
       return {

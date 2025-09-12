@@ -38,11 +38,24 @@ export const SimulationPanel: React.FC = () => {
     overrideVendorStatus: {},
     overrideQuotas: {}
   });
-  const { simulationMode, simulationResults, runSimulation } = useFlow();
+  const { simulationMode, simulationResults, runSimulation, nodes } = useFlow();
   const { toast } = useToast();
 
   const handleRunSimulation = () => {
-    runSimulation(testParams);
+    // Get Start node's sample data if available
+    const startNode = nodes.find(node => node.type === 'start');
+    let enhancedParams = { ...testParams };
+    
+    if (startNode?.data?.inputSchemaRef) {
+      // In a real implementation, this would use the schema to generate sample data
+    enhancedParams = {
+        ...testParams,
+        messageId: `MSG_SCHEMA_${Date.now()}`,
+        channel: 'SMS'
+      };
+    }
+    
+    runSimulation(enhancedParams);
     toast({
       title: "Simulation Started",
       description: "Running routing simulation with test parameters.",
