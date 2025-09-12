@@ -173,6 +173,35 @@ const Vendors: React.FC = () => {
     ? ALL_VENDORS 
     : getVendorsByType(channelFilter as Vendor['type']);
 
+  // Group vendors by channel
+  const vendorsByChannel = React.useMemo(() => {
+    const grouped: Record<string, Vendor[]> = {};
+    
+    if (channelFilter === 'all') {
+      // Group all vendors by their type
+      ALL_VENDORS.forEach(vendor => {
+        if (!grouped[vendor.type]) {
+          grouped[vendor.type] = [];
+        }
+        grouped[vendor.type].push(vendor);
+      });
+    } else {
+      // Show only the selected channel
+      grouped[channelFilter] = filteredVendors;
+    }
+    
+    return grouped;
+  }, [channelFilter, filteredVendors]);
+
+  const channelOrder = ['sms', 'email', 'whatsapp', 'voice', 'rcs'];
+  const channelLabels = {
+    sms: 'SMS',
+    email: 'Email',
+    whatsapp: 'WhatsApp',
+    voice: 'Voice',
+    rcs: 'RCS'
+  };
+
   const filteredHealthData = channelFilter === 'all'
     ? vendorHealthData
     : vendorHealthData.filter(v => v.channel === channelFilter);
@@ -210,32 +239,19 @@ const Vendors: React.FC = () => {
                 </div>
 
                 <div className="flex items-center gap-3">
-                  {/* Channel Filter */}
-                  <Select value={channelFilter} onValueChange={setChannelFilter}>
-                    <SelectTrigger className="w-32">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Channels</SelectItem>
-                      <SelectItem value="sms">SMS</SelectItem>
-                      <SelectItem value="email">Email</SelectItem>
-                      <SelectItem value="whatsapp">WhatsApp</SelectItem>
-                      <SelectItem value="voice">Voice</SelectItem>
-                      <SelectItem value="rcs">RCS</SelectItem>
-                    </SelectContent>
-                  </Select>
-
-                  {/* Date Filter */}
-                  <Select value={dateFilter} onValueChange={setDateFilter}>
-                    <SelectTrigger className="w-32">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="24h">Last 24H</SelectItem>
-                      <SelectItem value="7d">Last 7D</SelectItem>
-                      <SelectItem value="30d">Last 30D</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  {/* Date Filter - Only show in Health tab */}
+                  {activeTab === 'health' && (
+                    <Select value={dateFilter} onValueChange={setDateFilter}>
+                      <SelectTrigger className="w-32">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="24h">Last 24H</SelectItem>
+                        <SelectItem value="7d">Last 7D</SelectItem>
+                        <SelectItem value="30d">Last 30D</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
                 </div>
               </div>
             </div>
@@ -257,55 +273,105 @@ const Vendors: React.FC = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6 }}
+                className="space-y-6"
               >
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Store className="w-5 h-5" />
-                      Vendor Marketplace
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                      {filteredVendors.map((vendor) => (
-                        <Card key={vendor.id} className="hover:shadow-md transition-shadow">
-                          <CardContent className="p-4">
-                            <div className="space-y-3">
-                              <div className="flex items-center gap-3">
-                                <img 
-                                  src={vendor.logo} 
-                                  alt={vendor.name}
-                                  className="w-8 h-8 rounded object-contain"
-                                />
-                                <div className="flex-1">
-                                  <h3 className="font-semibold text-sm">{vendor.name}</h3>
-                                  <Badge variant={getChannelColor(vendor.type)} className="text-xs">
-                                    {vendor.type.toUpperCase()}
-                                  </Badge>
-                                </div>
-                              </div>
-                              
-                              {vendor.description && (
-                                <p className="text-xs text-muted-foreground line-clamp-2">
-                                  {vendor.description}
-                                </p>
-                              )}
-                              
-                              <Button 
-                                size="sm" 
-                                className="w-full"
+                {/* Filters above vendors */}
+                <div className="flex items-center justify-between">
+                  <h2 className="text-xl font-semibold">Vendor Marketplace</h2>
+                  <Select value={channelFilter} onValueChange={setChannelFilter}>
+                    <SelectTrigger className="w-40">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Channels</SelectItem>
+                      <SelectItem value="sms">SMS</SelectItem>
+                      <SelectItem value="email">Email</SelectItem>
+                      <SelectItem value="whatsapp">WhatsApp</SelectItem>
+                      <SelectItem value="voice">Voice</SelectItem>
+                      <SelectItem value="rcs">RCS</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Channel Sections */}
+                {channelOrder.map(channel => {
+                  const vendors = vendorsByChannel[channel];
+                  if (!vendors || vendors.length === 0) return null;
+                  
+                  return (
+                    <motion.div
+                      key={channel}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.4 }}
+                    >
+                      <Card>
+                        <CardHeader className="pb-4">
+                          <div className="flex items-center justify-between">
+                            <CardTitle className="flex items-center gap-3">
+                              <Badge variant={getChannelColor(channel)} className="px-3 py-1">
+                                {channelLabels[channel as keyof typeof channelLabels]}
+                              </Badge>
+                              <span className="text-sm text-muted-foreground">
+                                {vendors.length} vendor{vendors.length !== 1 ? 's' : ''}
+                              </span>
+                            </CardTitle>
+                          </div>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                            {vendors.map((vendor) => (
+                              <Card 
+                                key={vendor.id} 
+                                className="group cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all duration-200 border-2 hover:border-primary/50"
                                 onClick={() => handleVendorOnboarding(vendor)}
                               >
-                                <Plus className="w-3 h-3 mr-1" />
-                                Get Started
-                              </Button>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
+                                <CardContent className="p-4">
+                                  <div className="space-y-3">
+                                    <div className="flex items-center gap-3">
+                                      <img 
+                                        src={vendor.logo} 
+                                        alt={vendor.name}
+                                        className="w-10 h-10 rounded object-contain"
+                                      />
+                                      <div className="flex-1">
+                                        <h3 className="font-semibold text-sm group-hover:text-primary transition-colors">
+                                          {vendor.name}
+                                        </h3>
+                                        <p className="text-xs text-muted-foreground">
+                                          Click to get started
+                                        </p>
+                                      </div>
+                                    </div>
+                                    
+                                    {vendor.description && (
+                                      <p className="text-xs text-muted-foreground line-clamp-2">
+                                        {vendor.description}
+                                      </p>
+                                    )}
+                                  </div>
+                                </CardContent>
+                              </Card>
+                            ))}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </motion.div>
+                  );
+                })}
+
+                {/* No vendors message */}
+                {Object.keys(vendorsByChannel).length === 0 && (
+                  <Card>
+                    <CardContent className="p-12 text-center">
+                      <Store className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                      <h3 className="text-lg font-semibold mb-2">No Vendors Found</h3>
+                      <p className="text-muted-foreground">
+                        Try selecting a different channel filter to see available vendors.
+                      </p>
+                    </CardContent>
+                  </Card>
+                )}
               </motion.div>
             </TabsContent>
 
@@ -347,6 +413,35 @@ const Vendors: React.FC = () => {
                 transition={{ duration: 0.6 }}
                 className="space-y-6"
               >
+                {/* Filters above health content */}
+                <div className="flex items-center justify-between">
+                  <h2 className="text-xl font-semibold">Vendor Health Dashboard</h2>
+                  <div className="flex items-center gap-3">
+                    <Select value={channelFilter} onValueChange={setChannelFilter}>
+                      <SelectTrigger className="w-40">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Channels</SelectItem>
+                        <SelectItem value="sms">SMS</SelectItem>
+                        <SelectItem value="email">Email</SelectItem>
+                        <SelectItem value="whatsapp">WhatsApp</SelectItem>
+                        <SelectItem value="voice">Voice</SelectItem>
+                        <SelectItem value="rcs">RCS</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Select value={dateFilter} onValueChange={setDateFilter}>
+                      <SelectTrigger className="w-32">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="24h">Last 24H</SelectItem>
+                        <SelectItem value="7d">Last 7D</SelectItem>
+                        <SelectItem value="30d">Last 30D</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
                 {/* Health KPIs */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                   <Card>
