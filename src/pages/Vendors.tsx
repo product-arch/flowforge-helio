@@ -10,6 +10,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip } from 'recharts';
 import { Store, ArrowLeft, Activity, TrendingUp, TrendingDown, AlertTriangle, Settings, CheckCircle } from 'lucide-react';
+import { PageHeader } from '@/components/common/PageHeader';
+import { 
+  PersonalInfoModal, 
+  AccountSettingsModal, 
+  BillingModal
+} from '@/components/flow/AccountModals';
+import { SupportModal } from '@/components/flow/SupportModal';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useToast } from '@/hooks/use-toast';
@@ -36,6 +43,12 @@ const Vendors: React.FC = () => {
   const [channelFilter, setChannelFilter] = useState('all');
   const [onboardingModalOpen, setOnboardingModalOpen] = useState(false);
   const [selectedVendor, setSelectedVendor] = useState<Vendor | null>(null);
+  
+  // Modal states for navigation
+  const [personalInfoOpen, setPersonalInfoOpen] = useState(false);
+  const [accountSettingsOpen, setAccountSettingsOpen] = useState(false);
+  const [billingOpen, setBillingOpen] = useState(false);
+  const [supportOpen, setSupportOpen] = useState(false);
   
   // Data state
   const [vendorIntegrations, setVendorIntegrations] = useState<VendorIntegration[]>([]);
@@ -264,48 +277,29 @@ const Vendors: React.FC = () => {
   return (
     <ThemeProvider>
       <div className="min-h-screen bg-background">
-        {/* Header */}
-        <header className="sticky top-0 z-50 pt-4">
-          <div className="container mx-auto px-6">
-            <div className="bg-card/80 backdrop-blur-xl border border-border/50 rounded-2xl shadow-lg shadow-black/5 px-6 py-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-8">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
-                      <Store className="w-5 h-5 text-white" />
-                    </div>
-                    <h1 className="text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
-                      Vendors
-                    </h1>
-                  </div>
-                  
-                  <nav className="hidden md:flex items-center gap-6">
-                    <Button variant="ghost" className="text-sm" onClick={() => navigate('/')}>
-                      <ArrowLeft className="w-4 h-4 mr-2" />
-                      Back to Home
-                    </Button>
-                  </nav>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  {/* Date Filter - Only show in Health tab */}
-                  {activeTab === 'health' && (
-                    <Select value={dateFilter} onValueChange={setDateFilter}>
-                      <SelectTrigger className="w-32">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="24h">Last 24H</SelectItem>
-                        <SelectItem value="7d">Last 7D</SelectItem>
-                        <SelectItem value="30d">Last 30D</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-        </header>
+        <PageHeader
+          title="Vendors"
+          subtitle="Manage your communication vendor integrations and health monitoring"
+          icon={<Store className="w-5 h-5 text-white" />}
+          onPersonalInfoClick={() => setPersonalInfoOpen(true)}
+          onAccountSettingsClick={() => setAccountSettingsOpen(true)}
+          onBillingClick={() => setBillingOpen(true)}
+          onSupportClick={() => setSupportOpen(true)}
+        >
+          {/* Date Filter - Only show in Health tab */}
+          {activeTab === 'health' && (
+            <Select value={dateFilter} onValueChange={setDateFilter}>
+              <SelectTrigger className="w-32">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="24h">Last 24H</SelectItem>
+                <SelectItem value="7d">Last 7D</SelectItem>
+                <SelectItem value="30d">Last 30D</SelectItem>
+              </SelectContent>
+            </Select>
+          )}
+        </PageHeader>
 
         {/* Content */}
         <main className="container mx-auto px-6 py-8">
@@ -631,6 +625,24 @@ const Vendors: React.FC = () => {
           onClose={() => setOnboardingModalOpen(false)}
           vendor={selectedVendor}
           onComplete={handleOnboardingComplete}
+        />
+        
+        {/* Navigation Modals */}
+        <PersonalInfoModal 
+          isOpen={personalInfoOpen} 
+          onClose={() => setPersonalInfoOpen(false)} 
+        />
+        <AccountSettingsModal 
+          isOpen={accountSettingsOpen} 
+          onClose={() => setAccountSettingsOpen(false)} 
+        />
+        <BillingModal 
+          isOpen={billingOpen} 
+          onClose={() => setBillingOpen(false)} 
+        />
+        <SupportModal 
+          isOpen={supportOpen} 
+          onClose={() => setSupportOpen(false)} 
         />
       </div>
     </ThemeProvider>

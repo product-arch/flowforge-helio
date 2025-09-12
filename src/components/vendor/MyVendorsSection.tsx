@@ -7,7 +7,11 @@ import { Separator } from '@/components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Settings, TestTube, Activity, Trash2, MoreVertical, Play, Pause, AlertTriangle } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import type { VendorIntegration } from '@/types/vendor-integration';
+import { VendorConfigurationModal } from './VendorConfigurationModal';
+import { VendorTestModal } from './VendorTestModal';
+import { VendorDeleteDialog } from './VendorDeleteDialog';
+import type { VendorIntegration, TestResult } from '@/types/vendor-integration';
+import { useToast } from '@/hooks/use-toast';
 
 interface MyVendorsSectionProps {
   integrations: VendorIntegration[];
@@ -28,6 +32,11 @@ export const MyVendorsSection: React.FC<MyVendorsSectionProps> = ({
 }) => {
   const [groupBy, setGroupBy] = useState<'channel' | 'vendor' | 'status'>('channel');
   const [filterStatus, setFilterStatus] = useState<string>('all');
+  const [configurationModalOpen, setConfigurationModalOpen] = useState(false);
+  const [testModalOpen, setTestModalOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [selectedIntegration, setSelectedIntegration] = useState<VendorIntegration | null>(null);
+  const { toast } = useToast();
 
   const getStatusColor = (status: VendorIntegration['status']) => {
     switch (status) {
@@ -82,6 +91,45 @@ export const MyVendorsSection: React.FC<MyVendorsSectionProps> = ({
     
     return grouped;
   }, [filteredIntegrations, groupBy]);
+
+  const handleConfigure = (integration: VendorIntegration) => {
+    setSelectedIntegration(integration);
+    setConfigurationModalOpen(true);
+  };
+
+  const handleTest = (integration: VendorIntegration) => {
+    setSelectedIntegration(integration);
+    setTestModalOpen(true);
+  };
+
+  const handleDelete = (integration: VendorIntegration) => {
+    setSelectedIntegration(integration);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleToggleStatus = async (integration: VendorIntegration) => {
+    const newStatus = integration.status === 'active' ? 'suspended' : 'active';
+    
+    toast({
+      title: "Status Updated",
+      description: `${integration.vendor.name} ${integration.channel} is now ${newStatus}`,
+      className: "border-status-info bg-status-info/10 text-status-info"
+    });
+    
+    onToggleStatus(integration);
+  };
+
+  const handleConfigurationSave = (integration: VendorIntegration, changes: Partial<VendorIntegration>) => {
+    onConfigure(integration);
+  };
+
+  const handleTestComplete = (integration: VendorIntegration, result: TestResult) => {
+    onTest(integration);
+  };
+
+  const handleDeleteConfirm = (integration: VendorIntegration) => {
+    onDelete(integration);
+  };
 
   if (integrations.length === 0) {
     return (
@@ -183,51 +231,80 @@ export const MyVendorsSection: React.FC<MyVendorsSectionProps> = ({
                           </div>
                         </div>
                         
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100 transition-opacity">
-                              <MoreVertical className="w-4 h-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => onConfigure(integration)}>
-                              <Settings className="w-4 h-4 mr-2" />
-                              Configure
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => onTest(integration)}>
-                              <TestTube className="w-4 h-4 mr-2" />
-                              Test Integration
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => onViewHealth(integration)}>
-                              <Activity className="w-4 h-4 mr-2" />
-                              View Health
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem 
-                              onClick={() => onToggleStatus(integration)}
-                              className={integration.status === 'active' ? 'text-orange-600' : 'text-green-600'}
-                            >
-                              {integration.status === 'active' ? (
-                                <>
-                                  <Pause className="w-4 h-4 mr-2" />
-                                  Suspend
-                                </>
-                              ) : (
-                                <>
-                                  <Play className="w-4 h-4 mr-2" />
-                                  Activate
-                                </>
-                              )}
-                            </DropdownMenuItem>
-                            <DropdownMenuItem 
-                              onClick={() => onDelete(integration)}
-                              className="text-destructive"
-                            >
-                              <Trash2 className="w-4 h-4 mr-2" />
-                              Delete
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                        <div className="flex items-center gap-1">
+                          {/* Quick Action Buttons */}
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            onClick={() => handleConfigure(integration)}
+                            className="opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <Settings className="w-4 h-4" />
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            onClick={() => handleTest(integration)}
+                            className="opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <TestTube className="w-4 h-4" />
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            onClick={() => onViewHealth(integration)}
+                            className="opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <Activity className="w-4 h-4" />
+                          </Button>
+                          
+                          {/* More Actions Dropdown */}
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100 transition-opacity">
+                                <MoreVertical className="w-4 h-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="bg-background border-border">
+                              <DropdownMenuItem onClick={() => handleConfigure(integration)}>
+                                <Settings className="w-4 h-4 mr-2" />
+                                Configure
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleTest(integration)}>
+                                <TestTube className="w-4 h-4 mr-2" />
+                                Test Integration
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => onViewHealth(integration)}>
+                                <Activity className="w-4 h-4 mr-2" />
+                                View Health
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem 
+                                onClick={() => handleToggleStatus(integration)}
+                                className={integration.status === 'active' ? 'text-orange-600' : 'text-green-600'}
+                              >
+                                {integration.status === 'active' ? (
+                                  <>
+                                    <Pause className="w-4 h-4 mr-2" />
+                                    Suspend
+                                  </>
+                                ) : (
+                                  <>
+                                    <Play className="w-4 h-4 mr-2" />
+                                    Activate
+                                  </>
+                                )}
+                              </DropdownMenuItem>
+                              <DropdownMenuItem 
+                                onClick={() => handleDelete(integration)}
+                                className="text-destructive"
+                              >
+                                <Trash2 className="w-4 h-4 mr-2" />
+                                Delete
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
                       </div>
 
                       {/* Status */}
@@ -278,6 +355,28 @@ export const MyVendorsSection: React.FC<MyVendorsSectionProps> = ({
           </CardContent>
         </Card>
       ))}
+      
+      {/* Modals */}
+      <VendorConfigurationModal
+        isOpen={configurationModalOpen}
+        onClose={() => setConfigurationModalOpen(false)}
+        integration={selectedIntegration}
+        onSave={handleConfigurationSave}
+      />
+      
+      <VendorTestModal
+        isOpen={testModalOpen}
+        onClose={() => setTestModalOpen(false)}
+        integration={selectedIntegration}
+        onTestComplete={handleTestComplete}
+      />
+      
+      <VendorDeleteDialog
+        isOpen={deleteDialogOpen}
+        onClose={() => setDeleteDialogOpen(false)}
+        integration={selectedIntegration}
+        onDelete={handleDeleteConfirm}
+      />
     </motion.div>
   );
 };

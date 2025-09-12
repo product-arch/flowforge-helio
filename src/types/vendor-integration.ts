@@ -10,6 +10,7 @@ export interface VendorCredentials {
   // SMS Credentials
   apiKey?: string;
   apiSecret?: string;
+  secretKey?: string;
   senderId?: string;
   
   // Email Credentials
@@ -34,6 +35,10 @@ export interface VendorCredentials {
   agentId?: string;
   brandId?: string;
   serviceAccountKey?: string;
+  
+  // Validation fields
+  isValid?: boolean;
+  lastVerified?: Date;
 }
 
 export interface VendorConfiguration {
@@ -49,6 +54,13 @@ export interface VendorConfiguration {
   template?: string;
   defaultTemplate?: string;
   enableDeliveryReceipts?: boolean;
+  
+  // Feature flags
+  enableRetry?: boolean;
+  healthMonitoring?: boolean;
+  
+  // Advanced settings
+  customConfig?: string;
   
   // Routing preferences
   priority?: number;
@@ -124,4 +136,15 @@ export interface OnboardingStep {
   description: string;
   required: boolean;
   component: string; // Component name to render
+}
+
+export interface TestResult {
+  id: string;
+  timestamp: Date;
+  success: boolean;
+  latency: number;
+  statusCode: number;
+  response: string;
+  testType: 'manual' | 'automated';
+  recipientType: 'phone' | 'email' | 'message';
 }
