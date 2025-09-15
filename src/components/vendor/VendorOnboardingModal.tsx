@@ -172,6 +172,11 @@ export const VendorOnboardingModal: React.FC<VendorOnboardingModalProps> = ({
       
       default:
         // Fallback to prerequisites display for steps not yet implemented
+        // Auto-enable proceed for prerequisite steps
+        React.useEffect(() => {
+          setCanProceed(true);
+        }, [onboardingFlow.currentStep]);
+
         return (
           <div className="space-y-4">
             <h4 className="font-medium">Prerequisites for {vendor.type.toUpperCase()} Integration:</h4>
@@ -189,11 +194,6 @@ export const VendorOnboardingModal: React.FC<VendorOnboardingModalProps> = ({
                 <span className="font-medium">Complete these prerequisites in {vendor.name}'s portal before proceeding.</span>
               </div>
             </div>
-            {/* Auto-enable proceed for placeholder steps */}
-            {(() => {
-              React.useEffect(() => setCanProceed(true), []);
-              return null;
-            })()}
           </div>
         );
     }
