@@ -27,6 +27,440 @@ security:
   - bearerAuth: []
 
 paths:
+  # Authentication APIs
+  /auth/signin:
+    post:
+      summary: Sign in
+      description: Authenticate user with email and password
+      tags:
+        - Authentication
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignInRequest'
+      responses:
+        '200':
+          description: Authentication successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/signup:
+    post:
+      summary: Sign up
+      description: Register a new user account
+      tags:
+        - Authentication
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignUpRequest'
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          description: User already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/forgot-password:
+    post:
+      summary: Forgot password
+      description: Initiate password reset process
+      tags:
+        - Authentication
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: User email address
+      responses:
+        '200':
+          description: Password reset email sent
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Password reset email sent"
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /auth/reset-password:
+    post:
+      summary: Reset password
+      description: Complete password reset with token
+      tags:
+        - Authentication
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - token
+                - password
+              properties:
+                token:
+                  type: string
+                  description: Password reset token
+                password:
+                  type: string
+                  minLength: 8
+                  description: New password
+      responses:
+        '200':
+          description: Password reset successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /auth/refresh:
+    post:
+      summary: Refresh token
+      description: Refresh JWT access token
+      tags:
+        - Authentication
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - refresh_token
+              properties:
+                refresh_token:
+                  type: string
+                  description: Valid refresh token
+      responses:
+        '200':
+          description: Token refreshed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  # User Management APIs
+  /users:
+    get:
+      summary: List users
+      description: Retrieve a paginated list of users
+      tags:
+        - Users
+      parameters:
+        - name: limit
+          in: query
+          description: Number of users to return
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: cursor
+          in: query
+          description: Pagination cursor
+          required: false
+          schema:
+            type: string
+        - name: role
+          in: query
+          description: Filter by user role
+          required: false
+          schema:
+            type: string
+            enum: [admin, moderator, user]
+        - name: status
+          in: query
+          description: Filter by account status
+          required: false
+          schema:
+            type: string
+            enum: [active, inactive, pending]
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/User'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /users/invite:
+    post:
+      summary: Invite user
+      description: Send invitation to a new user
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InviteUserRequest'
+      responses:
+        '201':
+          description: Invitation sent successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  invitation_id:
+                    type: string
+                  email:
+                    type: string
+                  status:
+                    type: string
+                    enum: [pending]
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          description: User already exists
+
+  /users/onboard:
+    post:
+      summary: Onboard user
+      description: Complete user onboarding process
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OnboardUserRequest'
+      responses:
+        '200':
+          description: User onboarded successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /users/{user_id}:
+    get:
+      summary: Get user
+      description: Retrieve a specific user by ID
+      tags:
+        - Users
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: Unique user identifier
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    put:
+      summary: Update user
+      description: Update user information
+      tags:
+        - Users
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserRequest'
+      responses:
+        '200':
+          description: User updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      summary: Delete user
+      description: Delete a user account permanently
+      tags:
+        - Users
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: User deleted successfully
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /users/{user_id}/roles:
+    post:
+      summary: Assign user role
+      description: Assign a role to a user
+      tags:
+        - Users
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - role
+              properties:
+                role:
+                  type: string
+                  enum: [admin, moderator, user]
+                  description: Role to assign
+      responses:
+        '201':
+          description: Role assigned successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserRole'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /users/{user_id}/roles/{role_id}:
+    put:
+      summary: Update user role
+      description: Update a user's role
+      tags:
+        - Users
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: role_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - role
+              properties:
+                role:
+                  type: string
+                  enum: [admin, moderator, user]
+      responses:
+        '200':
+          description: Role updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserRole'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      summary: Delete user role
+      description: Remove a role from a user
+      tags:
+        - Users
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: role_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Role removed successfully
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # Flow Management APIs
   /flows:
     get:
       summary: List flows
@@ -152,6 +586,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Flow'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
 
     delete:
       summary: Delete flow
@@ -167,10 +605,123 @@ paths:
       responses:
         '204':
           description: Flow deleted successfully
+        '404':
+          $ref: '#/components/responses/NotFound'
         '409':
           description: Cannot delete active flow
 
+  /flows/{flow_id}/activate:
+    post:
+      summary: Activate flow
+      description: Activate a flow to start processing messages
+      tags:
+        - Flows
+      parameters:
+        - name: flow_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Flow activated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Flow'
+        '400':
+          description: Flow cannot be activated
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /flows/{flow_id}/deactivate:
+    post:
+      summary: Deactivate flow
+      description: Deactivate an active flow
+      tags:
+        - Flows
+      parameters:
+        - name: flow_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Flow deactivated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Flow'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # Message Management APIs
   /flows/{flow_id}/messages:
+    get:
+      summary: Get flow messages
+      description: Retrieve messages for a specific flow with pagination
+      tags:
+        - Messages
+      parameters:
+        - name: flow_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: Number of messages to return
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: cursor
+          in: query
+          description: Pagination cursor
+          required: false
+          schema:
+            type: string
+        - name: status
+          in: query
+          description: Filter by message status
+          required: false
+          schema:
+            type: string
+            enum: [queued, processing, sent, delivered, failed]
+        - name: start_date
+          in: query
+          description: Filter messages from this date
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: end_date
+          in: query
+          description: Filter messages until this date
+          required: false
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Message'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
     post:
       summary: Send message
       description: Send a message through the specified flow
@@ -195,6 +746,245 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Message'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /messages/{message_id}:
+    get:
+      summary: Get message info
+      description: Retrieve detailed information about a specific message
+      tags:
+        - Messages
+      parameters:
+        - name: message_id
+          in: path
+          required: true
+          description: Unique message identifier
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageDetails'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /messages/{message_id}/stop:
+    post:
+      summary: Stop message
+      description: Cancel or stop a message from being delivered
+      tags:
+        - Messages
+      parameters:
+        - name: message_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Message stopped successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message_id:
+                    type: string
+                  status:
+                    type: string
+                    enum: [cancelled]
+                  stopped_at:
+                    type: string
+                    format: date-time
+        '400':
+          description: Message cannot be stopped
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # Vendor Management APIs
+  /vendors/sms/onboard:
+    post:
+      summary: Onboard SMS vendor
+      description: Configure and onboard an SMS service provider
+      tags:
+        - Vendors
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OnboardSMSVendorRequest'
+      responses:
+        '201':
+          description: SMS vendor onboarded successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vendor'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /vendors/whatsapp/onboard:
+    post:
+      summary: Onboard WhatsApp vendor
+      description: Configure and onboard WhatsApp Business API
+      tags:
+        - Vendors
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OnboardWhatsAppVendorRequest'
+      responses:
+        '201':
+          description: WhatsApp vendor onboarded successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vendor'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /vendors/email/onboard:
+    post:
+      summary: Onboard email vendor
+      description: Configure and onboard an email service provider
+      tags:
+        - Vendors
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OnboardEmailVendorRequest'
+      responses:
+        '201':
+          description: Email vendor onboarded successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vendor'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /vendors/voice/onboard:
+    post:
+      summary: Onboard voice vendor
+      description: Configure and onboard a voice service provider
+      tags:
+        - Vendors
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OnboardVoiceVendorRequest'
+      responses:
+        '201':
+          description: Voice vendor onboarded successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vendor'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /vendors/rcs/onboard:
+    post:
+      summary: Onboard RCS vendor
+      description: Configure and onboard an RCS service provider
+      tags:
+        - Vendors
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OnboardRCSVendorRequest'
+      responses:
+        '201':
+          description: RCS vendor onboarded successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vendor'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /vendors/{vendor_id}:
+    get:
+      summary: Get vendor
+      description: Retrieve vendor configuration and status
+      tags:
+        - Vendors
+      parameters:
+        - name: vendor_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vendor'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    put:
+      summary: Update vendor
+      description: Update vendor configuration
+      tags:
+        - Vendors
+      parameters:
+        - name: vendor_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateVendorRequest'
+      responses:
+        '200':
+          description: Vendor updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vendor'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      summary: Remove vendor
+      description: Remove vendor integration
+      tags:
+        - Vendors
+      parameters:
+        - name: vendor_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Vendor removed successfully
+        '404':
+          $ref: '#/components/responses/NotFound'
 
 components:
   securitySchemes:
@@ -204,6 +994,424 @@ components:
       bearerFormat: JWT
 
   schemas:
+    # Authentication Schemas
+    SignInRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          description: User email address
+          example: "user@example.com"
+        password:
+          type: string
+          minLength: 8
+          description: User password
+        remember_me:
+          type: boolean
+          default: false
+          description: Keep user signed in
+
+    SignUpRequest:
+      type: object
+      required:
+        - email
+        - password
+        - first_name
+        - last_name
+      properties:
+        email:
+          type: string
+          format: email
+          description: User email address
+        password:
+          type: string
+          minLength: 8
+          description: User password
+        first_name:
+          type: string
+          description: User's first name
+        last_name:
+          type: string
+          description: User's last name
+        company:
+          type: string
+          description: Company name
+        phone:
+          type: string
+          description: Phone number
+
+    AuthResponse:
+      type: object
+      properties:
+        access_token:
+          type: string
+          description: JWT access token
+        refresh_token:
+          type: string
+          description: JWT refresh token
+        expires_in:
+          type: integer
+          description: Token expiration time in seconds
+        token_type:
+          type: string
+          enum: [Bearer]
+        user:
+          $ref: '#/components/schemas/User'
+
+    # User Management Schemas
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique user identifier
+          example: "user_123"
+        email:
+          type: string
+          format: email
+          description: User email address
+        first_name:
+          type: string
+          description: User's first name
+        last_name:
+          type: string
+          description: User's last name
+        company:
+          type: string
+          description: Company name
+        phone:
+          type: string
+          description: Phone number
+        avatar_url:
+          type: string
+          format: uri
+          description: Profile picture URL
+        status:
+          type: string
+          enum: [active, inactive, pending]
+          description: Account status
+        roles:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserRole'
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        last_login_at:
+          type: string
+          format: date-time
+          nullable: true
+
+    UserRole:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique role assignment identifier
+        role:
+          type: string
+          enum: [admin, moderator, user]
+          description: Role name
+        assigned_at:
+          type: string
+          format: date-time
+          description: When the role was assigned
+        assigned_by:
+          type: string
+          description: User ID who assigned this role
+
+    InviteUserRequest:
+      type: object
+      required:
+        - email
+        - role
+      properties:
+        email:
+          type: string
+          format: email
+          description: Email address to invite
+        role:
+          type: string
+          enum: [admin, moderator, user]
+          description: Initial role assignment
+        first_name:
+          type: string
+          description: User's first name
+        last_name:
+          type: string
+          description: User's last name
+        message:
+          type: string
+          description: Custom invitation message
+
+    OnboardUserRequest:
+      type: object
+      required:
+        - invitation_token
+        - password
+      properties:
+        invitation_token:
+          type: string
+          description: Invitation token from email
+        password:
+          type: string
+          minLength: 8
+          description: User's chosen password
+        first_name:
+          type: string
+          description: User's first name
+        last_name:
+          type: string
+          description: User's last name
+
+    UpdateUserRequest:
+      type: object
+      properties:
+        first_name:
+          type: string
+        last_name:
+          type: string
+        company:
+          type: string
+        phone:
+          type: string
+        avatar_url:
+          type: string
+          format: uri
+
+    # Vendor Management Schemas
+    Vendor:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique vendor identifier
+        name:
+          type: string
+          description: Vendor name
+        type:
+          type: string
+          enum: [sms, whatsapp, email, voice, rcs]
+          description: Communication channel type
+        status:
+          type: string
+          enum: [active, inactive, testing, error]
+          description: Vendor status
+        configuration:
+          type: object
+          description: Vendor-specific configuration
+        credentials:
+          type: object
+          description: Authentication credentials (masked)
+        health:
+          type: object
+          properties:
+            status:
+              type: string
+              enum: [healthy, degraded, down]
+            last_check:
+              type: string
+              format: date-time
+            response_time:
+              type: number
+              description: Average response time in milliseconds
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    OnboardSMSVendorRequest:
+      type: object
+      required:
+        - vendor_name
+        - api_credentials
+      properties:
+        vendor_name:
+          type: string
+          enum: [twilio, nexmo, textlocal, msg91]
+          description: SMS vendor provider
+        api_credentials:
+          type: object
+          properties:
+            account_sid:
+              type: string
+            auth_token:
+              type: string
+            api_key:
+              type: string
+        configuration:
+          type: object
+          properties:
+            sender_id:
+              type: string
+            webhook_url:
+              type: string
+              format: uri
+
+    OnboardWhatsAppVendorRequest:
+      type: object
+      required:
+        - business_account_id
+        - access_token
+      properties:
+        business_account_id:
+          type: string
+          description: WhatsApp Business Account ID
+        access_token:
+          type: string
+          description: WhatsApp Business API access token
+        phone_number_id:
+          type: string
+          description: Phone number ID for sending messages
+        webhook_url:
+          type: string
+          format: uri
+          description: Webhook URL for status updates
+
+    OnboardEmailVendorRequest:
+      type: object
+      required:
+        - vendor_name
+        - api_credentials
+      properties:
+        vendor_name:
+          type: string
+          enum: [sendgrid, mailgun, ses, postmark]
+          description: Email vendor provider
+        api_credentials:
+          type: object
+          properties:
+            api_key:
+              type: string
+            domain:
+              type: string
+        configuration:
+          type: object
+          properties:
+            from_email:
+              type: string
+              format: email
+            from_name:
+              type: string
+
+    OnboardVoiceVendorRequest:
+      type: object
+      required:
+        - vendor_name
+        - api_credentials
+      properties:
+        vendor_name:
+          type: string
+          enum: [twilio, plivo, vonage]
+          description: Voice vendor provider
+        api_credentials:
+          type: object
+          properties:
+            account_sid:
+              type: string
+            auth_token:
+              type: string
+        configuration:
+          type: object
+          properties:
+            caller_id:
+              type: string
+            webhook_url:
+              type: string
+              format: uri
+
+    OnboardRCSVendorRequest:
+      type: object
+      required:
+        - vendor_name
+        - brand_id
+      properties:
+        vendor_name:
+          type: string
+          enum: [google, sinch]
+          description: RCS vendor provider
+        brand_id:
+          type: string
+          description: Verified brand identifier
+        agent_id:
+          type: string
+          description: RCS agent identifier
+        api_credentials:
+          type: object
+          properties:
+            service_account_key:
+              type: string
+
+    UpdateVendorRequest:
+      type: object
+      properties:
+        configuration:
+          type: object
+          description: Updated vendor configuration
+        status:
+          type: string
+          enum: [active, inactive]
+
+    # Enhanced Message Schema
+    MessageDetails:
+      allOf:
+        - $ref: '#/components/schemas/Message'
+        - type: object
+          properties:
+            content:
+              type: object
+              properties:
+                text:
+                  type: string
+                  description: Message text content
+                media_url:
+                  type: string
+                  format: uri
+                  description: Media attachment URL
+                template_id:
+                  type: string
+                  description: Template used for the message
+            execution_log:
+              type: array
+              items:
+                type: object
+                properties:
+                  timestamp:
+                    type: string
+                    format: date-time
+                  event:
+                    type: string
+                    enum: [queued, routing, vendor_selected, sent, delivered, failed]
+                  vendor:
+                    type: string
+                    description: Vendor used for this step
+                  details:
+                    type: string
+                    description: Additional event details
+            cost_breakdown:
+              type: object
+              properties:
+                vendor_cost:
+                  type: number
+                  format: float
+                platform_fee:
+                  type: number
+                  format: float
+                total_cost:
+                  type: number
+                  format: float
+                currency:
+                  type: string
+                  example: "USD"
     Flow:
       type: object
       properties:
@@ -540,12 +1748,16 @@ components:
             $ref: '#/components/schemas/Error'
 
 tags:
+  - name: Authentication
+    description: User authentication and authorization
+  - name: Users
+    description: User management and onboarding
   - name: Flows
-    description: Flow management operations
+    description: Communication flow management
   - name: Messages
     description: Message sending and tracking
   - name: Vendors
-    description: Vendor configuration and health
+    description: Vendor configuration and management
   - name: Analytics
     description: Performance metrics and analytics
   - name: Webhooks

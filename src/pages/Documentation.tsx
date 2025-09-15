@@ -85,6 +85,122 @@ interface CodeExample {
 }
 
 const apiEndpoints: ApiEndpoint[] = [
+  // Authentication API
+  {
+    id: 'signin',
+    method: 'POST',
+    path: '/auth/signin',
+    title: 'Sign In',
+    description: 'Authenticate user with email and password',
+    category: 'Authentication'
+  },
+  {
+    id: 'signup',
+    method: 'POST',
+    path: '/auth/signup',
+    title: 'Sign Up',
+    description: 'Register a new user account',
+    category: 'Authentication'
+  },
+  {
+    id: 'forgot-password',
+    method: 'POST',
+    path: '/auth/forgot-password',
+    title: 'Forgot Password',
+    description: 'Initiate password reset process',
+    category: 'Authentication'
+  },
+  {
+    id: 'reset-password',
+    method: 'POST',
+    path: '/auth/reset-password',
+    title: 'Reset Password',
+    description: 'Complete password reset with token',
+    category: 'Authentication'
+  },
+  {
+    id: 'refresh-token',
+    method: 'POST',
+    path: '/auth/refresh',
+    title: 'Refresh Token',
+    description: 'Refresh JWT access token',
+    category: 'Authentication'
+  },
+
+  // User Management API
+  {
+    id: 'list-users',
+    method: 'GET',
+    path: '/users',
+    title: 'List Users',
+    description: 'Retrieve a paginated list of users',
+    category: 'Users'
+  },
+  {
+    id: 'get-user',
+    method: 'GET',
+    path: '/users/{user_id}',
+    title: 'Get User',
+    description: 'Retrieve a specific user by ID',
+    category: 'Users'
+  },
+  {
+    id: 'update-user',
+    method: 'PUT',
+    path: '/users/{user_id}',
+    title: 'Update User',
+    description: 'Update user information',
+    category: 'Users'
+  },
+  {
+    id: 'delete-user',
+    method: 'DELETE',
+    path: '/users/{user_id}',
+    title: 'Delete User',
+    description: 'Delete a user account permanently',
+    category: 'Users'
+  },
+  {
+    id: 'invite-user',
+    method: 'POST',
+    path: '/users/invite',
+    title: 'Invite User',
+    description: 'Send invitation to a new user',
+    category: 'Users'
+  },
+  {
+    id: 'onboard-user',
+    method: 'POST',
+    path: '/users/onboard',
+    title: 'Onboard User',
+    description: 'Complete user onboarding process',
+    category: 'Users'
+  },
+  {
+    id: 'assign-user-role',
+    method: 'POST',
+    path: '/users/{user_id}/roles',
+    title: 'Assign User Role',
+    description: 'Assign a role to a user',
+    category: 'Users'
+  },
+  {
+    id: 'update-user-role',
+    method: 'PUT',
+    path: '/users/{user_id}/roles/{role_id}',
+    title: 'Update User Role',
+    description: 'Update a user\'s role',
+    category: 'Users'
+  },
+  {
+    id: 'delete-user-role',
+    method: 'DELETE',
+    path: '/users/{user_id}/roles/{role_id}',
+    title: 'Delete User Role',
+    description: 'Remove a role from a user',
+    category: 'Users'
+  },
+
   // Flows API
   {
     id: 'list-flows',
@@ -119,6 +235,14 @@ const apiEndpoints: ApiEndpoint[] = [
     category: 'Flows'
   },
   {
+    id: 'delete-flow',
+    method: 'DELETE',
+    path: '/flows/{flow_id}',
+    title: 'Delete Flow',
+    description: 'Delete a flow permanently',
+    category: 'Flows'
+  },
+  {
     id: 'activate-flow',
     method: 'POST',
     path: '/flows/{flow_id}/activate',
@@ -127,13 +251,14 @@ const apiEndpoints: ApiEndpoint[] = [
     category: 'Flows'
   },
   {
-    id: 'simulate-flow',
+    id: 'deactivate-flow',
     method: 'POST',
-    path: '/flows/{flow_id}/simulate',
-    title: 'Simulate Flow',
-    description: 'Test a flow configuration without sending actual messages',
+    path: '/flows/{flow_id}/deactivate',
+    title: 'Deactivate Flow',
+    description: 'Deactivate an active flow',
     category: 'Flows'
   },
+
   // Messages API
   {
     id: 'send-message',
@@ -144,38 +269,96 @@ const apiEndpoints: ApiEndpoint[] = [
     category: 'Messages'
   },
   {
-    id: 'get-message',
+    id: 'get-flow-messages',
+    method: 'GET',
+    path: '/flows/{flow_id}/messages',
+    title: 'Get Flow Messages',
+    description: 'Retrieve messages for a specific flow with pagination',
+    category: 'Messages'
+  },
+  {
+    id: 'get-message-info',
     method: 'GET',
     path: '/messages/{message_id}',
-    title: 'Get Message Status',
-    description: 'Retrieve the current status of a message',
+    title: 'Get Message Info',
+    description: 'Retrieve detailed information about a specific message',
     category: 'Messages'
   },
   {
-    id: 'bulk-send',
+    id: 'stop-message',
     method: 'POST',
-    path: '/flows/{flow_id}/messages/bulk',
-    title: 'Bulk Send Messages',
-    description: 'Send multiple messages in a single request',
+    path: '/messages/{message_id}/stop',
+    title: 'Stop Message',
+    description: 'Cancel or stop a message from being delivered',
     category: 'Messages'
   },
-  // Vendors API
+
+  // Vendor Management API
   {
-    id: 'list-vendors',
-    method: 'GET',
-    path: '/vendors',
-    title: 'List Vendors',
-    description: 'Retrieve all configured vendors',
+    id: 'onboard-sms-vendor',
+    method: 'POST',
+    path: '/vendors/sms/onboard',
+    title: 'Onboard SMS Vendor',
+    description: 'Configure and onboard an SMS service provider',
     category: 'Vendors'
   },
   {
-    id: 'get-vendor-health',
-    method: 'GET',
-    path: '/vendors/{vendor_id}/health',
-    title: 'Get Vendor Health',
-    description: 'Get real-time health status for a vendor',
+    id: 'onboard-whatsapp-vendor',
+    method: 'POST',
+    path: '/vendors/whatsapp/onboard',
+    title: 'Onboard WhatsApp Vendor',
+    description: 'Configure and onboard WhatsApp Business API',
     category: 'Vendors'
   },
+  {
+    id: 'onboard-email-vendor',
+    method: 'POST',
+    path: '/vendors/email/onboard',
+    title: 'Onboard Email Vendor',
+    description: 'Configure and onboard an email service provider',
+    category: 'Vendors'
+  },
+  {
+    id: 'onboard-voice-vendor',
+    method: 'POST',
+    path: '/vendors/voice/onboard',
+    title: 'Onboard Voice Vendor',
+    description: 'Configure and onboard a voice service provider',
+    category: 'Vendors'
+  },
+  {
+    id: 'onboard-rcs-vendor',
+    method: 'POST',
+    path: '/vendors/rcs/onboard',
+    title: 'Onboard RCS Vendor',
+    description: 'Configure and onboard an RCS service provider',
+    category: 'Vendors'
+  },
+  {
+    id: 'get-vendor',
+    method: 'GET',
+    path: '/vendors/{vendor_id}',
+    title: 'Get Vendor',
+    description: 'Retrieve vendor configuration and status',
+    category: 'Vendors'
+  },
+  {
+    id: 'update-vendor',
+    method: 'PUT',
+    path: '/vendors/{vendor_id}',
+    title: 'Update Vendor',
+    description: 'Update vendor configuration',
+    category: 'Vendors'
+  },
+  {
+    id: 'delete-vendor',
+    method: 'DELETE',
+    path: '/vendors/{vendor_id}',
+    title: 'Remove Vendor',
+    description: 'Remove vendor integration',
+    category: 'Vendors'
+  },
+
   // Analytics API
   {
     id: 'flow-analytics',
@@ -193,6 +376,7 @@ const apiEndpoints: ApiEndpoint[] = [
     description: 'Retrieve analytics across all flows',
     category: 'Analytics'
   },
+
   // Webhooks API
   {
     id: 'list-webhooks',
@@ -213,6 +397,108 @@ const apiEndpoints: ApiEndpoint[] = [
 ];
 
 const codeExamples: Record<string, CodeExample[]> = {
+  'signin': [
+    {
+      language: 'curl',
+      code: `curl -X POST "https://api.flowforge.com/v1/auth/signin" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "email": "user@example.com",
+    "password": "your-password",
+    "remember_me": true
+  }'`
+    },
+    {
+      language: 'javascript',
+      code: `const response = await fetch('https://api.flowforge.com/v1/auth/signin', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    email: 'user@example.com',
+    password: 'your-password',
+    remember_me: true
+  })
+});
+
+const result = await response.json();
+console.log('Access token:', result.access_token);`
+    },
+    {
+      language: 'python',
+      code: `import requests
+
+response = requests.post(
+    'https://api.flowforge.com/v1/auth/signin',
+    headers={'Content-Type': 'application/json'},
+    json={
+        'email': 'user@example.com',
+        'password': 'your-password',
+        'remember_me': True
+    }
+)
+
+result = response.json()
+print(f"Access token: {result['access_token']}")`
+    }
+  ],
+  'signup': [
+    {
+      language: 'curl',
+      code: `curl -X POST "https://api.flowforge.com/v1/auth/signup" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "email": "newuser@example.com",
+    "password": "securepassword",
+    "first_name": "John",
+    "last_name": "Doe",
+    "company": "Acme Corp"
+  }'`
+    },
+    {
+      language: 'javascript',
+      code: `const response = await fetch('https://api.flowforge.com/v1/auth/signup', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    email: 'newuser@example.com',
+    password: 'securepassword',
+    first_name: 'John',
+    last_name: 'Doe',
+    company: 'Acme Corp'
+  })
+});
+
+const result = await response.json();
+console.log('User created:', result.user.id);`
+    }
+  ],
+  'create-flow': [
+    {
+      language: 'curl',
+      code: `curl -X POST "https://api.flowforge.com/v1/flows" \\
+  -H "Authorization: Bearer your-api-token" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "name": "SMS Marketing Flow",
+    "description": "Automated SMS routing for marketing campaigns",
+    "channel": "sms",
+    "configuration": {
+      "nodes": [
+        {
+          "id": "start",
+          "type": "start",
+          "position": {"x": 0, "y": 0}
+        }
+      ],
+      "edges": []
+    }
+  }'`
+    }
+  ],
   'send-message': [
     {
       language: 'curl',
@@ -280,6 +566,32 @@ response = requests.post(
 
 result = response.json()
 print(f"Message sent: {result['message_id']}")`
+    }
+  ],
+  'onboard-sms-vendor': [
+    {
+      language: 'curl',
+      code: `curl -X POST "https://api.flowforge.com/v1/vendors/sms/onboard" \\
+  -H "Authorization: Bearer your-api-token" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "vendor_name": "twilio",
+    "api_credentials": {
+      "account_sid": "your-account-sid",
+      "auth_token": "your-auth-token"
+    },
+    "configuration": {
+      "sender_id": "YourBrand",
+      "webhook_url": "https://your-app.com/webhooks/sms"
+    }
+  }'`
+    }
+  ],
+  'list-users': [
+    {
+      language: 'curl',
+      code: `curl -X GET "https://api.flowforge.com/v1/users?limit=20&role=user" \\
+  -H "Authorization: Bearer your-api-token"`
     }
   ]
 };
@@ -364,6 +676,8 @@ const Documentation: React.FC = () => {
 
   const getCategoryIcon = (category: string) => {
     switch (category) {
+      case 'Authentication': return Shield;
+      case 'Users': return User;
       case 'Flows': return GitBranch;
       case 'Messages': return MessageSquare;
       case 'Vendors': return Settings;
