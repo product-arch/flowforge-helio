@@ -7,7 +7,8 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Eye, EyeOff, TestTube, CheckCircle, XCircle, ExternalLink } from 'lucide-react';
+import { Eye, EyeOff, TestTube, CheckCircle, XCircle, ExternalLink, HelpCircle } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Badge } from '@/components/ui/badge';
 
 const whatsappCredentialsSchema = z.object({
@@ -53,10 +54,15 @@ export const WhatsAppCredentialsForm: React.FC<WhatsAppCredentialsFormProps> = (
   React.useEffect(() => {
     const subscription = form.watch((value) => {
       onDataChange(value);
-      canProceed(form.formState.isValid && testStatus === 'success');
     });
     return () => subscription.unsubscribe();
-  }, [form, onDataChange, canProceed, testStatus]);
+  }, [form, onDataChange]);
+
+  // Separate effect for canProceed to ensure it updates when form validity or test status changes
+  React.useEffect(() => {
+    const isReadyToProgress = form.formState.isValid && testStatus === 'success';
+    canProceed(isReadyToProgress);
+  }, [form.formState.isValid, testStatus, canProceed]);
 
   const handleTestConnection = async () => {
     const values = form.getValues();
@@ -87,7 +93,8 @@ export const WhatsAppCredentialsForm: React.FC<WhatsAppCredentialsFormProps> = (
   };
 
   return (
-    <Card>
+    <TooltipProvider>
+      <Card>
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
           WhatsApp Business API Credentials
@@ -117,7 +124,17 @@ export const WhatsAppCredentialsForm: React.FC<WhatsAppCredentialsFormProps> = (
               name="accessToken"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Access Token *</FormLabel>
+                  <FormLabel className="flex items-center gap-2">
+                    Access Token *
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <HelpCircle className="w-4 h-4 text-muted-foreground" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>A permanent access token from your WhatsApp Business API app. This never expires and is used for authentication.</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </FormLabel>
                   <FormControl>
                     <div className="relative">
                       <Input 
@@ -150,7 +167,17 @@ export const WhatsAppCredentialsForm: React.FC<WhatsAppCredentialsFormProps> = (
                 name="phoneNumberId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Phone Number ID *</FormLabel>
+                    <FormLabel className="flex items-center gap-2">
+                      Phone Number ID *
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <HelpCircle className="w-4 h-4 text-muted-foreground" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>The ID of your registered WhatsApp Business phone number. Found in your Facebook Developer Console under WhatsApp API Setup.</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </FormLabel>
                     <FormControl>
                       <Input placeholder="123456789012345" {...field} />
                     </FormControl>
@@ -167,7 +194,17 @@ export const WhatsAppCredentialsForm: React.FC<WhatsAppCredentialsFormProps> = (
                 name="businessAccountId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Business Account ID *</FormLabel>
+                    <FormLabel className="flex items-center gap-2">
+                      Business Account ID *
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <HelpCircle className="w-4 h-4 text-muted-foreground" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Your WhatsApp Business Account ID from Facebook Business Manager. This identifies your business account.</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </FormLabel>
                     <FormControl>
                       <Input placeholder="123456789012345" {...field} />
                     </FormControl>
@@ -185,7 +222,17 @@ export const WhatsAppCredentialsForm: React.FC<WhatsAppCredentialsFormProps> = (
               name="verifyToken"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Verify Token *</FormLabel>
+                  <FormLabel className="flex items-center gap-2">
+                    Verify Token *
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <HelpCircle className="w-4 h-4 text-muted-foreground" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>A secure token you create for webhook verification. WhatsApp will use this to verify your webhook endpoint.</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </FormLabel>
                   <FormControl>
                     <Input placeholder="Enter a secure verify token" {...field} />
                   </FormControl>
@@ -202,7 +249,17 @@ export const WhatsAppCredentialsForm: React.FC<WhatsAppCredentialsFormProps> = (
               name="webhookUrl"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Webhook URL</FormLabel>
+                  <FormLabel className="flex items-center gap-2">
+                    Webhook URL
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <HelpCircle className="w-4 h-4 text-muted-foreground" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Optional: Your webhook endpoint URL where WhatsApp will send message status updates and user responses.</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </FormLabel>
                   <FormControl>
                     <Input placeholder="https://yourapp.com/webhooks/whatsapp" {...field} />
                   </FormControl>
@@ -248,5 +305,6 @@ export const WhatsAppCredentialsForm: React.FC<WhatsAppCredentialsFormProps> = (
         </Form>
       </CardContent>
     </Card>
+    </TooltipProvider>
   );
 };

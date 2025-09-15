@@ -10,6 +10,9 @@ import { getOnboardingSteps, getChannelRequirements } from '@/constants/onboardi
 import { BusinessDetailsForm } from './onboarding/BusinessDetailsForm';
 import { SMSCredentialsForm } from './onboarding/SMSCredentialsForm';
 import { WhatsAppCredentialsForm } from './onboarding/WhatsAppCredentialsForm';
+import { EmailCredentialsForm } from './onboarding/EmailCredentialsForm';
+import { VoiceCredentialsForm } from './onboarding/VoiceCredentialsForm';
+import { RCSCredentialsForm } from './onboarding/RCSCredentialsForm';
 import { TestingForm } from './onboarding/TestingForm';
 
 interface VendorOnboardingModalProps {
@@ -156,6 +159,42 @@ export const VendorOnboardingModal: React.FC<VendorOnboardingModalProps> = ({
             onNext={handleNext}
             onPrevious={handlePrevious}
             canProceed={setCanProceed}
+          />
+        );
+
+      case 'EmailCredentialsForm':
+        return (
+          <EmailCredentialsForm
+            data={onboardingFlow.data.credentials}
+            onDataChange={(credentials) => handleDataChange({ credentials })}
+            onNext={handleNext}
+            onPrevious={handlePrevious}
+            canProceed={setCanProceed}
+            vendorName={vendor.name}
+          />
+        );
+
+      case 'VoiceCredentialsForm':
+        return (
+          <VoiceCredentialsForm
+            data={onboardingFlow.data.credentials}
+            onDataChange={(credentials) => handleDataChange({ credentials })}
+            onNext={handleNext}
+            onPrevious={handlePrevious}
+            canProceed={setCanProceed}
+            vendorName={vendor.name}
+          />
+        );
+
+      case 'RCSCredentialsForm':
+        return (
+          <RCSCredentialsForm
+            data={onboardingFlow.data.credentials}
+            onDataChange={(credentials) => handleDataChange({ credentials })}
+            onNext={handleNext}
+            onPrevious={handlePrevious}
+            canProceed={setCanProceed}
+            vendorName={vendor.name}
           />
         );
       

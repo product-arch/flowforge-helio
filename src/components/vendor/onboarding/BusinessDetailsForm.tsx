@@ -2,7 +2,9 @@ import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
+import { HelpCircle } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
@@ -50,10 +52,14 @@ export const BusinessDetailsForm: React.FC<BusinessDetailsFormProps> = ({
   React.useEffect(() => {
     const subscription = form.watch((value) => {
       onDataChange(value);
-      canProceed(form.formState.isValid);
     });
     return () => subscription.unsubscribe();
-  }, [form, onDataChange, canProceed]);
+  }, [form, onDataChange]);
+
+  // Separate effect for canProceed to ensure it updates when form validity changes
+  React.useEffect(() => {
+    canProceed(form.formState.isValid);
+  }, [form.formState.isValid, canProceed]);
 
   const businessTypes = [
     'E-commerce',
@@ -71,7 +77,8 @@ export const BusinessDetailsForm: React.FC<BusinessDetailsFormProps> = ({
   ];
 
   return (
-    <Card>
+    <TooltipProvider>
+      <Card>
       <CardContent className="pt-6">
         <Form {...form}>
           <div className="space-y-4">
@@ -80,7 +87,17 @@ export const BusinessDetailsForm: React.FC<BusinessDetailsFormProps> = ({
               name="businessName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Business Name *</FormLabel>
+                  <FormLabel className="flex items-center gap-2">
+                    Business Name *
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <HelpCircle className="w-4 h-4 text-muted-foreground" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Your official business name as registered. This will be used for verification and compliance purposes.</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </FormLabel>
                   <FormControl>
                     <Input placeholder="Enter your business name" {...field} />
                   </FormControl>
@@ -95,7 +112,17 @@ export const BusinessDetailsForm: React.FC<BusinessDetailsFormProps> = ({
                 name="contactEmail"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Contact Email *</FormLabel>
+                    <FormLabel className="flex items-center gap-2">
+                      Contact Email *
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <HelpCircle className="w-4 h-4 text-muted-foreground" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Primary business email for communications and notifications.</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </FormLabel>
                     <FormControl>
                       <Input type="email" placeholder="contact@company.com" {...field} />
                     </FormControl>
@@ -109,7 +136,17 @@ export const BusinessDetailsForm: React.FC<BusinessDetailsFormProps> = ({
                 name="contactPhone"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Contact Phone *</FormLabel>
+                    <FormLabel className="flex items-center gap-2">
+                      Contact Phone *
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <HelpCircle className="w-4 h-4 text-muted-foreground" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Business phone number with country code (e.g., +1234567890).</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </FormLabel>
                     <FormControl>
                       <Input placeholder="+1234567890" {...field} />
                     </FormControl>
@@ -125,7 +162,17 @@ export const BusinessDetailsForm: React.FC<BusinessDetailsFormProps> = ({
                 name="businessType"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Business Type *</FormLabel>
+                    <FormLabel className="flex items-center gap-2">
+                      Business Type *
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <HelpCircle className="w-4 h-4 text-muted-foreground" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Select the category that best describes your business. This helps with compliance and routing optimization.</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger>
@@ -150,7 +197,17 @@ export const BusinessDetailsForm: React.FC<BusinessDetailsFormProps> = ({
                 name="businessWebsite"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Business Website</FormLabel>
+                    <FormLabel className="flex items-center gap-2">
+                      Business Website
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <HelpCircle className="w-4 h-4 text-muted-foreground" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Optional: Your business website URL. Helps with brand verification.</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </FormLabel>
                     <FormControl>
                       <Input placeholder="https://company.com" {...field} />
                     </FormControl>
@@ -165,7 +222,17 @@ export const BusinessDetailsForm: React.FC<BusinessDetailsFormProps> = ({
               name="businessAddress"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Business Address *</FormLabel>
+                  <FormLabel className="flex items-center gap-2">
+                    Business Address *
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <HelpCircle className="w-4 h-4 text-muted-foreground" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Complete business address including street, city, state/province, and postal code.</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </FormLabel>
                   <FormControl>
                     <Input placeholder="Enter your complete business address" {...field} />
                   </FormControl>
@@ -177,5 +244,6 @@ export const BusinessDetailsForm: React.FC<BusinessDetailsFormProps> = ({
         </Form>
       </CardContent>
     </Card>
+    </TooltipProvider>
   );
 };
