@@ -10,6 +10,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import { VendorConfigurationModal } from './VendorConfigurationModal';
 import { VendorTestModal } from './VendorTestModal';
 import { VendorDeleteDialog } from './VendorDeleteDialog';
+import { VendorIcon } from '@/components/ui/vendor-icon';
 import type { VendorIntegration, TestResult } from '@/types/vendor-integration';
 import { useToast } from '@/hooks/use-toast';
 
@@ -218,11 +219,12 @@ export const MyVendorsSection: React.FC<MyVendorsSectionProps> = ({
                       {/* Header */}
                       <div className="flex items-start justify-between">
                         <div className="flex items-center gap-3">
-                          <img 
-                            src={integration.vendor.logo} 
-                            alt={integration.vendor.name}
-                            className="w-8 h-8 rounded object-contain"
-                          />
+                           <VendorIcon 
+                             vendorId={integration.vendor.id}
+                             vendorName={integration.vendor.name}
+                             size="sm"
+                             className="w-8 h-8"
+                           />
                           <div>
                             <h3 className="font-semibold text-sm">{integration.vendor.name}</h3>
                             <p className="text-xs text-muted-foreground uppercase">

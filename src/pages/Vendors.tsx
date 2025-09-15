@@ -23,6 +23,7 @@ import { useToast } from '@/hooks/use-toast';
 import { ALL_VENDORS, getVendorsByType, Vendor } from '@/constants/vendors';
 import { VendorOnboardingModal } from '@/components/vendor/VendorOnboardingModal';
 import { MyVendorsSection } from '@/components/vendor/MyVendorsSection';
+import { VendorIcon } from '@/components/ui/vendor-icon';
 import type { VendorIntegration, VendorHealth } from '@/types/vendor-integration';
 
 interface HealthMetricData {
@@ -371,12 +372,13 @@ const Vendors: React.FC = () => {
                               >
                                 <CardContent className="p-4">
                                   <div className="space-y-3">
-                                    <div className="flex items-center gap-3">
-                                      <img 
-                                        src={vendor.logo} 
-                                        alt={vendor.name}
-                                        className="w-10 h-10 rounded object-contain"
-                                      />
+                                     <div className="flex items-center gap-3">
+                                       <VendorIcon 
+                                         vendorId={vendor.id}
+                                         vendorName={vendor.name}
+                                         size="md"
+                                         className="w-10 h-10"
+                                       />
                                       <div className="flex-1">
                                         <h3 className="font-semibold text-sm group-hover:text-primary transition-colors">
                                           {vendor.name}
