@@ -39,23 +39,65 @@ const swaggerOptions = {
     filter: true,
     showRequestDuration: true,
     tryItOutEnabled: true,
+    supportedSubmitMethods: ['get', 'post', 'put', 'delete', 'patch'],
+    validatorUrl: null,
     requestInterceptor: (req) => {
       // Add API key to requests automatically
       if (!req.headers.Authorization && process.env.FLOWFORGE_API_TOKEN) {
         req.headers.Authorization = `Bearer ${process.env.FLOWFORGE_API_TOKEN}`;
       }
+      // Add content-type header for POST/PUT requests
+      if (['POST', 'PUT', 'PATCH'].includes(req.method) && !req.headers['Content-Type']) {
+        req.headers['Content-Type'] = 'application/json';
+      }
       return req;
+    },
+    responseInterceptor: (res) => {
+      // Log responses for debugging
+      console.log('API Response:', res.status, res.url);
+      return res;
     }
   },
   customCss: `
     .swagger-ui .topbar { display: none; }
     .swagger-ui .info { margin: 20px 0; }
-    .swagger-ui .info .title { color: #3b82f6; }
-    .swagger-ui .scheme-container { background: #f8fafc; padding: 15px; border-radius: 8px; margin: 20px 0; }
-    .swagger-ui .btn.authorize { background-color: #3b82f6; border-color: #3b82f6; }
-    .swagger-ui .btn.authorize:hover { background-color: #2563eb; }
+    .swagger-ui .info .title { color: hsl(221.2 83.2% 53.3%); font-size: 2rem; font-weight: 700; }
+    .swagger-ui .info .description { color: hsl(215.4 16.3% 46.9%); line-height: 1.6; }
+    .swagger-ui .scheme-container { 
+      background: hsl(210 40% 98%); 
+      border: 1px solid hsl(214.3 31.8% 91.4%);
+      padding: 20px; 
+      border-radius: 12px; 
+      margin: 20px 0; 
+    }
+    .swagger-ui .btn.authorize { 
+      background-color: hsl(221.2 83.2% 53.3%); 
+      border-color: hsl(221.2 83.2% 53.3%);
+      border-radius: 8px;
+      font-weight: 500;
+    }
+    .swagger-ui .btn.authorize:hover { 
+      background-color: hsl(221.2 83.2% 45%); 
+    }
+    .swagger-ui .opblock.opblock-post { border-color: hsl(142.1 76.2% 36.3%); }
+    .swagger-ui .opblock.opblock-get { border-color: hsl(221.2 83.2% 53.3%); }
+    .swagger-ui .opblock.opblock-put { border-color: hsl(32.6 94.6% 43.7%); }
+    .swagger-ui .opblock.opblock-delete { border-color: hsl(0 84.2% 60.2%); }
+    .swagger-ui .opblock-summary-method { border-radius: 6px; font-weight: 600; }
+    .swagger-ui .opblock-summary-path { font-family: ui-monospace, monospace; }
+    .swagger-ui .response-content-type { font-family: ui-monospace, monospace; }
+    .swagger-ui .model { font-family: ui-monospace, monospace; }
+    .swagger-ui .btn.execute { 
+      background-color: hsl(142.1 76.2% 36.3%); 
+      color: hsl(210 40% 98%); 
+      border-radius: 8px;
+      font-weight: 500;
+    }
+    .swagger-ui .btn.execute:hover { 
+      background-color: hsl(142.1 76.2% 30%); 
+    }
   `,
-  customSiteTitle: 'FlowForge API Documentation',
+  customSiteTitle: 'FlowForge API Documentation - Interactive Testing',
   customfavIcon: '/favicon.ico'
 };
 
