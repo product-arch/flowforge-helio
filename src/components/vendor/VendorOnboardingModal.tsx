@@ -7,6 +7,10 @@ import { CheckCircle, Circle, AlertCircle, ExternalLink } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { Vendor, ChannelOnboardingFlow, OnboardingStepData } from '@/types/vendor-integration';
 import { getOnboardingSteps, getChannelRequirements } from '@/constants/onboarding-flows';
+import { BusinessDetailsForm } from './onboarding/BusinessDetailsForm';
+import { SMSCredentialsForm } from './onboarding/SMSCredentialsForm';
+import { WhatsAppCredentialsForm } from './onboarding/WhatsAppCredentialsForm';
+import { TestingForm } from './onboarding/TestingForm';
 
 interface VendorOnboardingModalProps {
   isOpen: boolean;
@@ -23,6 +27,7 @@ export const VendorOnboardingModal: React.FC<VendorOnboardingModalProps> = ({
 }) => {
   const { toast } = useToast();
   const [onboardingFlow, setOnboardingFlow] = useState<ChannelOnboardingFlow | null>(null);
+  const [canProceed, setCanProceed] = useState(false);
 
   useEffect(() => {
     if (vendor && isOpen) {
@@ -36,13 +41,14 @@ export const VendorOnboardingModal: React.FC<VendorOnboardingModalProps> = ({
   }, [vendor, isOpen]);
 
   const handleNext = () => {
-    if (!onboardingFlow) return;
+    if (!onboardingFlow || !canProceed) return;
     
     if (onboardingFlow.currentStep < onboardingFlow.steps.length - 1) {
       setOnboardingFlow(prev => prev ? {
         ...prev,
         currentStep: prev.currentStep + 1
       } : null);
+      setCanProceed(false); // Reset for next step
     }
   };
 
@@ -54,29 +60,39 @@ export const VendorOnboardingModal: React.FC<VendorOnboardingModalProps> = ({
         ...prev,
         currentStep: prev.currentStep - 1
       } : null);
+      setCanProceed(true); // Allow going back
     }
   };
 
   const handleComplete = () => {
-    if (!vendor || !onboardingFlow) return;
+    if (!vendor || !onboardingFlow || !canProceed) return;
 
-    // Simulate integration creation
+    // Create integration data with collected information
     const integrationData = {
       vendor,
       channel: vendor.type,
-      status: 'configuring',
-      data: onboardingFlow.data
+      status: 'active',
+      data: onboardingFlow.data,
+      createdAt: new Date(),
+      updatedAt: new Date()
     };
 
     onComplete(integrationData);
     
     toast({
-      title: "Integration Started",
-      description: `${vendor.name} integration has been initiated for ${vendor.type.toUpperCase()}`,
+      title: "Integration Completed",
+      description: `${vendor.name} integration has been successfully configured for ${vendor.type.toUpperCase()}`,
       className: "border-status-success bg-status-success/10 text-status-success"
     });
 
     onClose();
+  };
+
+  const handleDataChange = (stepData: any) => {
+    setOnboardingFlow(prev => prev ? {
+      ...prev,
+      data: { ...prev.data, ...stepData }
+    } : null);
   };
 
   const getStepIcon = (stepIndex: number) => {
@@ -86,6 +102,100 @@ export const VendorOnboardingModal: React.FC<VendorOnboardingModalProps> = ({
       return <Circle className="w-5 h-5 text-primary fill-primary" />;
     } else {
       return <Circle className="w-5 h-5 text-muted-foreground" />;
+    }
+  };
+
+  const renderStepContent = () => {
+    if (!onboardingFlow || !vendor) return null;
+
+    const currentStep = onboardingFlow.steps[onboardingFlow.currentStep];
+    
+    switch (currentStep.component) {
+      case 'BusinessDetailsForm':
+        return (
+          <BusinessDetailsForm
+            data={onboardingFlow.data}
+            onDataChange={handleDataChange}
+            onNext={handleNext}
+            onPrevious={onboardingFlow.currentStep > 0 ? handlePrevious : undefined}
+            canProceed={setCanProceed}
+          />
+        );
+      
+      case 'SMSCredentialsForm':
+        return (
+          <SMSCredentialsForm
+            data={onboardingFlow.data.credentials}
+            onDataChange={(credentials) => handleDataChange({ credentials })}
+            onNext={handleNext}
+            onPrevious={handlePrevious}
+            canProceed={setCanProceed}
+            vendorName={vendor.name}
+          />
+        );
+      
+      case 'WhatsAppCredentialsForm':
+        return (
+          <WhatsAppCredentialsForm
+            data={onboardingFlow.data.credentials}
+            onDataChange={(credentials) => handleDataChange({ credentials })}
+            onNext={handleNext}
+            onPrevious={handlePrevious}
+            canProceed={setCanProceed}
+          />
+        );
+      
+      case 'SMSTestingForm':
+      case 'WhatsAppTestingForm':
+      case 'EmailTestingForm':
+      case 'VoiceTestingForm':
+      case 'RCSTestingForm':
+        return (
+          <TestingForm
+            data={{
+              testRecipient: onboardingFlow.data.testMessages?.phoneNumber || onboardingFlow.data.testMessages?.email || '',
+              testMessage: onboardingFlow.data.testMessages?.message || ''
+            }}
+            onDataChange={(testData) => handleDataChange({ 
+              testMessages: { 
+                phoneNumber: vendor.type !== 'email' ? testData.testRecipient : undefined,
+                email: vendor.type === 'email' ? testData.testRecipient : undefined,
+                message: testData.testMessage 
+              } 
+            })}
+            onNext={handleNext}
+            onPrevious={handlePrevious}
+            canProceed={setCanProceed}
+            channelType={vendor.type}
+          />
+        );
+      
+      default:
+        // Fallback to prerequisites display for steps not yet implemented
+        return (
+          <div className="space-y-4">
+            <h4 className="font-medium">Prerequisites for {vendor.type.toUpperCase()} Integration:</h4>
+            <ul className="space-y-2">
+              {getChannelRequirements(vendor.type).map((req, index) => (
+                <li key={index} className="flex items-start gap-2 text-sm">
+                  <Circle className="w-3 h-3 mt-1 text-muted-foreground" />
+                  {req}
+                </li>
+              ))}
+            </ul>
+            <div className="bg-blue-50 dark:bg-blue-950/50 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+              <div className="flex items-center gap-2 text-blue-700 dark:text-blue-300">
+                <ExternalLink className="w-4 h-4" />
+                <span className="font-medium">Complete these prerequisites in {vendor.name}'s portal before proceeding.</span>
+              </div>
+            </div>
+            {/* Auto-enable proceed for placeholder steps */}
+            {(() => {
+              React.useEffect(() => setCanProceed(true), []);
+              return null;
+            })()}
+          </div>
+        );
     }
   };
 
@@ -160,73 +270,7 @@ export const VendorOnboardingModal: React.FC<VendorOnboardingModalProps> = ({
             </div>
 
             {/* Step-specific content */}
-            {onboardingFlow.currentStep === 0 && (
-              <div className="space-y-4">
-                <h4 className="font-medium">Prerequisites for {vendor.type.toUpperCase()} Integration:</h4>
-                <ul className="space-y-2">
-                  {requirements.map((req, index) => (
-                    <li key={index} className="flex items-start gap-2 text-sm">
-                      <Circle className="w-3 h-3 mt-1 text-muted-foreground" />
-                      {req}
-                    </li>
-                  ))}
-                </ul>
-                <div className="bg-blue-50 dark:bg-blue-950/50 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-                  <div className="flex items-center gap-2 text-blue-700 dark:text-blue-300">
-                    <ExternalLink className="w-4 h-4" />
-                    <span className="font-medium">Complete these prerequisites in {vendor.name}'s portal before proceeding.</span>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {onboardingFlow.currentStep === 1 && vendor.type === 'sms' && (
-              <div className="space-y-4">
-                <h4 className="font-medium">SMS Compliance & Use Case Information:</h4>
-                <div className="text-sm space-y-2">
-                  <p>• Specify your SMS use cases (OTP, promotional, transactional)</p>
-                  <p>• Provide sample message templates</p>
-                  <p>• Confirm A2P 10DLC registration status</p>
-                  <p>• Upload required compliance documents</p>
-                </div>
-              </div>
-            )}
-
-            {onboardingFlow.currentStep === 1 && vendor.type === 'whatsapp' && (
-              <div className="space-y-4">
-                <h4 className="font-medium">WhatsApp Business Verification:</h4>
-                <div className="text-sm space-y-2">
-                  <p>• Verify your business profile with Meta</p>
-                  <p>• Upload business registration documents</p>
-                  <p>• Configure business display name and profile</p>
-                  <p>• Set up phone number verification</p>
-                </div>
-              </div>
-            )}
-
-            {onboardingFlow.currentStep === 1 && vendor.type === 'rcs' && (
-              <div className="space-y-4">
-                <h4 className="font-medium">RCS Brand Verification:</h4>
-                <div className="text-sm space-y-2">
-                  <p>• Register your brand with RCS Business Messaging</p>
-                  <p>• Submit brand verification documents</p>
-                  <p>• Configure brand logo and messaging identity</p>
-                  <p>• Set up carrier partnerships</p>
-                </div>
-              </div>
-            )}
-
-            {(onboardingFlow.currentStep === 2 || (onboardingFlow.currentStep === 1 && ['email', 'voice'].includes(vendor.type))) && (
-              <div className="space-y-4">
-                <h4 className="font-medium">API Credentials Configuration:</h4>
-                <div className="text-sm space-y-2">
-                  <p>• Enter your {vendor.name} API credentials</p>
-                  <p>• Configure authentication settings</p>
-                  <p>• Set up endpoint URLs and webhooks</p>
-                  <p>• Test API connectivity</p>
-                </div>
-              </div>
-            )}
+            {renderStepContent()}
           </div>
         </div>
 
@@ -246,11 +290,11 @@ export const VendorOnboardingModal: React.FC<VendorOnboardingModalProps> = ({
               </Button>
               
               {onboardingFlow.currentStep === onboardingFlow.steps.length - 1 ? (
-                <Button onClick={handleComplete}>
+                <Button onClick={handleComplete} disabled={!canProceed}>
                   Complete Integration
                 </Button>
               ) : (
-                <Button onClick={handleNext}>
+                <Button onClick={handleNext} disabled={!canProceed}>
                   Next
                 </Button>
               )}
