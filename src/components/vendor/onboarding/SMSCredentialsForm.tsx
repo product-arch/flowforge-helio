@@ -53,10 +53,16 @@ export const SMSCredentialsForm: React.FC<SMSCredentialsFormProps> = ({
   React.useEffect(() => {
     const subscription = form.watch((value) => {
       onDataChange(value);
-      canProceed(form.formState.isValid && testStatus === 'success');
     });
     return () => subscription.unsubscribe();
-  }, [form, onDataChange, canProceed, testStatus]);
+  }, [form, onDataChange]);
+
+  // Separate effect for canProceed to ensure it updates when form validity or test status changes
+  React.useEffect(() => {
+    const isFormValid = form.formState.isValid;
+    const canAdvance = isFormValid && testStatus === 'success';
+    canProceed(canAdvance);
+  }, [form.formState.isValid, testStatus, canProceed]);
 
   const handleTestConnection = async () => {
     const values = form.getValues();

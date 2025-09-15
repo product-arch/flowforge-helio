@@ -47,6 +47,9 @@ export const VendorOnboardingModal: React.FC<VendorOnboardingModalProps> = ({
       // Enable proceed for steps that don't have specific form components
       if (!['BusinessDetailsForm', 'SMSCredentialsForm', 'WhatsAppCredentialsForm', 'SMSTestingForm', 'WhatsAppTestingForm', 'EmailTestingForm', 'VoiceTestingForm', 'RCSTestingForm'].includes(currentStep.component)) {
         setCanProceed(true);
+      } else {
+        // Reset to false for form steps - let the form components control this
+        setCanProceed(false);
       }
     }
   }, [onboardingFlow?.currentStep]);
