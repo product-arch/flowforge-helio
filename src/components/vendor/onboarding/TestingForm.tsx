@@ -59,10 +59,15 @@ export const TestingForm: React.FC<TestingFormProps> = ({
   React.useEffect(() => {
     const subscription = form.watch((value) => {
       onDataChange(value);
-      canProceed(testResults.some(r => r.success));
     });
     return () => subscription.unsubscribe();
-  }, [form, onDataChange, canProceed, testResults]);
+  }, [form, onDataChange]);
+
+  // Separate effect for canProceed to ensure it updates when test results change
+  React.useEffect(() => {
+    const hasSuccessfulTest = testResults.some(r => r.success);
+    canProceed(hasSuccessfulTest);
+  }, [testResults, canProceed]);
 
   function getDefaultMessage(type: string): string {
     switch (type) {
