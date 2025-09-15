@@ -3,6 +3,7 @@ import { Handle, Position } from '@xyflow/react';
 import { Timer, X, Activity, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useFlow } from '@/contexts/FlowContext';
+import { handleClasses } from '@/styles/nodeClasses';
 
 interface RateLimitNodeProps {
   id: string;
@@ -82,16 +83,30 @@ export const RateLimitNode: React.FC<RateLimitNodeProps> = ({ id, data, selected
         </div>
       </div>
 
-      {/* Connection Handles */}
+      {/* Visible Connection Handles for user guidance */}
       <Handle
         type="target"
         position={Position.Left}
-        className="w-3 h-3 border-2 border-node-ratelimit bg-background"
+        className={handleClasses.connectionDot}
+        style={{ left: -4, top: '50%', transform: 'translateY(-50%)' }}
+      />
+      <Handle
+        type="target"
+        position={Position.Top}
+        className={handleClasses.connectionDot}
+        style={{ top: -4, left: '50%', transform: 'translateX(-50%)' }}
       />
       <Handle
         type="source"
         position={Position.Right}
-        className="w-3 h-3 border-2 border-node-ratelimit bg-background"
+        className={handleClasses.connectionDot}
+        style={{ right: -4, top: '50%', transform: 'translateY(-50%)' }}
+      />
+      <Handle
+        type="source"
+        position={Position.Bottom}
+        className={handleClasses.connectionDot}
+        style={{ bottom: -4, left: '50%', transform: 'translateX(-50%)' }}
       />
     </div>
   );

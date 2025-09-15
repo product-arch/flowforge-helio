@@ -69,5 +69,7 @@ export const badgeVariants = {
 
 export const handleClasses = {
   invisible: "w-3 h-3 opacity-0",
-  visible: "w-3 h-3"
+  visible: "w-3 h-3",
+  connectionDot: "w-2 h-2 bg-primary border-2 border-background rounded-full opacity-60 hover:opacity-100 hover:scale-125 transition-all duration-200 shadow-sm",
+  connectionDotActive: "w-2 h-2 bg-primary border-2 border-background rounded-full opacity-100 scale-110 shadow-md"
 };

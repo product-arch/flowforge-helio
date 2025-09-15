@@ -156,15 +156,35 @@ export const BaseChannelNode: React.FC<BaseChannelNodeProps> = ({
         </div>
       )}
 
-      {/* Connection Handles */}
-      <Handle type="target" position={Position.Left} id="left-in" className={handleClasses.invisible} />
-      <Handle type="target" position={Position.Top} id="top-in" className={handleClasses.invisible} />
-      <Handle type="target" position={Position.Bottom} id="bottom-in" className={handleClasses.invisible} />
-      <Handle type="target" position={Position.Right} id="right-in" className={handleClasses.invisible} />
-      <Handle type="source" position={Position.Left} id="left-out" className={handleClasses.invisible} />
-      <Handle type="source" position={Position.Right} id="right-out" className={handleClasses.invisible} />
-      <Handle type="source" position={Position.Top} id="top-out" className={handleClasses.invisible} />
-      <Handle type="source" position={Position.Bottom} id="bottom-out" className={handleClasses.invisible} />
+      {/* Connection Handles - visible dots for user guidance */}
+      <Handle 
+        type="target" 
+        position={Position.Left} 
+        id="left-in" 
+        className={handleClasses.connectionDot}
+        style={{ left: -4, top: '50%', transform: 'translateY(-50%)' }}
+      />
+      <Handle 
+        type="target" 
+        position={Position.Top} 
+        id="top-in" 
+        className={handleClasses.connectionDot}
+        style={{ top: -4, left: '50%', transform: 'translateX(-50%)' }}
+      />
+      <Handle 
+        type="source" 
+        position={Position.Right} 
+        id="right-out" 
+        className={handleClasses.connectionDot}
+        style={{ right: -4, top: '50%', transform: 'translateY(-50%)' }}
+      />
+      <Handle 
+        type="source" 
+        position={Position.Bottom} 
+        id="bottom-out" 
+        className={handleClasses.connectionDot}
+        style={{ bottom: -4, left: '50%', transform: 'translateX(-50%)' }}
+      />
     </div>
   );
 };

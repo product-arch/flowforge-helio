@@ -4,6 +4,7 @@ import { Bug, Trash2, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useFlow } from '@/contexts/FlowContext';
+import { handleClasses } from '@/styles/nodeClasses';
 
 export const AuditNode: React.FC<NodeProps> = ({ id, data, selected }) => {
   const { deleteNode } = useFlow();
@@ -99,13 +100,35 @@ export const AuditNode: React.FC<NodeProps> = ({ id, data, selected }) => {
         </div>
       )}
 
-      {/* Invisible Connection Handles for full connectivity */}
-      <Handle type="target" position={Position.Left} id="left" className="w-3 h-3 opacity-0" />
-      <Handle type="target" position={Position.Top} id="top-in" className="w-3 h-3 opacity-0" />
-      <Handle type="target" position={Position.Bottom} id="bottom-in" className="w-3 h-3 opacity-0" />
-      <Handle type="source" position={Position.Right} id="right" className="w-3 h-3 opacity-0" />
-      <Handle type="source" position={Position.Top} id="top-out" className="w-3 h-3 opacity-0" />
-      <Handle type="source" position={Position.Bottom} id="bottom-out" className="w-3 h-3 opacity-0" />
+      {/* Visible Connection Handles for user guidance */}
+      <Handle 
+        type="target" 
+        position={Position.Left} 
+        id="left" 
+        className={handleClasses.connectionDot}
+        style={{ left: -4, top: '50%', transform: 'translateY(-50%)' }}
+      />
+      <Handle 
+        type="target" 
+        position={Position.Top} 
+        id="top-in" 
+        className={handleClasses.connectionDot}
+        style={{ top: -4, left: '50%', transform: 'translateX(-50%)' }}
+      />
+      <Handle 
+        type="source" 
+        position={Position.Right} 
+        id="right" 
+        className={handleClasses.connectionDot}
+        style={{ right: -4, top: '50%', transform: 'translateY(-50%)' }}
+      />
+      <Handle 
+        type="source" 
+        position={Position.Bottom} 
+        id="bottom-out" 
+        className={handleClasses.connectionDot}
+        style={{ bottom: -4, left: '50%', transform: 'translateX(-50%)' }}
+      />
     </div>
   );
 };
