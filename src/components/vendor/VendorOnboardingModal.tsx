@@ -40,6 +40,17 @@ export const VendorOnboardingModal: React.FC<VendorOnboardingModalProps> = ({
     }
   }, [vendor, isOpen]);
 
+  // Auto-enable proceed for prerequisite steps (default case)
+  useEffect(() => {
+    if (onboardingFlow) {
+      const currentStep = onboardingFlow.steps[onboardingFlow.currentStep];
+      // Enable proceed for steps that don't have specific form components
+      if (!['BusinessDetailsForm', 'SMSCredentialsForm', 'WhatsAppCredentialsForm', 'SMSTestingForm', 'WhatsAppTestingForm', 'EmailTestingForm', 'VoiceTestingForm', 'RCSTestingForm'].includes(currentStep.component)) {
+        setCanProceed(true);
+      }
+    }
+  }, [onboardingFlow?.currentStep]);
+
   const handleNext = () => {
     if (!onboardingFlow || !canProceed) return;
     
@@ -172,11 +183,6 @@ export const VendorOnboardingModal: React.FC<VendorOnboardingModalProps> = ({
       
       default:
         // Fallback to prerequisites display for steps not yet implemented
-        // Auto-enable proceed for prerequisite steps
-        React.useEffect(() => {
-          setCanProceed(true);
-        }, [onboardingFlow.currentStep]);
-
         return (
           <div className="space-y-4">
             <h4 className="font-medium">Prerequisites for {vendor.type.toUpperCase()} Integration:</h4>
