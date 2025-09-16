@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { PhoneInput } from '@/components/ui/phone-input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -178,10 +179,21 @@ export const TestingForm: React.FC<TestingFormProps> = ({
                   <FormItem>
                     <FormLabel>{getRecipientLabel(channelType)} *</FormLabel>
                     <FormControl>
-                      <Input 
-                        placeholder={getRecipientPlaceholder(channelType)} 
-                        {...field} 
-                      />
+                      {channelType === 'email' ? (
+                        <Input 
+                          type="email"
+                          placeholder={getRecipientPlaceholder(channelType)} 
+                          {...field} 
+                        />
+                      ) : (
+                        <PhoneInput
+                          value={field.value}
+                          onChange={(value, isValid) => {
+                            field.onChange(value);
+                          }}
+                          placeholder="Phone number"
+                        />
+                      )}
                     </FormControl>
                     <FormDescription>
                       Enter a valid {channelType === 'email' ? 'email address' : 'phone number'} to receive the test message

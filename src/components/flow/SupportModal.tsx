@@ -7,6 +7,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { PhoneInput } from '@/components/ui/phone-input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -169,20 +170,14 @@ export const SupportModal: React.FC<SupportModalProps> = ({ isOpen, onClose }) =
               <Label htmlFor="phoneNumber" className="text-sm font-medium">
                 Phone Number
               </Label>
-              <div className="flex">
-                <div className="flex items-center px-3 border border-r-0 border-input bg-muted rounded-l-md">
-                  <span className="text-sm">🇮🇳</span>
-                  <span className="text-sm ml-1">+91</span>
-                </div>
-                <Input
-                  id="phoneNumber"
-                  placeholder="9876543210"
-                  value={formData.phoneNumber}
-                  onChange={(e) => handleInputChange('phoneNumber', e.target.value)}
-                  className="nodrag rounded-l-none border-l-0"
-                  required
-                />
-              </div>
+              <PhoneInput
+                value={formData.phoneNumber}
+                onChange={(value, isValid) => {
+                  handleInputChange('phoneNumber', value);
+                }}
+                placeholder="Phone number"
+                defaultCountry="IN"
+              />
             </div>
           </div>
 

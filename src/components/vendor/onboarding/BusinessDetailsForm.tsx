@@ -6,6 +6,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDes
 import { HelpCircle } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Input } from '@/components/ui/input';
+import { PhoneInput } from '@/components/ui/phone-input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -143,12 +144,18 @@ export const BusinessDetailsForm: React.FC<BusinessDetailsFormProps> = ({
                           <HelpCircle className="w-4 h-4 text-muted-foreground" />
                         </TooltipTrigger>
                         <TooltipContent>
-                          <p>Business phone number with country code (e.g., +1234567890).</p>
+                          <p>Business phone number with country code.</p>
                         </TooltipContent>
                       </Tooltip>
                     </FormLabel>
                     <FormControl>
-                      <Input placeholder="+1234567890" {...field} />
+                      <PhoneInput
+                        value={field.value}
+                        onChange={(value, isValid) => {
+                          field.onChange(value);
+                        }}
+                        placeholder="Phone number"
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

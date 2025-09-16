@@ -228,14 +228,14 @@ export const VendorOnboardingModal: React.FC<VendorOnboardingModalProps> = ({
         return (
           <div className="space-y-4">
             <h4 className="font-medium">Prerequisites for {vendor.type.toUpperCase()} Integration:</h4>
-            <ul className="space-y-2">
+            <div className="space-y-2">
               {getChannelRequirements(vendor.type).map((req, index) => (
-                <li key={index} className="flex items-start gap-2 text-sm">
-                  <Circle className="w-3 h-3 mt-1 text-muted-foreground" />
-                  {req}
-                </li>
+                <div key={index} className="flex items-start gap-3 p-3 rounded-lg bg-muted/30 border text-sm">
+                  <div className="w-2 h-2 rounded-full bg-primary/60 mt-2 flex-shrink-0" />
+                  <span className="text-foreground">{req}</span>
+                </div>
               ))}
-            </ul>
+            </div>
             <div className="bg-blue-50 dark:bg-blue-950/50 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
               <div className="flex items-center gap-2 text-blue-700 dark:text-blue-300">
                 <ExternalLink className="w-4 h-4" />
