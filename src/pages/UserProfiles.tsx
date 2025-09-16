@@ -56,14 +56,17 @@ import {
   Database,
   Keyboard,
   Moon,
-  Sun
+  Sun,
+  Plus
 } from 'lucide-react';
 import { useTheme, Theme } from '@/contexts/ThemeContext';
 import { useToast } from '@/hooks/use-toast';
 import { THEMES } from '@/constants/themes';
+import { BusinessUnitCreationModal } from '@/components/business/BusinessUnitCreationModal';
+import { generateBusinessCode } from '@/utils/businessCodeGenerator';
 
 // Business data with generated codes
-const businessProfiles = [
+const initialBusinessProfiles = [
   {
     name: "UPI Switch",
     code: "hdfc-upis-8z8o",
@@ -540,7 +543,9 @@ const getChannelColor = (channel: string) => {
 
 const UserProfiles: React.FC = () => {
   const navigate = useNavigate();
-  const [selectedBusiness, setSelectedBusiness] = React.useState<typeof businessProfiles[0] | null>(null);
+  const [businessProfiles, setBusinessProfiles] = React.useState(initialBusinessProfiles);
+  const [selectedBusiness, setSelectedBusiness] = React.useState<typeof initialBusinessProfiles[0] | null>(null);
+  const [businessCreationModalOpen, setBusinessCreationModalOpen] = React.useState(false);
   const [extrasModalOpen, setExtrasModalOpen] = React.useState(false);
   const [viewMode, setViewMode] = React.useState<'card' | 'list'>('card');
   const [personalInfoOpen, setPersonalInfoOpen] = React.useState(false);
@@ -582,9 +587,29 @@ const UserProfiles: React.FC = () => {
     });
   };
 
-  const handleExtrasClick = (business: typeof businessProfiles[0]) => {
+  const handleExtrasClick = (business: typeof initialBusinessProfiles[0]) => {
     setSelectedBusiness(business);
     setExtrasModalOpen(true);
+  };
+
+  const handleCreateBusinessUnit = (data: { brandName: string; businessEntityName: string; channels: string[] }) => {
+    const existingCodes = businessProfiles.map(bp => bp.code);
+    const newCode = generateBusinessCode(data.brandName, data.businessEntityName, existingCodes);
+    
+    const newBusinessUnit = {
+      name: data.brandName,
+      code: newCode,
+      status: 'active' as const,
+      channels: data.channels,
+    };
+
+    setBusinessProfiles(prev => [...prev, newBusinessUnit]);
+    
+    toast({
+      title: "Business Unit Created",
+      description: `${data.brandName} has been successfully created with code ${newCode}`,
+      className: "border-status-success bg-status-success/10 text-status-success"
+    });
   };
 
   return (
@@ -608,11 +633,19 @@ const UserProfiles: React.FC = () => {
                 <Separator orientation="vertical" className="h-6" />
                 
                 <h1 className="text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
-                  User Profiles
+                  Business Profiles
                 </h1>
               </div>
 
               <div className="flex items-center gap-3">
+                <Button 
+                  onClick={() => setBusinessCreationModalOpen(true)}
+                  className="bg-primary text-primary-foreground hover:bg-primary/90"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add New Business Unit
+                </Button>
+                
                 <div className="flex items-center bg-muted rounded-lg p-1">
                   <Button 
                     variant={viewMode === 'card' ? 'default' : 'ghost'} 
@@ -1017,6 +1050,12 @@ const UserProfiles: React.FC = () => {
       <PrivacyModal isOpen={privacyOpen} onClose={() => setPrivacyOpen(false)} />
       <DataManagementModal isOpen={dataManagementOpen} onClose={() => setDataManagementOpen(false)} />
       <KeyboardShortcutsModal isOpen={keyboardShortcutsOpen} onClose={() => setKeyboardShortcutsOpen(false)} />
+      
+      <BusinessUnitCreationModal
+        open={businessCreationModalOpen}
+        onOpenChange={setBusinessCreationModalOpen}
+        onSubmit={handleCreateBusinessUnit}
+      />
     </div>
   );
 };
