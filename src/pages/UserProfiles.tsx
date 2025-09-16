@@ -57,12 +57,14 @@ import {
   Keyboard,
   Moon,
   Sun,
-  Plus
+  Plus,
+  GitBranch
 } from 'lucide-react';
 import { useTheme, Theme } from '@/contexts/ThemeContext';
 import { useToast } from '@/hooks/use-toast';
 import { THEMES } from '@/constants/themes';
 import { BusinessUnitCreationModal } from '@/components/business/BusinessUnitCreationModal';
+import { RouteAssignmentModal } from '@/components/business/RouteAssignmentModal';
 import { generateBusinessCode } from '@/utils/businessCodeGenerator';
 
 // Business data with generated codes
@@ -547,6 +549,8 @@ const UserProfiles: React.FC = () => {
   const [selectedBusiness, setSelectedBusiness] = React.useState<typeof initialBusinessProfiles[0] | null>(null);
   const [businessCreationModalOpen, setBusinessCreationModalOpen] = React.useState(false);
   const [extrasModalOpen, setExtrasModalOpen] = React.useState(false);
+  const [isRouteAssignmentModalOpen, setIsRouteAssignmentModalOpen] = React.useState(false);
+  const [selectedBusinessForRoute, setSelectedBusinessForRoute] = React.useState<typeof initialBusinessProfiles[0] | null>(null);
   const [viewMode, setViewMode] = React.useState<'card' | 'list'>('card');
   const [personalInfoOpen, setPersonalInfoOpen] = React.useState(false);
   const [accountSettingsOpen, setAccountSettingsOpen] = React.useState(false);
@@ -590,6 +594,38 @@ const UserProfiles: React.FC = () => {
   const handleExtrasClick = (business: typeof initialBusinessProfiles[0]) => {
     setSelectedBusiness(business);
     setExtrasModalOpen(true);
+  };
+
+  const handleAssignRoute = (business: typeof initialBusinessProfiles[0]) => {
+    setSelectedBusinessForRoute(business);
+    setIsRouteAssignmentModalOpen(true);
+  };
+
+  const handleRouteAssignment = (routeId: string) => {
+    if (!selectedBusinessForRoute) return;
+
+    // Find the route name from the mock data (in a real app, this would come from a service)
+    const routeName = `Route Plan ${routeId.split('-')[1]}`;
+    
+    setBusinessProfiles(prev => prev.map(profile => 
+      profile.code === selectedBusinessForRoute.code
+        ? {
+            ...profile,
+            assignedRouteId: routeId,
+            assignedRouteName: routeName,
+            routeAssignedAt: new Date().toISOString().split('T')[0]
+          }
+        : profile
+    ));
+    
+    toast({
+      title: "Route Plan Assigned",
+      description: `${routeName} has been assigned to ${selectedBusinessForRoute.name}`,
+      className: "border-status-success bg-status-success/10 text-status-success"
+    });
+    
+    setIsRouteAssignmentModalOpen(false);
+    setSelectedBusinessForRoute(null);
   };
 
   const handleCreateBusinessUnit = (data: { brandName: string; businessEntityName: string; channels: string[] }) => {
@@ -862,7 +898,12 @@ const UserProfiles: React.FC = () => {
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
                             <DropdownMenuItem onClick={() => handleExtrasClick(business)}>
+                              <User className="h-4 w-4 mr-2" />
                               Extras
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleAssignRoute(business)}>
+                              <GitBranch className="h-4 w-4 mr-2" />
+                              Assign Route Plan
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
@@ -951,7 +992,12 @@ const UserProfiles: React.FC = () => {
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
                             <DropdownMenuItem onClick={() => handleExtrasClick(business)}>
+                              <User className="h-4 w-4 mr-2" />
                               Extras
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleAssignRoute(business)}>
+                              <GitBranch className="h-4 w-4 mr-2" />
+                              Assign Route Plan
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
@@ -1055,6 +1101,13 @@ const UserProfiles: React.FC = () => {
         open={businessCreationModalOpen}
         onOpenChange={setBusinessCreationModalOpen}
         onSubmit={handleCreateBusinessUnit}
+      />
+
+      <RouteAssignmentModal
+        isOpen={isRouteAssignmentModalOpen}
+        onClose={() => setIsRouteAssignmentModalOpen(false)}
+        businessProfileName={selectedBusinessForRoute?.name || ''}
+        onAssign={handleRouteAssignment}
       />
     </div>
   );

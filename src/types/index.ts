@@ -47,4 +47,7 @@ export interface BusinessProfile {
   code: string;
   status: 'active' | 'inactive';
   channels: string[];
+  assignedRouteId?: string;
+  assignedRouteName?: string;
+  routeAssignedAt?: string;
 }
