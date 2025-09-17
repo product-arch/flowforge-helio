@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { 
   Paintbrush, X, Search, Star, ChevronDown, ChevronRight,
   MessageSquare, Send, Mail, Phone, Video, GitBranch, RotateCcw,
-  Merge, Split, Filter, RefreshCw, Clock, Timer, Play, TrendingUp,
+  Shuffle, Filter, RefreshCw, Timer, Play, TrendingUp,
   DollarSign, Activity, MapPin, Shield, BarChart3
 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
@@ -37,14 +37,12 @@ const nodeTypes: NodeType[] = [
   // Controls
   { id: 'conditional', label: 'Conditional', icon: GitBranch, color: 'text-amber-500', description: 'Branch flow based on conditions', category: 'Control Logic' },
   { id: 'switch', label: 'Switch', icon: RotateCcw, color: 'text-cyan-500', description: 'Switch between multiple paths', category: 'Control Logic' },
-  { id: 'converge', label: 'Converge', icon: Merge, color: 'text-teal-500', description: 'Merge multiple flows into one', category: 'Control Logic' },
-  { id: 'diverge', label: 'Diverge', icon: Split, color: 'text-pink-500', description: 'Split flow into multiple paths', category: 'Control Logic' },
+  { id: 'pathmix', label: 'Path Mix', icon: Shuffle, color: 'text-pink-500', description: 'Diverge, converge, or both - flexible path mixing', category: 'Control Logic' },
   
   // Logic
   { id: 'filter', label: 'Filter', icon: Filter, color: 'text-emerald-500', description: 'Filter messages based on criteria', category: 'Control Logic' },
   { id: 'transform', label: 'Transform', icon: RefreshCw, color: 'text-violet-500', description: 'Transform message data', category: 'Control Logic' },
-  { id: 'delay', label: 'Delay', icon: Clock, color: 'text-rose-500', description: 'Add delay to message flow', category: 'Control Logic' },
-  { id: 'timer', label: 'Timer', icon: Timer, color: 'text-slate-500', description: 'Schedule actions with timer', category: 'Control Logic' },
+  { id: 'timer', label: 'Timer', icon: Timer, color: 'text-slate-500', description: 'Delays, schedules, countdowns and timers', category: 'Control Logic' },
   { id: 'doevent', label: 'Do Event', icon: Play, color: 'text-lime-500', description: 'Execute custom events', category: 'Control Logic' },
   { id: 'fallback', label: 'Fallback', icon: RotateCcw, color: 'text-primary', description: 'Switch to backup vendor when primary fails', category: 'Control Logic' },
   
