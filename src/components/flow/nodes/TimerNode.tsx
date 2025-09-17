@@ -10,15 +10,21 @@ export const TimerNode: React.FC<NodeProps> = ({ id, data, selected }) => {
   const onConfigClick = data.onConfigClick as ((nodeId: string) => void) | undefined;
 
   const formatDuration = () => {
-    const { duration, unit } = data;
+    const { duration, timeUnit } = data;
     if (!duration) return 'No timer';
     
-    const unitLabels: Record<string, string> = { ms: 'ms', s: 'sec', m: 'min', h: 'hr' };
-    return `${duration}${unitLabels[String(unit)] || 's'}`;
+    const unitLabels: Record<string, string> = { 
+      milliseconds: 'ms', 
+      seconds: 'sec', 
+      minutes: 'min', 
+      hours: 'hr',
+      days: 'days'
+    };
+    return `${duration}${unitLabels[String(timeUnit)] || 's'}`;
   };
 
   // Check if node has configuration
-  const hasConfiguration = data.duration && data.unit;
+  const hasConfiguration = data.duration && data.timeUnit;
 
   return (
     <div className={`
@@ -55,7 +61,7 @@ export const TimerNode: React.FC<NodeProps> = ({ id, data, selected }) => {
         {hasConfiguration && (
           <div className="flex-1 min-w-0">
             <div className="text-sm font-medium truncate text-primary">
-              {data.timerType === 'delay' ? 'Delay' : 'Timer'}
+              {data.timerType === 'simple_delay' ? 'Delay' : 'Timer'}
             </div>
             <div className="text-xs text-muted-foreground truncate">
               {formatDuration()}
@@ -103,12 +109,23 @@ export const TimerNode: React.FC<NodeProps> = ({ id, data, selected }) => {
             </div>
           )}
 
-          {data.repeat && (
+          {data.timerType === 'recurring' && data.repeatCount && (
             <div className="bg-accent/30 rounded p-2">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-medium">Repeat</span>
                 <span className="text-xs text-muted-foreground">
-                  {data.repeat === -1 ? 'Forever' : String(data.repeat)}
+                  {data.repeatCount === -1 ? 'Forever' : String(data.repeatCount)}
+                </span>
+              </div>
+            </div>
+          )}
+
+          {data.timerType === 'scheduled' && data.scheduleExpression && (
+            <div className="bg-accent/30 rounded p-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-medium">Schedule</span>
+                <span className="text-xs text-muted-foreground truncate max-w-20">
+                  {String(data.scheduleExpression)}
                 </span>
               </div>
             </div>

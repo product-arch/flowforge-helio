@@ -767,23 +767,29 @@ function getDefaultNodeData(type: string) {
       };
 
     // Control Nodes
-    case 'converge':
+    case 'pathmix':
+    case 'converge': // Legacy support
+    case 'diverge': // Legacy support
       return {
-        inputCount: 2,
-        strategy: 'merge',
-        label: 'Converge Point'
-      };
-    case 'diverge':
-      return {
-        outputCount: 2,
-        strategy: 'split',
-        label: 'Diverge Point'
+        operation: 'diverge',
+        strategy: 'clone_all',
+        outputs: 3,
+        maxInputs: 3,
+        mergeStrategy: 'wait_all',
+        timeout: 30,
+        preserveOrder: false,
+        enableBatching: false,
+        label: 'Path Mix'
       };
     case 'timer':
+    case 'delay': // Legacy support
       return {
-        duration: 5000,
-        unit: 'ms',
-        action: 'delay',
+        timerType: 'simple_delay',
+        duration: 30,
+        timeUnit: 'seconds',
+        repeatCount: 1,
+        persistTimer: false,
+        enableCancellation: true,
         label: 'Timer Control'
       };
     case 'doevent':

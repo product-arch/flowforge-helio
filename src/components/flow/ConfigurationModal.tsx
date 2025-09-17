@@ -884,154 +884,6 @@ export default function ConfigurationModal({ isOpen, onClose, nodeId }: Configur
     );
   };
 
-  const renderTimerConfig = () => (
-    <Card className="mb-4">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Clock className="w-4 h-4" />
-          Timer Configuration
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div>
-          <Label htmlFor="timerType">Timer Type</Label>
-          <Select 
-            value={formData.timerType || 'delay'} 
-            onValueChange={(value) => setFormData(prev => ({ ...prev, timerType: value }))}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Select type" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="delay">Simple Delay</SelectItem>
-              <SelectItem value="countdown">Countdown Timer</SelectItem>
-              <SelectItem value="recurring">Recurring Timer</SelectItem>
-              <SelectItem value="scheduled">Scheduled Timer</SelectItem>
-              <SelectItem value="watchdog">Watchdog Timer</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <Label htmlFor="duration">Duration</Label>
-            <Input
-              id="duration"
-              type="number"
-              value={formData.duration || ''}
-              onChange={(e) => setFormData(prev => ({ ...prev, duration: Number(e.target.value) }))}
-              placeholder="Enter duration"
-              min="0"
-            />
-          </div>
-          <div>
-            <Label htmlFor="unit">Time Unit</Label>
-            <Select 
-              value={formData.unit || 's'} 
-              onValueChange={(value) => setFormData(prev => ({ ...prev, unit: value }))}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select unit" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="ms">Milliseconds</SelectItem>
-                <SelectItem value="s">Seconds</SelectItem>
-                <SelectItem value="m">Minutes</SelectItem>
-                <SelectItem value="h">Hours</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-
-        {(formData.timerType === 'recurring' || formData.timerType === 'watchdog') && (
-          <div>
-            <Label htmlFor="repeat">Repeat Count</Label>
-            <Input
-              id="repeat"
-              type="number"
-              value={formData.repeat || ''}
-              onChange={(e) => setFormData(prev => ({ ...prev, repeat: Number(e.target.value) }))}
-              placeholder="Number of repeats (-1 for infinite)"
-              min="-1"
-            />
-          </div>
-        )}
-      </CardContent>
-    </Card>
-  );
-
-  const renderPathMixConfig = () => (
-    <Card className="mb-4">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <GitBranch className="w-4 h-4" />
-          Path Mix Configuration
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div>
-          <Label htmlFor="operation">Operation Mode</Label>
-          <Select 
-            value={formData.operation || 'both'} 
-            onValueChange={(value) => setFormData(prev => ({ ...prev, operation: value }))}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Select operation" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="diverge">Diverge (Split)</SelectItem>
-              <SelectItem value="converge">Converge (Merge)</SelectItem>
-              <SelectItem value="both">Both (Path Mix)</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        {(formData.operation === 'diverge' || formData.operation === 'both') && (
-          <div>
-            <Label htmlFor="outputs">Number of Outputs</Label>
-            <Input
-              id="outputs"
-              type="number"
-              value={formData.outputs || 2}
-              onChange={(e) => setFormData(prev => ({ ...prev, outputs: Number(e.target.value) }))}
-              placeholder="Number of outputs"
-              min="2"
-              max="8"
-            />
-          </div>
-        )}
-
-        {(formData.operation === 'converge' || formData.operation === 'both') && (
-          <>
-            <div>
-              <Label htmlFor="maxInputs">Maximum Inputs</Label>
-              <Input
-                id="maxInputs"
-                type="number"
-                value={formData.maxInputs || 3}
-                onChange={(e) => setFormData(prev => ({ ...prev, maxInputs: Number(e.target.value) }))}
-                placeholder="Maximum inputs"
-                min="2"
-                max="8"
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="timeout">Timeout (ms)</Label>
-              <Input
-                id="timeout"
-                type="number"
-                value={formData.timeout || ''}
-                onChange={(e) => setFormData(prev => ({ ...prev, timeout: Number(e.target.value) }))}
-                placeholder="Timeout in milliseconds"
-                min="0"
-              />
-            </div>
-          </>
-        )}
-      </CardContent>
-    </Card>
-  );
 
   const renderSLAMonitoringConfig = () => {
     return (
@@ -1130,6 +982,255 @@ export default function ConfigurationModal({ isOpen, onClose, nodeId }: Configur
                   />
                   <Label>Detailed Logging</Label>
                 </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  };
+
+  // Timer Configuration Function
+  const renderTimerConfig = () => {
+    return (
+      <div className="space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Clock className="w-5 h-5 text-primary" />
+              Timer Configuration
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Timer Type</Label>
+                <Select
+                  value={formData.timerType || 'simple_delay'}
+                  onValueChange={(value) => setFormData({ ...formData, timerType: value })}
+                >
+                  <SelectTrigger className="nodrag">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="simple_delay">Simple Delay</SelectItem>
+                    <SelectItem value="recurring">Recurring Timer</SelectItem>
+                    <SelectItem value="countdown">Countdown Timer</SelectItem>
+                    <SelectItem value="scheduled">Scheduled Timer</SelectItem>
+                    <SelectItem value="watchdog">Watchdog Timer</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Time Unit</Label>
+                <Select
+                  value={formData.timeUnit || 'seconds'}
+                  onValueChange={(value) => setFormData({ ...formData, timeUnit: value })}
+                >
+                  <SelectTrigger className="nodrag">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="milliseconds">Milliseconds</SelectItem>
+                    <SelectItem value="seconds">Seconds</SelectItem>
+                    <SelectItem value="minutes">Minutes</SelectItem>
+                    <SelectItem value="hours">Hours</SelectItem>
+                    <SelectItem value="days">Days</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Duration</Label>
+                <Input
+                  type="number"
+                  value={formData.duration || 30}
+                  onChange={(e) => setFormData({ ...formData, duration: parseInt(e.target.value) })}
+                  min="1"
+                  className="nodrag"
+                />
+              </div>
+              {formData.timerType === 'recurring' && (
+                <div>
+                  <Label>Repeat Count</Label>
+                  <Input
+                    type="number"
+                    value={formData.repeatCount || 1}
+                    onChange={(e) => setFormData({ ...formData, repeatCount: parseInt(e.target.value) })}
+                    min="1"
+                    className="nodrag"
+                  />
+                </div>
+              )}
+            </div>
+
+            {formData.timerType === 'scheduled' && (
+              <div>
+                <Label>Schedule Expression (Cron)</Label>
+                <Input
+                  value={formData.scheduleExpression || '0 * * * *'}
+                  onChange={(e) => setFormData({ ...formData, scheduleExpression: e.target.value })}
+                  placeholder="e.g., 0 * * * * (every hour)"
+                  className="nodrag"
+                />
+              </div>
+            )}
+
+            <div className="space-y-3">
+              <div className="flex items-center space-x-2">
+                <Switch
+                  checked={formData.persistTimer || false}
+                  onCheckedChange={(checked) => setFormData({ ...formData, persistTimer: checked })}
+                />
+                <Label>Persist Timer State</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Switch
+                  checked={formData.enableCancellation || true}
+                  onCheckedChange={(checked) => setFormData({ ...formData, enableCancellation: checked })}
+                />
+                <Label>Allow Timer Cancellation</Label>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  };
+
+  // Path Mix Configuration Function
+  const renderPathMixConfig = () => {
+    return (
+      <div className="space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <GitBranch className="w-5 h-5 text-primary" />
+              Path Mix Configuration
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <Label className="text-base font-medium">Operation Mode</Label>
+              <Select
+                value={formData.operation || 'diverge'}
+                onValueChange={(value) => setFormData({ ...formData, operation: value })}
+              >
+                <SelectTrigger className="nodrag">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="diverge">Diverge (Split)</SelectItem>
+                  <SelectItem value="converge">Converge (Merge)</SelectItem>
+                  <SelectItem value="both">Both (Split & Merge)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {(formData.operation === 'diverge' || formData.operation === 'both') && (
+              <div className="space-y-4">
+                <Separator />
+                <Label className="text-base font-medium">Diverge Settings</Label>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label>Split Strategy</Label>
+                    <Select
+                      value={formData.strategy || 'clone_all'}
+                      onValueChange={(value) => setFormData({ ...formData, strategy: value })}
+                    >
+                      <SelectTrigger className="nodrag">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="clone_all">Clone to All Outputs</SelectItem>
+                        <SelectItem value="round_robin">Round Robin</SelectItem>
+                        <SelectItem value="weighted_split">Weighted Split</SelectItem>
+                        <SelectItem value="conditional_split">Conditional Split</SelectItem>
+                        <SelectItem value="load_balanced">Load Balanced</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label>Output Count</Label>
+                    <Input
+                      type="number"
+                      value={formData.outputs || 3}
+                      onChange={(e) => setFormData({ ...formData, outputs: parseInt(e.target.value) })}
+                      min="2"
+                      max="10"
+                      className="nodrag"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {(formData.operation === 'converge' || formData.operation === 'both') && (
+              <div className="space-y-4">
+                <Separator />
+                <Label className="text-base font-medium">Converge Settings</Label>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label>Merge Strategy</Label>
+                    <Select
+                      value={formData.mergeStrategy || 'wait_all'}
+                      onValueChange={(value) => setFormData({ ...formData, mergeStrategy: value })}
+                    >
+                      <SelectTrigger className="nodrag">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="wait_all">Wait for All</SelectItem>
+                        <SelectItem value="first_wins">First Wins</SelectItem>
+                        <SelectItem value="majority_wins">Majority Wins</SelectItem>
+                        <SelectItem value="timeout_based">Timeout Based</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label>Max Inputs</Label>
+                    <Input
+                      type="number"
+                      value={formData.maxInputs || 5}
+                      onChange={(e) => setFormData({ ...formData, maxInputs: parseInt(e.target.value) })}
+                      min="2"
+                      max="20"
+                      className="nodrag"
+                    />
+                  </div>
+                </div>
+
+                {formData.mergeStrategy === 'timeout_based' && (
+                  <div>
+                    <Label>Timeout (seconds)</Label>
+                    <Input
+                      type="number"
+                      value={formData.timeout || 30}
+                      onChange={(e) => setFormData({ ...formData, timeout: parseInt(e.target.value) })}
+                      min="1"
+                      className="nodrag"
+                    />
+                  </div>
+                )}
+              </div>
+            )}
+
+            <div className="space-y-3">
+              <div className="flex items-center space-x-2">
+                <Switch
+                  checked={formData.preserveOrder || false}
+                  onCheckedChange={(checked) => setFormData({ ...formData, preserveOrder: checked })}
+                />
+                <Label>Preserve Message Order</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Switch
+                  checked={formData.enableBatching || false}
+                  onCheckedChange={(checked) => setFormData({ ...formData, enableBatching: checked })}
+                />
+                <Label>Enable Batch Processing</Label>
               </div>
             </div>
           </CardContent>
@@ -1524,117 +1625,6 @@ export default function ConfigurationModal({ isOpen, onClose, nodeId }: Configur
       case 'timer':
       case 'delay': // Legacy support
         return renderTimerConfig();
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label>Divergence Strategy</Label>
-                    <Select
-                      value={formData.strategy || 'clone_all'}
-                      onValueChange={(value) => setFormData({ ...formData, strategy: value })}
-                    >
-                      <SelectTrigger className="nodrag">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="clone_all">Clone to All Outputs</SelectItem>
-                        <SelectItem value="round_robin">Round Robin Distribution</SelectItem>
-                        <SelectItem value="weighted_split">Weighted Split</SelectItem>
-                        <SelectItem value="conditional_split">Conditional Split</SelectItem>
-                        <SelectItem value="load_balanced">Load Balanced</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label>Max Output Paths</Label>
-                    <Input
-                      type="number"
-                      value={formData.maxOutputs || 3}
-                      onChange={(e) => setFormData({ ...formData, maxOutputs: parseInt(e.target.value) })}
-                      min="2"
-                      max="20"
-                      className="nodrag"
-                    />
-                  </div>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label>Balance Type</Label>
-                    <Select
-                      value={formData.balanceType || 'equal'}
-                      onValueChange={(value) => setFormData({ ...formData, balanceType: value })}
-                    >
-                      <SelectTrigger className="nodrag">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="equal">Equal Distribution</SelectItem>
-                        <SelectItem value="weighted">Weighted Distribution</SelectItem>
-                        <SelectItem value="capacity_based">Capacity Based</SelectItem>
-                        <SelectItem value="performance_based">Performance Based</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label>Failure Handling</Label>
-                    <Select
-                      value={formData.failureHandling || 'continue_others'}
-                      onValueChange={(value) => setFormData({ ...formData, failureHandling: value })}
-                    >
-                      <SelectTrigger className="nodrag">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="continue_others">Continue with Other Paths</SelectItem>
-                        <SelectItem value="fail_all">Fail All Paths</SelectItem>
-                        <SelectItem value="retry_failed">Retry Failed Paths</SelectItem>
-                        <SelectItem value="redirect_failed">Redirect to Backup</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                
-                <div className="space-y-3">
-                  <Label className="text-base font-medium">Advanced Options</Label>
-                  <div className="flex items-center space-x-2">
-                    <Switch
-                      checked={formData.preserveOrder || false}
-                      onCheckedChange={(checked) => setFormData({ ...formData, preserveOrder: checked })}
-                    />
-                    <Label>Preserve Message Order</Label>
-                  </div>
-                  
-                  <div className="flex items-center space-x-2">
-                    <Switch
-                      checked={formData.enableBatching || false}
-                      onCheckedChange={(checked) => setFormData({ ...formData, enableBatching: checked })}
-                    />
-                    <Label>Enable Batch Processing</Label>
-                  </div>
-                  
-                  <div className="flex items-center space-x-2">
-                    <Switch
-                      checked={formData.enableParallelExecution || true}
-                      onCheckedChange={(checked) => setFormData({ ...formData, enableParallelExecution: checked })}
-                    />
-                    <Label>Parallel Execution</Label>
-                  </div>
-                </div>
-                
-                {formData.enableBatching && (
-                  <div>
-                    <Label>Batch Size</Label>
-                    <Input
-                      type="number"
-                      value={formData.batchSize || 100}
-                      onChange={(e) => setFormData({ ...formData, batchSize: parseInt(e.target.value) })}
-                      min="1"
-                      max="10000"
-                      className="nodrag"
-                    />
-                  </div>
-                )}
-              </CardContent>
       // Channel nodes return null - no channel-specific configuration
       case 'sms':
       case 'whatsapp':

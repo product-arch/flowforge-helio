@@ -10,7 +10,7 @@ export const PathMixNode: React.FC<NodeProps> = ({ id, data, selected }) => {
   const onConfigClick = data.onConfigClick as ((nodeId: string) => void) | undefined;
 
   // Check if node has configuration
-  const hasConfiguration = data.operation || data.strategy || data.outputs || data.maxInputs;
+  const hasConfiguration = data.operation || data.strategy || data.mergeStrategy || data.outputs || data.maxInputs;
 
   const getOperationLabel = () => {
     if (data.operation === 'diverge') return 'Diverge';
@@ -219,12 +219,23 @@ export const PathMixNode: React.FC<NodeProps> = ({ id, data, selected }) => {
             </div>
           )}
 
+          {data.mergeStrategy && (
+            <div className="bg-accent/30 rounded p-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-medium">Merge</span>
+                <span className="text-xs text-muted-foreground truncate max-w-20">
+                  {String(data.mergeStrategy).replace('_', ' ')}
+                </span>
+              </div>
+            </div>
+          )}
+
           {data.timeout && (
             <div className="bg-accent/30 rounded p-2">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-medium">Timeout</span>
                 <span className="text-xs text-muted-foreground">
-                  {String(data.timeout)}ms
+                  {String(data.timeout)}s
                 </span>
               </div>
             </div>
