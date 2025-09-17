@@ -120,20 +120,93 @@ const Landing: React.FC = () => {
           ))}
         </motion.div>
 
-        {/* Trusted By Section */}
+        {/* Company Logos Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.4 }}
-          className="text-center mb-16"
+          className="mb-16"
         >
-          <p className="text-sm text-muted-foreground mb-8">Trusted by leading enterprises</p>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8 items-center">
-            {trustedBy.map((company) => (
-              <div key={company} className="text-muted-foreground/60 font-medium text-sm">
-                {company}
+          <div className="text-center mb-12">
+            <h3 className="text-2xl font-heading font-heading-semibold mb-4 text-muted-foreground">
+              Trusted by leading enterprises
+            </h3>
+            <p className="font-body text-muted-foreground max-w-2xl mx-auto">
+              Join thousands of businesses that rely on Hub for their communication workflows
+            </p>
+          </div>
+          
+          <div className="relative overflow-hidden">
+            {/* Gradient overlays for fade effect */}
+            <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-background to-transparent z-10" />
+            <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-background to-transparent z-10" />
+            
+            {/* Animated logo carousel */}
+            <div className="flex items-center justify-center gap-12 md:gap-16 lg:gap-20 animate-pulse">
+              <div className="flex items-center justify-center min-w-[120px] h-16 opacity-60 hover:opacity-100 transition-opacity duration-300 group">
+                <img 
+                  src="/logo_hdfc_bank.svg" 
+                  alt="HDFC Bank" 
+                  className="h-18 md:h-22 w-auto filter grayscale group-hover:grayscale-0 transition-all duration-300"
+                />
               </div>
-            ))}
+              
+              <div className="flex items-center justify-center min-w-[120px] h-16 opacity-60 hover:opacity-100 transition-opacity duration-300 group">
+                <img 
+                  src="/logo_axis_bank.svg" 
+                  alt="Axis Bank" 
+                  className="h-18 md:h-22 w-auto filter grayscale group-hover:grayscale-0 transition-all duration-300"
+                />
+              </div>
+              
+              <div className="flex items-center justify-center min-w-[120px] h-16 opacity-60 hover:opacity-100 transition-opacity duration-300 group">
+                <img 
+                  src="/logo_bajaj_finserv.svg" 
+                  alt="Bajaj Finserv" 
+                  className="h-18 md:h-22 w-auto filter grayscale group-hover:grayscale-0 transition-all duration-300"
+                />
+              </div>
+              
+              <div className="flex items-center justify-center min-w-[120px] h-16 opacity-60 hover:opacity-100 transition-opacity duration-300 group">
+                <img 
+                  src="/logo_aditya_birla.svg" 
+                  alt="Aditya Birla Group" 
+                  className="h-18 md:h-22 w-auto filter grayscale group-hover:grayscale-0 transition-all duration-300"
+                />
+              </div>
+
+              <div className="flex items-center justify-center min-w-[120px] h-16 opacity-60 hover:opacity-100 transition-opacity duration-300 group">
+                <img 
+                  src="/logo_tata_power.svg" 
+                  alt="Tata Power" 
+                  className="h-18 md:h-22 w-auto filter grayscale group-hover:grayscale-0 transition-all duration-300"
+                />
+              </div>
+              
+              <div className="flex items-center justify-center min-w-[120px] h-16 opacity-60 hover:opacity-100 transition-opacity duration-300 group">
+                <img 
+                  src="/logo_bandhan_bank.svg" 
+                  alt="Bandhan Bank" 
+                  className="h-18 md:h-22 w-auto filter grayscale group-hover:grayscale-0 transition-all duration-300"
+                />
+              </div>
+            </div>
+            
+            {/* Trust indicators */}
+            <div className="flex items-center justify-center gap-8 mt-8 text-sm font-body text-muted-foreground">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
+                <span>99.9% Uptime</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
+                <span>500+ Enterprises</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse" />
+                <span>10M+ Messages/Month</span>
+              </div>
+            </div>
           </div>
         </motion.div>
 
