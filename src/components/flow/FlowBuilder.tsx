@@ -20,7 +20,7 @@ import { VoiceNode } from './nodes/VoiceNode';
 import { RCSNode } from './nodes/RCSNode';
 import { ConditionalNode } from './nodes/ConditionalNode';
 import { AuditNode } from './nodes/AuditNode';
-import { DelayNode } from './nodes/DelayNode';
+import { PathMixNode } from './nodes/PathMixNode';
 import { FilterNode } from './nodes/FilterNode';
 import { RateLimitNode } from './nodes/RateLimitNode';
 import { SwitchNode } from './nodes/SwitchNode';
@@ -34,8 +34,6 @@ import { AnalyticsNode } from './nodes/AnalyticsNode';
 import { AlertNode } from './nodes/AlertNode';
 import { CustomEdge } from './edges/CustomEdge';
 import { ZoomControls } from './ZoomControls';
-import { ConvergeNode } from './nodes/ConvergeNode';
-import { DivergeNode } from './nodes/DivergeNode';
 import { TimerNode } from './nodes/TimerNode';
 import { DoEventNode } from './nodes/DoEventNode';
 import { FallbackNode } from './nodes/FallbackNode';
@@ -57,7 +55,11 @@ const nodeTypes = {
   rcs: RCSNode,
   conditional: ConditionalNode,
   audit: AuditNode,
-  delay: DelayNode,
+  delay: TimerNode, // Legacy support
+  timer: TimerNode,
+  pathmix: PathMixNode,
+  converge: PathMixNode, // Legacy support
+  diverge: PathMixNode, // Legacy support
   filter: FilterNode,
   ratelimit: RateLimitNode,
   switch: SwitchNode,
@@ -69,9 +71,6 @@ const nodeTypes = {
   api: APICallNode,
   analytics: AnalyticsNode,
   alert: AlertNode,
-  converge: ConvergeNode,
-  diverge: DivergeNode,
-  timer: TimerNode,
   doevent: DoEventNode,
   fallback: FallbackNode,
   'priority-route': PriorityRouteNode,

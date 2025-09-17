@@ -3,6 +3,7 @@ import { Handle, Position, NodeProps } from '@xyflow/react';
 import { Clock, Trash2, Settings, Timer } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useFlow } from '@/contexts/FlowContext';
+import { handleClasses } from '@/styles/nodeClasses';
 
 export const TimerNode: React.FC<NodeProps> = ({ id, data, selected }) => {
   const { deleteNode } = useFlow();
@@ -53,7 +54,9 @@ export const TimerNode: React.FC<NodeProps> = ({ id, data, selected }) => {
         </div>
         {hasConfiguration && (
           <div className="flex-1 min-w-0">
-            <div className="text-sm font-medium truncate text-primary">Timer</div>
+            <div className="text-sm font-medium truncate text-primary">
+              {data.timerType === 'delay' ? 'Delay' : 'Timer'}
+            </div>
             <div className="text-xs text-muted-foreground truncate">
               {formatDuration()}
             </div>
@@ -77,6 +80,17 @@ export const TimerNode: React.FC<NodeProps> = ({ id, data, selected }) => {
               </div>
             </div>
           </div>
+
+          {data.timerType && (
+            <div className="bg-accent/30 rounded p-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-medium">Type</span>
+                <span className="text-xs text-muted-foreground truncate max-w-20">
+                  {String(data.timerType)}
+                </span>
+              </div>
+            </div>
+          )}
 
           {data.mode && (
             <div className="bg-accent/30 rounded p-2">
@@ -110,12 +124,34 @@ export const TimerNode: React.FC<NodeProps> = ({ id, data, selected }) => {
       )}
 
       {/* Connection Handles */}
-      <Handle type="target" position={Position.Left} id="left" className="w-3 h-3 opacity-0" />
-      <Handle type="target" position={Position.Top} id="top-in" className="w-3 h-3 opacity-0" />
-      <Handle type="target" position={Position.Bottom} id="bottom-in" className="w-3 h-3 opacity-0" />
-      <Handle type="source" position={Position.Right} id="right" className="w-3 h-3 opacity-0" />
-      <Handle type="source" position={Position.Top} id="top-out" className="w-3 h-3 opacity-0" />
-      <Handle type="source" position={Position.Bottom} id="bottom-out" className="w-3 h-3 opacity-0" />
+      <Handle 
+        type="target" 
+        position={Position.Left} 
+        id="left" 
+        className={handleClasses.connectionDot}
+        style={{ left: -4, top: '50%', transform: 'translateY(-50%)' }}
+      />
+      <Handle 
+        type="target" 
+        position={Position.Top} 
+        id="top-in" 
+        className={handleClasses.connectionDot}
+        style={{ top: -4, left: '50%', transform: 'translateX(-50%)' }}
+      />
+      <Handle 
+        type="source" 
+        position={Position.Right} 
+        id="right" 
+        className={handleClasses.connectionDot}
+        style={{ right: -4, top: '50%', transform: 'translateY(-50%)' }}
+      />
+      <Handle 
+        type="source" 
+        position={Position.Bottom} 
+        id="bottom-out" 
+        className={handleClasses.connectionDot}
+        style={{ bottom: -4, left: '50%', transform: 'translateX(-50%)' }}
+      />
     </div>
   );
 };

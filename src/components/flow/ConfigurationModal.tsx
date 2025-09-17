@@ -1367,133 +1367,14 @@ export default function ConfigurationModal({ isOpen, onClose, nodeId }: Configur
           </div>
         );
 
-      case 'converge':
-        return (
-          <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Merge className="w-5 h-5 text-primary" />
-                  Converge Configuration
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label>Convergence Strategy</Label>
-                    <Select
-                      value={formData.strategy || 'wait_all'}
-                      onValueChange={(value) => setFormData({ ...formData, strategy: value })}
-                    >
-                      <SelectTrigger className="nodrag">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="wait_all">Wait for All Inputs</SelectItem>
-                        <SelectItem value="first_wins">First Input Wins</SelectItem>
-                        <SelectItem value="majority_rule">Majority Rule</SelectItem>
-                        <SelectItem value="weighted_merge">Weighted Merge</SelectItem>
-                        <SelectItem value="priority_based">Priority Based</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label>Max Input Sources</Label>
-                    <Input
-                      type="number"
-                      value={formData.maxInputs || 5}
-                      onChange={(e) => setFormData({ ...formData, maxInputs: parseInt(e.target.value) })}
-                      min="2"
-                      max="50"
-                      className="nodrag"
-                    />
-                  </div>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label>Timeout (seconds)</Label>
-                    <Input
-                      type="number"
-                      value={formData.timeout || 30}
-                      onChange={(e) => setFormData({ ...formData, timeout: parseInt(e.target.value) })}
-                      min="1"
-                      max="3600"
-                      className="nodrag"
-                    />
-                  </div>
-                  <div>
-                    <Label>Minimum Required Inputs</Label>
-                    <Input
-                      type="number"
-                      value={formData.minInputs || 1}
-                      onChange={(e) => setFormData({ ...formData, minInputs: parseInt(e.target.value) })}
-                      min="1"
-                      className="nodrag"
-                    />
-                  </div>
-                </div>
-                
-                <div className="space-y-3">
-                  <Label className="text-base font-medium">Data Merge Options</Label>
-                  <div className="flex items-center space-x-2">
-                    <Switch
-                      checked={formData.preserveMetadata || true}
-                      onCheckedChange={(checked) => setFormData({ ...formData, preserveMetadata: checked })}
-                    />
-                    <Label>Preserve Input Metadata</Label>
-                  </div>
-                  
-                  <div className="flex items-center space-x-2">
-                    <Switch
-                      checked={formData.enableDeduplication || false}
-                      onCheckedChange={(checked) => setFormData({ ...formData, enableDeduplication: checked })}
-                    />
-                    <Label>Enable Data Deduplication</Label>
-                  </div>
-                  
-                  <div className="flex items-center space-x-2">
-                    <Switch
-                      checked={formData.enableOrdering || false}
-                      onCheckedChange={(checked) => setFormData({ ...formData, enableOrdering: checked })}
-                    />
-                    <Label>Maintain Input Order</Label>
-                  </div>
-                </div>
-                
-                <div>
-                  <Label>Merge Conflict Resolution</Label>
-                  <Select
-                    value={formData.conflictResolution || 'latest_wins'}
-                    onValueChange={(value) => setFormData({ ...formData, conflictResolution: value })}
-                  >
-                    <SelectTrigger className="nodrag">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="latest_wins">Latest Input Wins</SelectItem>
-                      <SelectItem value="first_wins">First Input Wins</SelectItem>
-                      <SelectItem value="manual_review">Manual Review Required</SelectItem>
-                      <SelectItem value="merge_all">Merge All Values</SelectItem>
-                      <SelectItem value="priority_based">Priority Based</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        );
+      case 'pathmix':
+      case 'converge': // Legacy support  
+      case 'diverge': // Legacy support
+        return renderPathMixConfig();
 
-      case 'diverge':
-        return (
-          <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Split className="w-5 h-5 text-primary" />
-                  Diverge Configuration
-                </CardTitle>
-              </CardHeader>
+      case 'timer':
+      case 'delay': // Legacy support
+        return renderTimerConfig();
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>

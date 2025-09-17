@@ -114,19 +114,11 @@ const nodeTypes: NodeType[] = [
 
   // Control Logic Blocks
   {
-    id: 'converge',
-    label: 'Converge',
-    icon: Split,
+    id: 'pathmix',
+    label: 'Path Mix',
+    icon: GitBranch,
     color: 'text-primary',
-    description: 'Merge multiple paths into one',
-    category: 'Control Logic',
-  },
-  {
-    id: 'diverge',
-    label: 'Diverge',
-    icon: Route,
-    color: 'text-primary',
-    description: 'Split single path into multiple routes',
+    description: 'Split and merge paths with advanced control',
     category: 'Control Logic',
   },
   {
@@ -134,7 +126,7 @@ const nodeTypes: NodeType[] = [
     label: 'Timer',
     icon: Clock,
     color: 'text-primary',
-    description: 'Time-based flow control and delays',
+    description: 'Time-based flow control, delays and scheduling',
     category: 'Control Logic',
   },
   {
