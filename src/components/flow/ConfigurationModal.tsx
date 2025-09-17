@@ -1653,144 +1653,59 @@ export default function ConfigurationModal({ isOpen, onClose, nodeId }: Configur
         return null;
 
       default:
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <RotateCcw className="w-5 h-5 text-primary" />
-                  Fallback Configuration
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label>Fallback Strategy</Label>
-                    <Select
-                      value={formData.fallbackStrategy || 'sequential'}
-                      onValueChange={(value) => setFormData({ ...formData, fallbackStrategy: value })}
-                    >
-                      <SelectTrigger className="nodrag">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="sequential">Sequential Fallback</SelectItem>
-                        <SelectItem value="priority_based">Priority Based</SelectItem>
-                        <SelectItem value="load_based">Load Based</SelectItem>
-                        <SelectItem value="cost_based">Cost Based</SelectItem>
-                        <SelectItem value="geographic">Geographic Fallback</SelectItem>
-                        <SelectItem value="intelligent">Intelligent Fallback</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label>Trigger Condition</Label>
-                    <Select
-                      value={formData.triggerCondition || 'failure'}
-                      onValueChange={(value) => setFormData({ ...formData, triggerCondition: value })}
-                    >
-                      <SelectTrigger className="nodrag">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="failure">On Failure</SelectItem>
-                        <SelectItem value="timeout">On Timeout</SelectItem>
-                        <SelectItem value="capacity">Capacity Exceeded</SelectItem>
-                        <SelectItem value="quality">Quality Degradation</SelectItem>
-                        <SelectItem value="cost">Cost Threshold</SelectItem>
-                        <SelectItem value="manual">Manual Trigger</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                
-                <div className="space-y-3">
-                  <Label className="text-base font-medium">Fallback Targets</Label>
-                  <div className="space-y-2">
-                    {((formData.fallbackTargets as any[]) || []).map((target: any, index: number) => (
-                      <div key={index} className="p-4 border rounded-lg space-y-3">
-                        <div className="flex items-center justify-between">
-                          <Label className="font-medium">Target {index + 1}</Label>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => {
-                              const targets = [...(formData.fallbackTargets as any[] || [])];
-                              targets.splice(index, 1);
-                              setFormData({ ...formData, fallbackTargets: targets });
-                            }}
-                          >
-                            <X className="w-4 h-4" />
-                          </Button>
-                        </div>
-                        
-                        <div className="grid grid-cols-3 gap-3">
-                          <div>
-                            <Label>Target Type</Label>
-                            <Select
-                              value={target.type || 'vendor'}
-                              onValueChange={(value) => {
-                                const targets = [...(formData.fallbackTargets as any[] || [])];
-                                targets[index] = { ...target, type: value };
-                                setFormData({ ...formData, fallbackTargets: targets });
-                              }}
-                            >
-                              <SelectTrigger className="nodrag">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="vendor">Vendor</SelectItem>
-                                <SelectItem value="channel">Channel</SelectItem>
-                                <SelectItem value="endpoint">Endpoint</SelectItem>
-                                <SelectItem value="queue">Queue</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-                          <div>
-                            <Label>Target ID</Label>
-                            <Input
-                              value={target.id || ''}
-                              onChange={(e) => {
-                                const targets = [...(formData.fallbackTargets as any[] || [])];
-                                targets[index] = { ...target, id: e.target.value };
-                                setFormData({ ...formData, fallbackTargets: targets });
-                              }}
-                              placeholder="Target identifier"
-                              className="nodrag"
-                            />
-                          </div>
-                          <div>
-                            <Label>Priority</Label>
-                            <Input
-                              type="number"
-                              value={target.priority || 1}
-                              onChange={(e) => {
-                                const targets = [...(formData.fallbackTargets as any[] || [])];
-                                targets[index] = { ...target, priority: parseInt(e.target.value) };
-                                setFormData({ ...formData, fallbackTargets: targets });
-                              }}
-                              className="nodrag"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                    
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => {
-                        const newTarget = { type: 'vendor', id: '', priority: 1 };
-                        setFormData({ 
-                          ...formData, 
-                          fallbackTargets: [...(formData.fallbackTargets as any[] || []), newTarget] 
-                        });
-                      }}
-                    >
-                      <Plus className="w-4 h-4 mr-2" />
-                      Add Fallback Target
-                    </Button>
-                  </div>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4">
+        return null;
+    }
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+        <DialogHeader className="flex-shrink-0">
+          <DialogTitle className="text-xl font-bold flex items-center gap-2">
+            <Settings className="w-5 h-5" />
+            {node?.type === 'sms' && 'SMS Configuration'}
+            {node?.type === 'whatsapp' && 'WhatsApp Configuration'}
+            {node?.type === 'email' && 'Email Configuration'}
+            {node?.type === 'voice' && 'Voice Configuration'}
+            {node?.type === 'rcs' && 'RCS Configuration'}
+            {node?.type === 'timer' && 'Timer Configuration'}
+            {node?.type === 'delay' && 'Timer Configuration'}
+            {node?.type === 'pathmix' && 'Path Mix Configuration'}
+            {node?.type === 'converge' && 'Path Mix Configuration'}
+            {node?.type === 'diverge' && 'Path Mix Configuration'}
+            {(!node?.type || !['sms', 'whatsapp', 'email', 'voice', 'rcs', 'timer', 'delay', 'pathmix', 'converge', 'diverge'].includes(node.type)) && 'Node Configuration'}
+          </DialogTitle>
+        </DialogHeader>
+
+        <ScrollArea className="flex-1 overflow-y-auto">
+          <div className="p-6 space-y-6">
+            {renderChannelConfiguration()}
+            
+            {/* Vendor Selection for Channel Nodes */}
+            {(['sms', 'whatsapp', 'email', 'voice', 'rcs'].includes(node?.type || '')) && (
+              <>
+                <Separator />
+                {renderVendorSelection()}
+              </>
+            )}
+          </div>
+        </ScrollArea>
+
+        <div className="flex-shrink-0 flex justify-end gap-3 p-6 border-t">
+          <Button variant="outline" onClick={handleReset}>
+            <RotateCcw className="w-4 h-4 mr-2" />
+            Reset
+          </Button>
+          <Button onClick={handleSave}>
+            <Save className="w-4 h-4 mr-2" />
+            Save Configuration
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
                   <div>
                     <Label>Max Retry Attempts</Label>
                     <Input
@@ -1860,27 +1775,9 @@ export default function ConfigurationModal({ isOpen, onClose, nodeId }: Configur
                       className="nodrag"
                     />
                   </div>
-                )}
-              </CardContent>
-            </Card>
-          </div>
-        );
+                 )}
+               </CardContent>
 
-      // Channel nodes return null - no channel-specific configuration
-      case 'sms':
-      case 'whatsapp':
-      case 'email':
-      case 'voice':
-      case 'rcs':
-        return null;
-
-      default:
-        return null;
-    }
-  };
-
-  return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl h-[90vh] flex flex-col">
         <DialogHeader className="flex-shrink-0">
           <DialogTitle className="text-xl flex items-center gap-2">
@@ -1948,4 +1845,4 @@ export default function ConfigurationModal({ isOpen, onClose, nodeId }: Configur
       </DialogContent>
     </Dialog>
   );
-};
+
