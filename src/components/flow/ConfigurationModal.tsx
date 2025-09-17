@@ -884,6 +884,155 @@ export default function ConfigurationModal({ isOpen, onClose, nodeId }: Configur
     );
   };
 
+  const renderTimerConfig = () => (
+    <Card className="mb-4">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Clock className="w-4 h-4" />
+          Timer Configuration
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div>
+          <Label htmlFor="timerType">Timer Type</Label>
+          <Select 
+            value={formData.timerType || 'delay'} 
+            onValueChange={(value) => setFormData(prev => ({ ...prev, timerType: value }))}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="delay">Simple Delay</SelectItem>
+              <SelectItem value="countdown">Countdown Timer</SelectItem>
+              <SelectItem value="recurring">Recurring Timer</SelectItem>
+              <SelectItem value="scheduled">Scheduled Timer</SelectItem>
+              <SelectItem value="watchdog">Watchdog Timer</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <Label htmlFor="duration">Duration</Label>
+            <Input
+              id="duration"
+              type="number"
+              value={formData.duration || ''}
+              onChange={(e) => setFormData(prev => ({ ...prev, duration: Number(e.target.value) }))}
+              placeholder="Enter duration"
+              min="0"
+            />
+          </div>
+          <div>
+            <Label htmlFor="unit">Time Unit</Label>
+            <Select 
+              value={formData.unit || 's'} 
+              onValueChange={(value) => setFormData(prev => ({ ...prev, unit: value }))}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select unit" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ms">Milliseconds</SelectItem>
+                <SelectItem value="s">Seconds</SelectItem>
+                <SelectItem value="m">Minutes</SelectItem>
+                <SelectItem value="h">Hours</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        {(formData.timerType === 'recurring' || formData.timerType === 'watchdog') && (
+          <div>
+            <Label htmlFor="repeat">Repeat Count</Label>
+            <Input
+              id="repeat"
+              type="number"
+              value={formData.repeat || ''}
+              onChange={(e) => setFormData(prev => ({ ...prev, repeat: Number(e.target.value) }))}
+              placeholder="Number of repeats (-1 for infinite)"
+              min="-1"
+            />
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+
+  const renderPathMixConfig = () => (
+    <Card className="mb-4">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <GitBranch className="w-4 h-4" />
+          Path Mix Configuration
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div>
+          <Label htmlFor="operation">Operation Mode</Label>
+          <Select 
+            value={formData.operation || 'both'} 
+            onValueChange={(value) => setFormData(prev => ({ ...prev, operation: value }))}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select operation" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="diverge">Diverge (Split)</SelectItem>
+              <SelectItem value="converge">Converge (Merge)</SelectItem>
+              <SelectItem value="both">Both (Path Mix)</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        {(formData.operation === 'diverge' || formData.operation === 'both') && (
+          <div>
+            <Label htmlFor="outputs">Number of Outputs</Label>
+            <Input
+              id="outputs"
+              type="number"
+              value={formData.outputs || 2}
+              onChange={(e) => setFormData(prev => ({ ...prev, outputs: Number(e.target.value) }))}
+              placeholder="Number of outputs"
+              min="2"
+              max="8"
+            />
+          </div>
+        )}
+
+        {(formData.operation === 'converge' || formData.operation === 'both') && (
+          <>
+            <div>
+              <Label htmlFor="maxInputs">Maximum Inputs</Label>
+              <Input
+                id="maxInputs"
+                type="number"
+                value={formData.maxInputs || 3}
+                onChange={(e) => setFormData(prev => ({ ...prev, maxInputs: Number(e.target.value) }))}
+                placeholder="Maximum inputs"
+                min="2"
+                max="8"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="timeout">Timeout (ms)</Label>
+              <Input
+                id="timeout"
+                type="number"
+                value={formData.timeout || ''}
+                onChange={(e) => setFormData(prev => ({ ...prev, timeout: Number(e.target.value) }))}
+                placeholder="Timeout in milliseconds"
+                min="0"
+              />
+            </div>
+          </>
+        )}
+      </CardContent>
+    </Card>
+  );
+
   const renderSLAMonitoringConfig = () => {
     return (
       <div className="space-y-6">
@@ -1486,695 +1635,24 @@ export default function ConfigurationModal({ isOpen, onClose, nodeId }: Configur
                   </div>
                 )}
               </CardContent>
-            </Card>
-          </div>
-        );
+      // Channel nodes return null - no channel-specific configuration
+      case 'sms':
+      case 'whatsapp':
+      case 'email':
+      case 'voice':
+      case 'rcs':
+        return null;
 
-      case 'timer':
-        return (
-          <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Clock className="w-5 h-5 text-primary" />
-                  Timer Configuration
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label>Timer Type</Label>
-                    <Select
-                      value={formData.timerType || 'delay'}
-                      onValueChange={(value) => setFormData({ ...formData, timerType: value })}
-                    >
-                      <SelectTrigger className="nodrag">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="delay">Simple Delay</SelectItem>
-                        <SelectItem value="scheduled">Scheduled Execution</SelectItem>
-                        <SelectItem value="recurring">Recurring Timer</SelectItem>
-                        <SelectItem value="countdown">Countdown Timer</SelectItem>
-                        <SelectItem value="watchdog">Watchdog Timer</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label>Duration</Label>
-                    <Input
-                      type="number"
-                      value={formData.duration || 30}
-                      onChange={(e) => setFormData({ ...formData, duration: parseInt(e.target.value) })}
-                      min="1"
-                      className="nodrag"
-                    />
-                  </div>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label>Time Unit</Label>
-                    <Select
-                      value={formData.unit || 'seconds'}
-                      onValueChange={(value) => setFormData({ ...formData, unit: value })}
-                    >
-                      <SelectTrigger className="nodrag">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="milliseconds">Milliseconds</SelectItem>
-                        <SelectItem value="seconds">Seconds</SelectItem>
-                        <SelectItem value="minutes">Minutes</SelectItem>
-                        <SelectItem value="hours">Hours</SelectItem>
-                        <SelectItem value="days">Days</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label>Max Wait Time</Label>
-                    <Input
-                      type="number"
-                      value={formData.maxWait || 3600}
-                      onChange={(e) => setFormData({ ...formData, maxWait: parseInt(e.target.value) })}
-                      min="1"
-                      className="nodrag"
-                    />
-                  </div>
-                </div>
-                
-                {formData.timerType === 'scheduled' && (
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label>Schedule Time</Label>
-                      <Input
-                        type="time"
-                        value={formData.scheduleTime || ''}
-                        onChange={(e) => setFormData({ ...formData, scheduleTime: e.target.value })}
-                        className="nodrag"
-                      />
-                    </div>
-                    <div>
-                      <Label>Time Zone</Label>
-                      <Select
-                        value={formData.timezone || 'UTC'}
-                        onValueChange={(value) => setFormData({ ...formData, timezone: value })}
-                      >
-                        <SelectTrigger className="nodrag">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="UTC">UTC</SelectItem>
-                          <SelectItem value="America/New_York">Eastern Time</SelectItem>
-                          <SelectItem value="America/Los_Angeles">Pacific Time</SelectItem>
-                          <SelectItem value="Europe/London">London</SelectItem>
-                          <SelectItem value="Asia/Kolkata">India Standard Time</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                )}
-                
-                {formData.timerType === 'recurring' && (
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label>Recurrence Pattern</Label>
-                      <Select
-                        value={formData.recurrencePattern || 'daily'}
-                        onValueChange={(value) => setFormData({ ...formData, recurrencePattern: value })}
-                      >
-                        <SelectTrigger className="nodrag">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="daily">Daily</SelectItem>
-                          <SelectItem value="weekly">Weekly</SelectItem>
-                          <SelectItem value="monthly">Monthly</SelectItem>
-                          <SelectItem value="custom">Custom Cron</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label>Max Executions</Label>
-                      <Input
-                        type="number"
-                        value={formData.maxExecutions || 0}
-                        onChange={(e) => setFormData({ ...formData, maxExecutions: parseInt(e.target.value) })}
-                        min="0"
-                        className="nodrag"
-                        placeholder="0 = unlimited"
-                      />
-                    </div>
-                  </div>
-                )}
-                
-                <div className="space-y-3">
-                  <Label className="text-base font-medium">Advanced Timer Options</Label>
-                  <div className="flex items-center space-x-2">
-                    <Switch
-                      checked={formData.enableRetry || false}
-                      onCheckedChange={(checked) => setFormData({ ...formData, enableRetry: checked })}
-                    />
-                    <Label>Enable Retry on Failure</Label>
-                  </div>
-                  
-                  <div className="flex items-center space-x-2">
-                    <Switch
-                      checked={formData.enableJitter || false}
-                      onCheckedChange={(checked) => setFormData({ ...formData, enableJitter: checked })}
-                    />
-                    <Label>Add Random Jitter</Label>
-                  </div>
-                  
-                  <div className="flex items-center space-x-2">
-                    <Switch
-                      checked={formData.persistTimer || false}
-                      onCheckedChange={(checked) => setFormData({ ...formData, persistTimer: checked })}
-                    />
-                    <Label>Persist Timer State</Label>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        );
+      default:
+      // Channel nodes return null - no channel-specific configuration
+      case 'sms':
+      case 'whatsapp':
+      case 'email':
+      case 'voice':
+      case 'rcs':
+        return null;
 
-      case 'doevent':
-        return (
-          <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Zap className="w-5 h-5 text-primary" />
-                  Do Event Configuration
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label>Event Type</Label>
-                    <Select
-                      value={formData.eventType || 'webhook'}
-                      onValueChange={(value) => setFormData({ ...formData, eventType: value })}
-                    >
-                      <SelectTrigger className="nodrag">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="webhook">Webhook Call</SelectItem>
-                        <SelectItem value="database">Database Operation</SelectItem>
-                        <SelectItem value="email">Send Email</SelectItem>
-                        <SelectItem value="sms">Send SMS</SelectItem>
-                        <SelectItem value="api_call">API Call</SelectItem>
-                        <SelectItem value="file_operation">File Operation</SelectItem>
-                        <SelectItem value="custom_script">Custom Script</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label>Event Priority</Label>
-                    <Select
-                      value={formData.eventPriority || 'normal'}
-                      onValueChange={(value) => setFormData({ ...formData, eventPriority: value })}
-                    >
-                      <SelectTrigger className="nodrag">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="critical">Critical</SelectItem>
-                        <SelectItem value="high">High</SelectItem>
-                        <SelectItem value="normal">Normal</SelectItem>
-                        <SelectItem value="low">Low</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                
-                <div>
-                  <Label>Event Configuration</Label>
-                  <Textarea
-                    value={formData.eventConfig || ''}
-                    onChange={(e) => setFormData({ ...formData, eventConfig: e.target.value })}
-                    placeholder="JSON configuration for the event"
-                    rows={4}
-                    className="nodrag font-mono"
-                  />
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label>Timeout (seconds)</Label>
-                    <Input
-                      type="number"
-                      value={formData.eventTimeout || 30}
-                      onChange={(e) => setFormData({ ...formData, eventTimeout: parseInt(e.target.value) })}
-                      min="1"
-                      max="3600"
-                      className="nodrag"
-                    />
-                  </div>
-                  <div>
-                    <Label>Retry Attempts</Label>
-                    <Input
-                      type="number"
-                      value={formData.retryAttempts || 3}
-                      onChange={(e) => setFormData({ ...formData, retryAttempts: parseInt(e.target.value) })}
-                      min="0"
-                      max="10"
-                      className="nodrag"
-                    />
-                  </div>
-                </div>
-                
-                <div className="space-y-3">
-                  <Label className="text-base font-medium">Event Options</Label>
-                  <div className="flex items-center space-x-2">
-                    <Switch
-                      checked={formData.enableAsync || false}
-                      onCheckedChange={(checked) => setFormData({ ...formData, enableAsync: checked })}
-                    />
-                    <Label>Execute Asynchronously</Label>
-                  </div>
-                  
-                  <div className="flex items-center space-x-2">
-                    <Switch
-                      checked={formData.enableLogging || true}
-                      onCheckedChange={(checked) => setFormData({ ...formData, enableLogging: checked })}
-                    />
-                    <Label>Enable Event Logging</Label>
-                  </div>
-                  
-                  <div className="flex items-center space-x-2">
-                    <Switch
-                      checked={formData.enableMetrics || false}
-                      onCheckedChange={(checked) => setFormData({ ...formData, enableMetrics: checked })}
-                    />
-                    <Label>Collect Performance Metrics</Label>
-                  </div>
-                  
-                  <div className="flex items-center space-x-2">
-                    <Switch
-                      checked={formData.enableCircuitBreaker || false}
-                      onCheckedChange={(checked) => setFormData({ ...formData, enableCircuitBreaker: checked })}
-                    />
-                    <Label>Enable Circuit Breaker</Label>
-                  </div>
-                </div>
-                
-                {formData.enableCircuitBreaker && (
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label>Failure Threshold</Label>
-                      <Input
-                        type="number"
-                        value={formData.failureThreshold || 5}
-                        onChange={(e) => setFormData({ ...formData, failureThreshold: parseInt(e.target.value) })}
-                        min="1"
-                        className="nodrag"
-                      />
-                    </div>
-                    <div>
-                      <Label>Recovery Timeout (seconds)</Label>
-                      <Input
-                        type="number"
-                        value={formData.recoveryTimeout || 60}
-                        onChange={(e) => setFormData({ ...formData, recoveryTimeout: parseInt(e.target.value) })}
-                        min="1"
-                        className="nodrag"
-                      />
-                    </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </div>
-        );
-
-      case 'filter':
-        return (
-          <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Filter className="w-5 h-5 text-primary" />
-                  Filter Configuration
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-3">
-                  <Label className="text-base font-medium">Filter Rules</Label>
-                  <div className="space-y-2">
-                    {((formData.filterRules as any[]) || []).map((rule: any, index: number) => (
-                      <div key={index} className="p-4 border rounded-lg space-y-3">
-                        <div className="flex items-center justify-between">
-                          <Label className="font-medium">Rule {index + 1}</Label>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => {
-                              const rules = [...(formData.filterRules as any[] || [])];
-                              rules.splice(index, 1);
-                              setFormData({ ...formData, filterRules: rules });
-                            }}
-                          >
-                            <X className="w-4 h-4" />
-                          </Button>
-                        </div>
-                        
-                        <div className="grid grid-cols-3 gap-3">
-                          <div>
-                            <Label>Field</Label>
-                            <Select
-                              value={rule.field || ''}
-                              onValueChange={(value) => {
-                                const rules = [...(formData.filterRules as any[] || [])];
-                                rules[index] = { ...rule, field: value };
-                                setFormData({ ...formData, filterRules: rules });
-                              }}
-                            >
-                              <SelectTrigger className="nodrag">
-                                <SelectValue placeholder="Select field" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="message.content">Message Content</SelectItem>
-                                <SelectItem value="user.email">User Email</SelectItem>
-                                <SelectItem value="user.phone">User Phone</SelectItem>
-                                <SelectItem value="user.country">User Country</SelectItem>
-                                <SelectItem value="campaign.id">Campaign ID</SelectItem>
-                                <SelectItem value="priority">Priority Level</SelectItem>
-                                <SelectItem value="timestamp">Timestamp</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-                          <div>
-                            <Label>Operator</Label>
-                            <Select
-                              value={rule.operator || ''}
-                              onValueChange={(value) => {
-                                const rules = [...(formData.filterRules as any[] || [])];
-                                rules[index] = { ...rule, operator: value };
-                                setFormData({ ...formData, filterRules: rules });
-                              }}
-                            >
-                              <SelectTrigger className="nodrag">
-                                <SelectValue placeholder="Select operator" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="equals">Equals</SelectItem>
-                                <SelectItem value="not_equals">Not Equals</SelectItem>
-                                <SelectItem value="contains">Contains</SelectItem>
-                                <SelectItem value="not_contains">Does Not Contain</SelectItem>
-                                <SelectItem value="starts_with">Starts With</SelectItem>
-                                <SelectItem value="ends_with">Ends With</SelectItem>
-                                <SelectItem value="regex">Regex Match</SelectItem>
-                                <SelectItem value="in_list">In List</SelectItem>
-                                <SelectItem value="not_in_list">Not In List</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-                          <div>
-                            <Label>Value</Label>
-                            <Input
-                              value={rule.value || ''}
-                              onChange={(e) => {
-                                const rules = [...(formData.filterRules as any[] || [])];
-                                rules[index] = { ...rule, value: e.target.value };
-                                setFormData({ ...formData, filterRules: rules });
-                              }}
-                              placeholder="Enter filter value"
-                              className="nodrag"
-                            />
-                          </div>
-                        </div>
-                        
-                        <div className="grid grid-cols-2 gap-3">
-                          <div>
-                            <Label>Action on Match</Label>
-                            <Select
-                              value={rule.action || 'allow'}
-                              onValueChange={(value) => {
-                                const rules = [...(formData.filterRules as any[] || [])];
-                                rules[index] = { ...rule, action: value };
-                                setFormData({ ...formData, filterRules: rules });
-                              }}
-                            >
-                              <SelectTrigger className="nodrag">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="allow">Allow Through</SelectItem>
-                                <SelectItem value="block">Block</SelectItem>
-                                <SelectItem value="quarantine">Quarantine</SelectItem>
-                                <SelectItem value="transform">Transform</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-                          <div>
-                            <Label>Priority</Label>
-                            <Input
-                              type="number"
-                              value={rule.priority || 1}
-                              onChange={(e) => {
-                                const rules = [...(formData.filterRules as any[] || [])];
-                                rules[index] = { ...rule, priority: parseInt(e.target.value) };
-                                setFormData({ ...formData, filterRules: rules });
-                              }}
-                              className="nodrag"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                    
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => {
-                        const newRule = { field: '', operator: '', value: '', action: 'allow', priority: 1 };
-                        setFormData({ 
-                          ...formData, 
-                          filterRules: [...(formData.filterRules as any[] || []), newRule] 
-                        });
-                      }}
-                    >
-                      <Plus className="w-4 h-4 mr-2" />
-                      Add Filter Rule
-                    </Button>
-                  </div>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label>Filter Mode</Label>
-                    <Select
-                      value={formData.filterMode || 'whitelist'}
-                      onValueChange={(value) => setFormData({ ...formData, filterMode: value })}
-                    >
-                      <SelectTrigger className="nodrag">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="whitelist">Whitelist (Allow Only Matches)</SelectItem>
-                        <SelectItem value="blacklist">Blacklist (Block Matches)</SelectItem>
-                        <SelectItem value="content_filter">Content Filter</SelectItem>
-                        <SelectItem value="compliance_filter">Compliance Filter</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label>Case Sensitivity</Label>
-                    <Select
-                      value={formData.caseSensitive || 'false'}
-                      onValueChange={(value) => setFormData({ ...formData, caseSensitive: value })}
-                    >
-                      <SelectTrigger className="nodrag">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="true">Case Sensitive</SelectItem>
-                        <SelectItem value="false">Case Insensitive</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                
-                <div className="space-y-3">
-                  <Label className="text-base font-medium">Advanced Filter Options</Label>
-                  <div className="flex items-center space-x-2">
-                    <Switch
-                      checked={formData.enableContentScanning || false}
-                      onCheckedChange={(checked) => setFormData({ ...formData, enableContentScanning: checked })}
-                    />
-                    <Label>Enable Content Scanning</Label>
-                  </div>
-                  
-                  <div className="flex items-center space-x-2">
-                    <Switch
-                      checked={formData.enableMLFiltering || false}
-                      onCheckedChange={(checked) => setFormData({ ...formData, enableMLFiltering: checked })}
-                    />
-                    <Label>Enable ML-based Filtering</Label>
-                  </div>
-                  
-                  <div className="flex items-center space-x-2">
-                    <Switch
-                      checked={formData.enableRealTimeUpdates || false}
-                      onCheckedChange={(checked) => setFormData({ ...formData, enableRealTimeUpdates: checked })}
-                    />
-                    <Label>Real-time Rule Updates</Label>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        );
-
-      case 'delay':
-        return (
-          <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Clock className="w-5 h-5 text-primary" />
-                  Delay Configuration
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label>Delay Duration</Label>
-                    <Input
-                      type="number"
-                      value={formData.duration || 5}
-                      onChange={(e) => setFormData({ ...formData, duration: parseInt(e.target.value) })}
-                      min="1"
-                      className="nodrag"
-                    />
-                  </div>
-                  <div>
-                    <Label>Time Unit</Label>
-                    <Select
-                      value={formData.unit || 'seconds'}
-                      onValueChange={(value) => setFormData({ ...formData, unit: value })}
-                    >
-                      <SelectTrigger className="nodrag">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="milliseconds">Milliseconds</SelectItem>
-                        <SelectItem value="seconds">Seconds</SelectItem>
-                        <SelectItem value="minutes">Minutes</SelectItem>
-                        <SelectItem value="hours">Hours</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label>Delay Type</Label>
-                    <Select
-                      value={formData.delayType || 'fixed'}
-                      onValueChange={(value) => setFormData({ ...formData, delayType: value })}
-                    >
-                      <SelectTrigger className="nodrag">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="fixed">Fixed Delay</SelectItem>
-                        <SelectItem value="random">Random Delay</SelectItem>
-                        <SelectItem value="exponential">Exponential Backoff</SelectItem>
-                        <SelectItem value="linear">Linear Increase</SelectItem>
-                        <SelectItem value="conditional">Conditional Delay</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label>Max Delay (for random/conditional)</Label>
-                    <Input
-                      type="number"
-                      value={formData.maxDelay || 60}
-                      onChange={(e) => setFormData({ ...formData, maxDelay: parseInt(e.target.value) })}
-                      min="1"
-                      className="nodrag"
-                    />
-                  </div>
-                </div>
-                
-                {formData.delayType === 'conditional' && (
-                  <div>
-                    <Label>Delay Condition</Label>
-                    <Textarea
-                      value={formData.delayCondition || ''}
-                      onChange={(e) => setFormData({ ...formData, delayCondition: e.target.value })}
-                      placeholder="Condition expression for dynamic delay"
-                      className="nodrag"
-                    />
-                  </div>
-                )}
-                
-                <div className="space-y-3">
-                  <Label className="text-base font-medium">Delay Options</Label>
-                  <div className="flex items-center space-x-2">
-                    <Switch
-                      checked={formData.enableJitter || false}
-                      onCheckedChange={(checked) => setFormData({ ...formData, enableJitter: checked })}
-                    />
-                    <Label>Add Random Jitter</Label>
-                  </div>
-                  
-                  <div className="flex items-center space-x-2">
-                    <Switch
-                      checked={formData.enableCancellation || false}
-                      onCheckedChange={(checked) => setFormData({ ...formData, enableCancellation: checked })}
-                    />
-                    <Label>Allow Delay Cancellation</Label>
-                  </div>
-                  
-                  <div className="flex items-center space-x-2">
-                    <Switch
-                      checked={formData.preserveOrder || true}
-                      onCheckedChange={(checked) => setFormData({ ...formData, preserveOrder: checked })}
-                    />
-                    <Label>Preserve Message Order</Label>
-                  </div>
-                  
-                  <div className="flex items-center space-x-2">
-                    <Switch
-                      checked={formData.enableBatching || false}
-                      onCheckedChange={(checked) => setFormData({ ...formData, enableBatching: checked })}
-                    />
-                    <Label>Batch Similar Delays</Label>
-                  </div>
-                </div>
-                
-                {formData.enableJitter && (
-                  <div>
-                    <Label>Jitter Percentage</Label>
-                    <Slider
-                      value={[formData.jitterPercentage || 10]}
-                      onValueChange={(value) => setFormData({ ...formData, jitterPercentage: value[0] })}
-                      max={50}
-                      min={1}
-                      step={1}
-                      className="nodrag"
-                    />
-                    <div className="text-sm text-muted-foreground mt-1">
-                      Current: ±{formData.jitterPercentage || 10}%
-                    </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </div>
-        );
-
-      case 'fallback':
-        return (
-          <div className="space-y-6">
-            <Card>
-              <CardHeader>
+      default:
                 <CardTitle className="text-lg flex items-center gap-2">
                   <RotateCcw className="w-5 h-5 text-primary" />
                   Fallback Configuration

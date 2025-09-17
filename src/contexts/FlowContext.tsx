@@ -921,6 +921,84 @@ function getDefaultNodeData(type: string) {
         parentChannelId: null,
         vendors: [],
         weights: {},
+        autoNormalize: true
+      };
+
+    // Control Logic Nodes  
+    case 'timer':
+    case 'delay': // Legacy support
+      return {
+        label: type === 'delay' ? 'Delay' : 'Timer',
+        timerType: type === 'delay' ? 'delay' : 'countdown',
+        duration: null,
+        unit: type === 'delay' ? 'ms' : 's',
+        onConfigClick: (nodeId: string) => console.log('Config clicked for node:', nodeId)
+      };
+    case 'pathmix':
+    case 'converge': // Legacy support
+    case 'diverge': // Legacy support
+      return {
+        label: type === 'converge' ? 'Converge' : type === 'diverge' ? 'Diverge' : 'Path Mix',
+        operation: type === 'converge' ? 'converge' : type === 'diverge' ? 'diverge' : 'both',
+        outputs: type === 'diverge' ? 2 : null,
+        maxInputs: type === 'converge' ? 2 : null,
+        onConfigClick: (nodeId: string) => console.log('Config clicked for node:', nodeId)
+      };
+    case 'doevent':
+      return {
+        label: 'Do Event',
+        eventType: null,
+        eventData: {},
+        onConfigClick: (nodeId: string) => console.log('Config clicked for node:', nodeId)
+      };
+    case 'filter':
+      return {
+        label: 'Filter',
+        filterCondition: null,
+        filterValue: null,
+        onConfigClick: (nodeId: string) => console.log('Config clicked for node:', nodeId)
+      };
+    case 'fallback':
+      return {
+        label: 'Fallback',
+        primaryVendor: null,
+        fallbackVendors: [],
+        failureThreshold: 3,
+        onConfigClick: (nodeId: string) => console.log('Config clicked for node:', nodeId)
+      };
+    case 'load-balancer':
+      return {
+        label: 'Load Balancer',
+        parentChannelId: null,
+        vendors: [],
+        algorithm: 'round_robin',
+        targets: [],
+        healthCheck: true
+      };
+    case 'geolocation':
+      return {
+        label: 'Geolocation Routing',
+        parentChannelId: null,
+        vendors: [],
+        strategy: 'proximity',
+        regions: [],
+        fallbackRegion: 'global'
+      };
+    case 'failover':
+      return {
+        label: 'Failover',
+        parentChannelId: null,
+        vendors: [],
+        primaryVendor: null,
+        backupVendors: [],
+        failoverCriteria: 'response_time'
+      };
+    case 'weighted-distribution':
+      return {
+        label: 'Weighted Distribution',
+        parentChannelId: null,
+        vendors: [],
+        weights: {},
         normalizeWeights: true
       };
 
