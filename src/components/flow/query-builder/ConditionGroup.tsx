@@ -206,7 +206,7 @@ export const ConditionGroup: React.FC<ConditionGroupProps> = ({
         )}
 
         {/* Conditions */}
-        {group.conditions.map((condition, index) => {
+        {(group.conditions || []).map((condition, index) => {
           const TypeIcon = getTypeIcon(condition.type);
           const availableOperators = OPERATORS[condition.type as keyof typeof OPERATORS] || OPERATORS.text;
           
@@ -286,7 +286,7 @@ export const ConditionGroup: React.FC<ConditionGroupProps> = ({
         })}
 
         {/* Nested Groups */}
-        {group.groups.map(nestedGroup => (
+        {(group.groups || []).map(nestedGroup => (
           <ConditionGroup
             key={nestedGroup.id}
             group={nestedGroup}
@@ -300,7 +300,7 @@ export const ConditionGroup: React.FC<ConditionGroupProps> = ({
         ))}
 
         {/* Empty State */}
-        {group.conditions.length === 0 && group.groups.length === 0 && (
+        {(group.conditions || []).length === 0 && (group.groups || []).length === 0 && (
           <div className="text-center py-8 text-muted-foreground">
             <p className="text-sm mb-2">No conditions or groups yet</p>
             <div className="flex justify-center gap-2">

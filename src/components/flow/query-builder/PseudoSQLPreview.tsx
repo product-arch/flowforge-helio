@@ -82,12 +82,12 @@ export const PseudoSQLPreview: React.FC<PseudoSQLPreviewProps> = ({ query, mode 
   };
 
   const generateGroupSQL = (group: ConditionGroupData, level: number = 0): string => {
-    const conditions = group.conditions
+    const conditions = (group.conditions || [])
       .filter(c => c.field)
       .map(c => generateConditionSQL(c))
       .filter(sql => sql);
     
-    const nestedGroups = group.groups.map(g => generateGroupSQL(g, level + 1));
+    const nestedGroups = (group.groups || []).map(g => generateGroupSQL(g, level + 1));
     
     const allClauses = [...conditions, ...nestedGroups].filter(Boolean);
     
@@ -161,8 +161,8 @@ WHERE ${whereClause || 'TRUE'}`;
     URL.revokeObjectURL(url);
   };
 
-  const hasValidConditions = query.conditions.some(c => c.field) || 
-    query.groups.some(g => g.conditions.some(c => c.field));
+  const hasValidConditions = (query.conditions || []).some(c => c.field) || 
+    (query.groups || []).some(g => (g.conditions || []).some(c => c.field));
 
   return (
     <div className="h-full flex flex-col">
@@ -221,19 +221,19 @@ WHERE ${whereClause || 'TRUE'}`;
           <div className="grid grid-cols-3 gap-4 text-center">
             <div>
               <div className="text-2xl font-bold text-primary">
-                {query.conditions.length}
+                {(query.conditions || []).length}
               </div>
               <div className="text-xs text-muted-foreground">Conditions</div>
             </div>
             <div>
               <div className="text-2xl font-bold text-primary">
-                {query.groups.length}
+                {(query.groups || []).length}
               </div>
               <div className="text-xs text-muted-foreground">Groups</div>
             </div>
             <div>
               <div className="text-2xl font-bold text-primary">
-                {query.conditions.filter(c => c.field).length}
+                {(query.conditions || []).filter(c => c.field).length}
               </div>
               <div className="text-xs text-muted-foreground">Valid</div>
             </div>

@@ -33,11 +33,22 @@ export interface ConditionGroupData {
 export const QueryBuilder: React.FC<QueryBuilderProps> = ({ value, onChange, mode }) => {
   const [selectedPanel, setSelectedPanel] = useState<'fields' | 'builder' | 'sql'>('builder');
   
-  const [queryData, setQueryData] = useState<ConditionGroupData>(value || {
-    id: 'root',
-    operator: 'AND',
-    conditions: [],
-    groups: []
+  const [queryData, setQueryData] = useState<ConditionGroupData>(() => {
+    const defaultData = {
+      id: 'root',
+      operator: 'AND' as const,
+      conditions: [],
+      groups: []
+    };
+    
+    if (!value) return defaultData;
+    
+    return {
+      ...defaultData,
+      ...value,
+      conditions: value.conditions || [],
+      groups: value.groups || []
+    };
   });
 
   const handleQueryChange = (newQuery: ConditionGroupData) => {
@@ -58,12 +69,12 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({ value, onChange, mod
       if (group.id === groupId) {
         return {
           ...group,
-          conditions: [...group.conditions, newCondition]
+          conditions: [...(group.conditions || []), newCondition]
         };
       }
       return {
         ...group,
-        groups: group.groups.map(updateGroup)
+        groups: (group.groups || []).map(updateGroup)
       };
     };
 
@@ -82,12 +93,12 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({ value, onChange, mod
       if (group.id === parentGroupId) {
         return {
           ...group,
-          groups: [...group.groups, newGroup]
+          groups: [...(group.groups || []), newGroup]
         };
       }
       return {
         ...group,
-        groups: group.groups.map(updateGroup)
+        groups: (group.groups || []).map(updateGroup)
       };
     };
 
@@ -99,12 +110,12 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({ value, onChange, mod
       if (group.id === groupId) {
         return {
           ...group,
-          conditions: group.conditions.filter(c => c.id !== conditionId)
+          conditions: (group.conditions || []).filter(c => c.id !== conditionId)
         };
       }
       return {
         ...group,
-        groups: group.groups.map(updateGroup)
+        groups: (group.groups || []).map(updateGroup)
       };
     };
 
@@ -116,14 +127,14 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({ value, onChange, mod
       if (group.id === groupId) {
         return {
           ...group,
-          conditions: group.conditions.map(c => 
+          conditions: (group.conditions || []).map(c => 
             c.id === conditionId ? { ...c, ...updates } : c
           )
         };
       }
       return {
         ...group,
-        groups: group.groups.map(updateGroup)
+        groups: (group.groups || []).map(updateGroup)
       };
     };
 
