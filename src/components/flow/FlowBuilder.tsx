@@ -19,6 +19,7 @@ import { EmailNode } from './nodes/EmailNode';
 import { VoiceNode } from './nodes/VoiceNode';
 import { RCSNode } from './nodes/RCSNode';
 import { ConditionalNode } from './nodes/ConditionalNode';
+import { DecisionsNode } from './nodes/DecisionsNode';
 import { AuditNode } from './nodes/AuditNode';
 import { PathMixNode } from './nodes/PathMixNode';
 import { FilterNode } from './nodes/FilterNode';
@@ -54,6 +55,7 @@ const nodeTypes = {
   voice: VoiceNode,
   rcs: RCSNode,
   conditional: ConditionalNode,
+  decisions: DecisionsNode,
   audit: AuditNode,
   delay: TimerNode, // Legacy support
   timer: TimerNode,

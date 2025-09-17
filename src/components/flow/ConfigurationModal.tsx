@@ -16,6 +16,7 @@ import { Slider } from '@/components/ui/slider';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { QueryBuilder } from './query-builder/QueryBuilder';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -1320,6 +1321,81 @@ export default function ConfigurationModal({ isOpen, onClose, nodeId }: Configur
         return renderGeolocationRoutingConfig();
 
       // Control Logic Nodes
+      case 'decisions':
+        return (
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <GitBranch className="w-5 h-5 text-primary" />
+                  Advanced Decisions Configuration
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="h-[600px]">
+                  <QueryBuilder
+                    value={formData.queryBuilder || {}}
+                    onChange={(value) => setFormData({ ...formData, queryBuilder: value })}
+                    mode={formData.mode || 'conditional'}
+                  />
+                </div>
+                
+                <div className="grid grid-cols-3 gap-4 pt-4 border-t">
+                  <div>
+                    <Label>Decision Mode</Label>
+                    <Select
+                      value={formData.mode || 'conditional'}
+                      onValueChange={(value) => setFormData({ ...formData, mode: value })}
+                    >
+                      <SelectTrigger className="nodrag">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="conditional">Conditional Logic</SelectItem>
+                        <SelectItem value="switch">Switch Cases</SelectItem>
+                        <SelectItem value="filter">Filter Messages</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label>Evaluation Mode</Label>
+                    <Select
+                      value={formData.evaluationMode || 'strict'}
+                      onValueChange={(value) => setFormData({ ...formData, evaluationMode: value })}
+                    >
+                      <SelectTrigger className="nodrag">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="strict">Strict Evaluation</SelectItem>
+                        <SelectItem value="fuzzy">Fuzzy Logic</SelectItem>
+                        <SelectItem value="probabilistic">Probabilistic</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label>Timeout (ms)</Label>
+                    <Input
+                      type="number"
+                      value={formData.timeout || 5000}
+                      onChange={(e) => setFormData({ ...formData, timeout: parseInt(e.target.value) })}
+                      className="nodrag"
+                    />
+                  </div>
+                </div>
+                
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    checked={formData.enableCaching || false}
+                    onCheckedChange={(checked) => setFormData({ ...formData, enableCaching: checked })}
+                  />
+                  <Label>Cache Evaluation Results</Label>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        );
+
       case 'conditional':
         return (
           <div className="space-y-6">
@@ -1654,7 +1730,8 @@ export default function ConfigurationModal({ isOpen, onClose, nodeId }: Configur
             {node?.type === 'pathmix' && 'Path Mix Configuration'}
             {node?.type === 'converge' && 'Path Mix Configuration'}
             {node?.type === 'diverge' && 'Path Mix Configuration'}
-            {(!node?.type || !['sms', 'whatsapp', 'email', 'voice', 'rcs', 'timer', 'delay', 'pathmix', 'converge', 'diverge'].includes(node.type)) && 'Node Configuration'}
+            {node?.type === 'decisions' && 'Advanced Decisions Configuration'}
+            {(!node?.type || !['sms', 'whatsapp', 'email', 'voice', 'rcs', 'timer', 'delay', 'pathmix', 'converge', 'diverge', 'decisions'].includes(node.type)) && 'Node Configuration'}
           </DialogTitle>
         </DialogHeader>
 
