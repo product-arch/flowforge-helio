@@ -49,7 +49,6 @@ const App = () => (
             <Route path="/api-console" element={<APIConsole />} />
             <Route path="/user-profiles" element={<UserProfiles />} />
             <Route path="/analytics" element={<Analytics />} />
-            <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/vendors" element={<Vendors />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
