@@ -17,7 +17,7 @@ import {
 } from '@/components/ui/form';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Zap } from 'lucide-react';
+import { Loader2, Zap, ArrowLeft } from 'lucide-react';
 import signinBg from '@/assets/signin-bg.jpg';
 
 const signInSchema = z.object({
@@ -90,7 +90,18 @@ const SignIn: React.FC = () => {
   return (
     <div className="min-h-screen flex">
       {/* Left section - 30% - Sign In Form */}
-      <div className="w-[30%] flex items-center justify-center p-8 bg-background">
+      <div className="w-[30%] flex items-center justify-center p-8 bg-background relative">
+        {/* Back Arrow Button */}
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => navigate('/')}
+          disabled={isSubmitting || authLoading}
+          className="absolute top-6 left-6 text-muted-foreground hover:text-foreground"
+        >
+          <ArrowLeft className="w-5 h-5" />
+        </Button>
+        
         <div className="w-full max-w-md space-y-8">
           {/* Logo and Header */}
           <div className="text-center space-y-4">
