@@ -155,11 +155,11 @@ export const FlowNavbar: React.FC = () => {
             <Button 
               variant="ghost" 
               size="sm"
-              onClick={() => navigate('/flows')}
+              onClick={() => navigate('/dashboard')}
               className="flex items-center gap-2"
             >
               <ArrowLeft className="w-4 h-4" />
-              Back to Flows
+              Back to Home
             </Button>
             <div className="h-6 w-px bg-border" />
             <div className="flex items-center gap-2">
