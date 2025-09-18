@@ -19,6 +19,7 @@ import {
   Facebook
 } from 'lucide-react';
 import { PrivacyPolicyModal, TermsOfServiceModal, CookiePreferencesModal, SystemStatusModal, VersionModal } from '@/components/flow/FooterModals';
+import { SupportModal } from '@/components/flow/SupportModal';
 
 const stats = [
   { label: 'Active Flows', value: '12', icon: Zap },
@@ -46,6 +47,7 @@ const Landing: React.FC = () => {
   const [cookiePreferencesOpen, setCookiePreferencesOpen] = useState(false);
   const [systemStatusOpen, setSystemStatusOpen] = useState(false);
   const [versionModalOpen, setVersionModalOpen] = useState(false);
+  const [supportModalOpen, setSupportModalOpen] = useState(false);
 
   const handleSignIn = () => {
     toast({
@@ -87,15 +89,7 @@ const Landing: React.FC = () => {
             real-time analytics, and seamless integrations. Start building in minutes.
           </p>
           
-          <div className="flex items-center justify-center gap-4">
-            <Button 
-              size="lg" 
-              className="bg-gradient-primary hover:opacity-90 text-lg font-body-medium px-8 py-6 h-auto"
-              onClick={() => navigate('/flow-builder')}
-            >
-              <Play className="w-5 h-5 mr-2" />
-              Build Routing Flow
-            </Button>
+          <div className="flex items-center justify-center">
             <Button 
               variant="outline" 
               size="lg" 
@@ -236,9 +230,9 @@ const Landing: React.FC = () => {
             <Button 
               size="lg" 
               className="bg-gradient-primary hover:opacity-90 text-lg font-body-medium px-8 py-6 h-auto"
-              onClick={() => navigate('/flow-builder')}
+              onClick={() => setSupportModalOpen(true)}
             >
-              Start Building Free
+              Contact Support
             </Button>
             <Button 
               variant="outline" 
@@ -441,6 +435,8 @@ const Landing: React.FC = () => {
       <CookiePreferencesModal isOpen={cookiePreferencesOpen} onClose={() => setCookiePreferencesOpen(false)} />
       <SystemStatusModal isOpen={systemStatusOpen} onClose={() => setSystemStatusOpen(false)} />
       <VersionModal isOpen={versionModalOpen} onClose={() => setVersionModalOpen(false)} />
+      
+      <SupportModal isOpen={supportModalOpen} onClose={() => setSupportModalOpen(false)} />
     </div>
   );
 };
