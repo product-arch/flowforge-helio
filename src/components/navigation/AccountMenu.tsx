@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User, Settings, LogOut } from 'lucide-react';
+import { User, Settings, CreditCard, HelpCircle, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -56,11 +56,11 @@ export const AccountMenu: React.FC<AccountMenuProps> = ({
           Account Settings
         </DropdownMenuItem>
         <DropdownMenuItem onClick={onBillingClick}>
-          <Settings className="w-4 h-4 mr-2" />
+          <CreditCard className="w-4 h-4 mr-2" />
           Billing & Subscription
         </DropdownMenuItem>
         <DropdownMenuItem onClick={onSupportClick}>
-          <Settings className="w-4 h-4 mr-2" />
+          <HelpCircle className="w-4 h-4 mr-2" />
           Support & Help
         </DropdownMenuItem>
         <DropdownMenuSeparator />
