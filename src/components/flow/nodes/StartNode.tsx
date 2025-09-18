@@ -15,40 +15,38 @@ export const StartNode: React.FC<NodeProps> = ({ id, data, selected }) => {
   return (
     <TooltipProvider>
       <div className={`
-        relative bg-card border rounded-lg p-2 w-[80px]
-        ${selected ? 'border-primary shadow-sm' : 'border-border hover:border-border/60'}
-        transition-all duration-200
+        relative bg-gradient-to-br from-primary/20 to-primary/10 
+        border-2 rounded-full p-4 shadow-lg w-40 h-16 
+        ${selected ? 'border-primary shadow-primary/20' : 'border-primary/50'}
+        hover:shadow-xl hover:scale-105 transition-all duration-300
         flex items-center justify-center
       `}>
         {/* Icon and Label */}
         <div className="flex flex-col items-center gap-1">
-          <div className="rounded bg-primary/10 p-0.5 flex items-center justify-center">
-            <Play className="w-2.5 h-2.5 text-primary" />
+          <div className="p-1.5 bg-primary/20 rounded-full">
+            <Play className="w-3 h-3 text-primary fill-primary" />
           </div>
-          <span className="text-[10px] font-medium text-foreground">START</span>
+          <span className="text-xs font-semibold text-primary">START</span>
         </div>
 
-        {/* Connection Handles */}
+        {/* Invisible Handles for connectivity */}
         <Handle
           type="source"
           position={Position.Right}
           id="right"
-          className="w-1.5 h-1.5 bg-primary border border-background rounded-full opacity-40 hover:opacity-100 hover:scale-110 transition-all duration-200"
-          style={{ right: -3, top: '50%', transform: 'translateY(-50%)' }}
+          className="w-3 h-3 opacity-0"
         />
         <Handle
           type="source"
           position={Position.Bottom}
           id="bottom"
-          className="w-1.5 h-1.5 bg-primary border border-background rounded-full opacity-40 hover:opacity-100 hover:scale-110 transition-all duration-200"
-          style={{ bottom: -3, left: '50%', transform: 'translateX(-50%)' }}
+          className="w-3 h-3 opacity-0"
         />
         <Handle
           type="source"
           position={Position.Top}
           id="top"
-          className="w-1.5 h-1.5 bg-primary border border-background rounded-full opacity-40 hover:opacity-100 hover:scale-110 transition-all duration-200"
-          style={{ top: -3, left: '50%', transform: 'translateX(-50%)' }}
+          className="w-3 h-3 opacity-0"
         />
 
         <Tooltip>
@@ -56,10 +54,10 @@ export const StartNode: React.FC<NodeProps> = ({ id, data, selected }) => {
             <div className="absolute inset-0 pointer-events-none" />
           </TooltipTrigger>
           <TooltipContent>
-            <div className="text-xs">
+            <div className="text-sm">
               <div className="font-medium">Start Node</div>
-              <div className="text-muted-foreground text-[10px]">
-                Entry point for the routing flow
+              <div className="text-muted-foreground">
+                Entry point for the routing flow - connect to any node
               </div>
             </div>
           </TooltipContent>

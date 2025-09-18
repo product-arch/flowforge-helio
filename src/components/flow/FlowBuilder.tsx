@@ -8,8 +8,8 @@ import {
   Panel
 } from '@xyflow/react';
 import { useFlow } from '@/contexts/FlowContext';
-import { NodePaletteSidebar } from './NodePaletteSidebar';
-import { ConfigurationSidebar } from './ConfigurationSidebar';
+import { FloatingNodePalette } from './FloatingNodePalette';
+import ConfigurationModal from './ConfigurationModal';
 import { FlowNavbar } from './FlowNavbar';
 import { StartNode } from './nodes/StartNode';
 import { TerminalNode } from './nodes/TerminalNode';
@@ -100,32 +100,28 @@ export const FlowBuilder: React.FC = () => {
     setSelectedNode
   } = useFlow();
   
-  const [isNodePaletteOpen, setIsNodePaletteOpen] = React.useState(true);
-  const [isConfigSidebarOpen, setIsConfigSidebarOpen] = React.useState(false);
+  const [configModalOpen, setConfigModalOpen] = React.useState(false);
+  const [configNodeId, setConfigNodeId] = React.useState<string | null>(null);
 
   const { setViewport } = useReactFlow();
 
   const onNodeClick = useCallback((event: React.MouseEvent, node: any) => {
     setSelectedNode(node);
-    setIsConfigSidebarOpen(true);
   }, [setSelectedNode]);
 
   const onPaneClick = useCallback(() => {
     setSelectedNode(null);
   }, [setSelectedNode]);
 
-  const openConfigSidebar = useCallback((nodeId: string) => {
-    const node = nodes.find(n => n.id === nodeId);
-    if (node) {
-      setSelectedNode(node);
-      setIsConfigSidebarOpen(true);
-    }
-  }, [nodes, setSelectedNode]);
+  const openConfigModal = useCallback((nodeId: string) => {
+    setConfigNodeId(nodeId);
+    setConfigModalOpen(true);
+  }, []);
 
-  const closeConfigSidebar = useCallback(() => {
-    setIsConfigSidebarOpen(false);
-    setSelectedNode(null);
-  }, [setSelectedNode]);
+  const closeConfigModal = useCallback(() => {
+    setConfigModalOpen(false);
+    setConfigNodeId(null);
+  }, []);
 
   const defaultEdgeOptions = useMemo(() => ({
     type: 'custom',
@@ -137,21 +133,14 @@ export const FlowBuilder: React.FC = () => {
     <div className="h-screen w-full flex flex-col">
       <FlowNavbar />
       
-      <div className="flex-1 flex overflow-hidden">
-        {/* Node Palette Sidebar */}
-        <NodePaletteSidebar 
-          isOpen={isNodePaletteOpen}
-          onToggle={() => setIsNodePaletteOpen(!isNodePaletteOpen)}
-        />
-        
-        {/* Main Flow Canvas */}
-        <div className={`flex-1 relative transition-all duration-300 ${isNodePaletteOpen ? 'ml-64' : 'ml-0'}`}>
+      <div className="flex-1 flex overflow-hidden">        
+        <div className={`flex-1 relative ${configModalOpen ? 'blur-sm' : ''}`}>
           <ReactFlow
             nodes={nodes.map(node => ({
               ...node,
               data: {
                 ...node.data,
-                onConfigClick: () => openConfigSidebar(node.id)
+                onConfigClick: () => openConfigModal(node.id)
               }
             }))}
             edges={edges}
@@ -164,36 +153,38 @@ export const FlowBuilder: React.FC = () => {
             edgeTypes={edgeTypes}
             defaultEdgeOptions={defaultEdgeOptions}
             fitView
-            className="bg-flow-canvas"
+            className="bg-background"
             proOptions={{ hideAttribution: true }}
           >
             <Background 
-              color="hsl(var(--flow-grid))" 
+              color="hsl(var(--border))" 
               gap={20} 
-              size={1}
-              style={{ opacity: 0.6 }}
+              size={1.8}
+              style={{ opacity: 0.8 }}
             />
             <Panel position="bottom-left">
               <MiniMap 
                 nodeColor="hsl(var(--primary))"
-                maskColor="rgba(0,0,0,0.1)"
-                className="bg-card border border-border rounded-lg shadow-sm"
+                maskColor="rgba(0,0,0,0.2)"
+                className="bg-card border border-border rounded-lg shadow-lg"
               />
             </Panel>
             <Panel position="bottom-right">
               <ZoomControls />
             </Panel>
           </ReactFlow>
+          
+          <FloatingNodePalette />
         </div>
-        
-        {/* Configuration Sidebar */}
-        <ConfigurationSidebar
-          isOpen={isConfigSidebarOpen}
-          onClose={closeConfigSidebar}
-          selectedNodeId={selectedNode?.id}
-          selectedNodeData={selectedNode}
-        />
       </div>
+      
+      {configNodeId && (
+        <ConfigurationModal
+          isOpen={configModalOpen}
+          onClose={closeConfigModal}
+          nodeId={configNodeId}
+        />
+      )}
     </div>
   );
 };

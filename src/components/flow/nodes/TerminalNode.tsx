@@ -6,10 +6,10 @@ import { Badge } from '@/components/ui/badge';
 import { useFlow } from '@/contexts/FlowContext';
 
 const stateConfig = {
-  sent: { icon: CheckCircle, iconColor: 'text-green-600', backgroundColor: 'bg-green-50 dark:bg-green-900/20', label: 'Sent' },
-  dropped: { icon: XCircle, iconColor: 'text-red-600', backgroundColor: 'bg-red-50 dark:bg-red-900/20', label: 'Dropped' },
-  alerted: { icon: AlertTriangle, iconColor: 'text-yellow-600', backgroundColor: 'bg-yellow-50 dark:bg-yellow-900/20', label: 'Alerted' },
-  queued: { icon: Clock, iconColor: 'text-gray-600', backgroundColor: 'bg-gray-50 dark:bg-gray-900/20', label: 'Queued' },
+  sent: { icon: CheckCircle, color: 'text-status-success', bg: 'bg-status-success/10', label: 'Sent' },
+  dropped: { icon: XCircle, color: 'text-status-error', bg: 'bg-status-error/10', label: 'Dropped' },
+  alerted: { icon: AlertTriangle, color: 'text-status-warning', bg: 'bg-status-warning/10', label: 'Alerted' },
+  queued: { icon: Clock, color: 'text-muted-foreground', bg: 'bg-muted/10', label: 'Queued' },
 };
 
 export const TerminalNode: React.FC<NodeProps> = ({ id, data, selected }) => {
@@ -23,67 +23,93 @@ export const TerminalNode: React.FC<NodeProps> = ({ id, data, selected }) => {
   // Check if node has any configuration
   const hasConfiguration = data.state || data.reason;
 
-  const onConfigClick = data.onConfigClick as ((nodeId: string) => void) | undefined;
-  const reason = data.reason as string | undefined;
-
   return (
     <div className={`
-      relative group bg-card border rounded-lg p-2 w-[80px] transition-all duration-200
-      ${selected ? 'border-primary shadow-sm' : 'border-border hover:border-border/60'}
+      relative group bg-card border-2 rounded-lg shadow-lg transition-all duration-200
+      ${selected ? 'border-primary shadow-primary/20' : 'border-primary/50'}
+      hover:shadow-xl
+      ${hasConfiguration ? 'p-3 min-w-[160px] max-w-[200px]' : 'p-2 w-[120px]'}
     `}>
       {/* Delete Button */}
       <Button
         variant="ghost"
         size="sm"
         onClick={() => deleteNode(id)}
-        className="absolute -top-1 -right-1 w-4 h-4 p-0 opacity-0 group-hover:opacity-100 transition-opacity bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-full text-xs"
+        className="absolute -top-2 -right-2 w-6 h-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-full"
       >
-        <Trash2 className="w-2 h-2" />
+        <Trash2 className="w-3 h-3" />
       </Button>
 
       {/* Config Button */}
       <Button
         variant="ghost"
         size="sm"
-        onClick={() => onConfigClick?.(id)}
-        className="absolute -bottom-1 -right-1 w-4 h-4 p-0 opacity-0 group-hover:opacity-100 transition-opacity bg-primary text-primary-foreground hover:bg-primary/90 rounded-full text-xs"
+        onClick={() => setSelectedNode(currentNode)}
+        className="absolute -bottom-2 -right-2 w-6 h-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity bg-primary text-primary-foreground hover:bg-primary/90 rounded-full"
       >
-        <Settings className="w-2 h-2" />
+        <Settings className="w-3 h-3" />
       </Button>
 
-      {/* Content */}
-      <div className="flex flex-col items-center gap-1">
-        <div className={`rounded p-0.5 flex items-center justify-center ${config.backgroundColor}`}>
-          <Icon className={`w-2.5 h-2.5 ${config.iconColor}`} />
+      {/* Header */}
+      <div className="flex items-center gap-2 mb-2">
+        <div className={`${hasConfiguration ? 'p-1.5' : 'p-1'} rounded-md ${config.bg}`}>
+          <Icon className={`${hasConfiguration ? 'w-4 h-4' : 'w-3 h-3'} ${config.color}`} />
         </div>
-        <span className="text-[10px] font-medium text-foreground">{config.label}</span>
-        {reason && (
-          <span className="text-[9px] text-muted-foreground truncate max-w-full">{reason}</span>
+        {hasConfiguration && (
+          <div className="flex-1 min-w-0">
+            <div className="text-sm font-medium truncate text-primary">Terminal</div>
+            <div className="text-xs text-muted-foreground truncate">
+              {config.label}
+            </div>
+          </div>
+        )}
+        {!hasConfiguration && (
+          <div className="flex-1 text-center">
+            <h3 className="font-medium text-xs text-primary">Terminal</h3>
+          </div>
         )}
       </div>
 
-      {/* Connection Handles - only input */}
-      <Handle 
-        type="target" 
-        position={Position.Left} 
-        id="left-in" 
-        className="w-1.5 h-1.5 bg-primary border border-background rounded-full opacity-40 hover:opacity-100 hover:scale-110 transition-all duration-200"
-        style={{ left: -3, top: '50%', transform: 'translateY(-50%)' }}
-      />
-      <Handle 
-        type="target" 
-        position={Position.Top} 
-        id="top-in" 
-        className="w-1.5 h-1.5 bg-primary border border-background rounded-full opacity-40 hover:opacity-100 hover:scale-110 transition-all duration-200"
-        style={{ top: -3, left: '50%', transform: 'translateX(-50%)' }}
-      />
-      <Handle 
-        type="target" 
-        position={Position.Bottom} 
-        id="bottom-in" 
-        className="w-1.5 h-1.5 bg-primary border border-background rounded-full opacity-40 hover:opacity-100 hover:scale-110 transition-all duration-200"
-        style={{ bottom: -3, left: '50%', transform: 'translateX(-50%)' }}
-      />
+      {/* Configuration Details - Only show when configured */}
+      {hasConfiguration && (
+        <div className="space-y-2 mb-3">
+          {/* State Block */}
+          <div className="bg-accent/30 rounded p-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-medium">State</span>
+              <Badge 
+                variant="secondary"
+                className={`text-xs ${config.color}`}
+              >
+                {config.label}
+              </Badge>
+            </div>
+          </div>
+
+          {data.reason && (
+            <div className="bg-accent/30 rounded p-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-medium">Reason</span>
+                <span className="text-xs text-muted-foreground truncate max-w-20">
+                  {String(data.reason)}
+                </span>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Unconfigured state notice */}
+      {!hasConfiguration && (
+        <div className="text-center mb-2">
+          <span className="text-xs text-muted-foreground">Not configured</span>
+        </div>
+      )}
+
+      {/* Invisible Connection Handles for input only */}
+      <Handle type="target" position={Position.Left} id="left" className="w-3 h-3 opacity-0" />
+      <Handle type="target" position={Position.Top} id="top" className="w-3 h-3 opacity-0" />
+      <Handle type="target" position={Position.Bottom} id="bottom" className="w-3 h-3 opacity-0" />
     </div>
   );
 };
