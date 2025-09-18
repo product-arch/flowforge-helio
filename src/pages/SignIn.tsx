@@ -195,13 +195,6 @@ const SignIn: React.FC = () => {
               </Button>
             </form>
           </Form>
-
-          {/* Demo Credentials */}
-          <div className="text-center text-sm text-muted-foreground bg-muted/50 p-4 rounded-lg">
-            <p className="font-medium mb-1">Demo Credentials</p>
-            <p>Username: <span className="font-mono">admin</span></p>
-            <p>Password: <span className="font-mono">admin</span></p>
-          </div>
         </div>
       </div>
 
