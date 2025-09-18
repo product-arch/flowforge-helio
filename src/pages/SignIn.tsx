@@ -46,7 +46,7 @@ const SignIn: React.FC = () => {
   // Redirect if already authenticated
   useEffect(() => {
     if (user && !authLoading) {
-      navigate('/');
+      navigate('/dashboard');
     }
   }, [user, authLoading, navigate]);
 
@@ -66,7 +66,7 @@ const SignIn: React.FC = () => {
           title: "Login Successful",
           description: "Welcome back!",
         });
-        navigate('/');
+        navigate('/dashboard');
       }
     } catch (error) {
       toast({
