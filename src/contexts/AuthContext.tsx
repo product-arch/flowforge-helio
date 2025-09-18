@@ -55,14 +55,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (username === 'admin' && password === 'admin') {
         // Try to sign in with the admin credentials
         const { data, error } = await supabase.auth.signInWithPassword({
-          email: 'admin@example.com',
+          email: 'admin@hubdemo.com',
           password: 'admin123',
         });
         
         if (error) {
           // If admin user doesn't exist, create it
           const { error: signUpError } = await supabase.auth.signUp({
-            email: 'admin@example.com',
+            email: 'admin@hubdemo.com',
             password: 'admin123',
             options: {
               data: {
@@ -79,7 +79,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           
           // After signup, try to sign in again
           const { error: signInError } = await supabase.auth.signInWithPassword({
-            email: 'admin@example.com',
+            email: 'admin@hubdemo.com',
             password: 'admin123',
           });
           

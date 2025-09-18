@@ -14,6 +14,7 @@ import {
   DataManagementModal,
   KeyboardShortcutsModal
 } from '@/components/flow/AccountModals';
+import { AccountMenu } from '@/components/navigation/AccountMenu';
 import { SupportModal } from '@/components/flow/SupportModal';
 import { 
   PrivacyPolicyModal, 
@@ -314,68 +315,14 @@ const Home: React.FC = () => {
               </DropdownMenu>
 
               {/* Account Menu */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm">
-                    <User className="w-4 h-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
-                  <DropdownMenuItem onClick={() => setPersonalInfoOpen(true)}>
-                    <User className="w-4 h-4 mr-2" />
-                    Personal Info
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setAccountSettingsOpen(true)}>
-                    <Settings className="w-4 h-4 mr-2" />
-                    Account Settings
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setBillingOpen(true)}>
-                    <Badge className="w-4 h-4 mr-2" />
-                    Billing
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  
-                  <div className="px-2 py-1">
-                    <div className="text-xs font-medium text-muted-foreground mb-2">Themes</div>
-                    <div className="grid grid-cols-3 gap-1">
-                      {themes.map((themeOption) => (
-                        <button
-                          key={themeOption.value}
-                          onClick={() => handleThemeChange(themeOption.value)}
-                          className={`w-6 h-6 rounded-full ${themeOption.color} hover:scale-110 transition-transform ${
-                            theme === themeOption.value ? 'ring-2 ring-ring ring-offset-2 ring-offset-background' : ''
-                          }`}
-                          title={themeOption.label}
-                        />
-                      ))}
-                    </div>
-                    <div className="mt-2 flex gap-1">
-                      <button
-                        onClick={() => setMode('light')}
-                        className={`px-2 py-1 text-xs rounded ${
-                          mode === 'light' ? 'bg-primary text-primary-foreground' : 'hover:bg-accent'
-                        }`}
-                      >
-                        Light
-                      </button>
-                      <button
-                        onClick={() => setMode('dark')}
-                        className={`px-2 py-1 text-xs rounded ${
-                          mode === 'dark' ? 'bg-primary text-primary-foreground' : 'hover:bg-accent'
-                        }`}
-                      >
-                        Dark
-                      </button>
-                    </div>
-                  </div>
-                  
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem className="text-destructive focus:text-destructive">
-                    <LogOut className="w-4 h-4 mr-2" />
-                    Sign Out
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <AccountMenu
+                variant="ghost"
+                size="sm"
+                onPersonalInfoClick={() => setPersonalInfoOpen(true)}
+                onAccountSettingsClick={() => setAccountSettingsOpen(true)}
+                onBillingClick={() => setBillingOpen(true)}
+                onSupportClick={() => setSupportModalOpen(true)}
+              />
             </div>
           </div>
         </div>
