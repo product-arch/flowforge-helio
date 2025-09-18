@@ -50,11 +50,7 @@ const Landing: React.FC = () => {
   const [supportModalOpen, setSupportModalOpen] = useState(false);
 
   const handleSignIn = () => {
-    toast({
-      title: "Sign In",
-      description: "Sign in functionality coming soon",
-      className: "border-status-info bg-status-info/10 text-status-info"
-    });
+    navigate('/sign-in');
   };
 
   const handleScheduleDemo = () => {
