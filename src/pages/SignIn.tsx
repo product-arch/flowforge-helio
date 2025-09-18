@@ -100,6 +100,7 @@ const SignIn: React.FC = () => {
           className="absolute top-6 left-6 text-muted-foreground hover:text-foreground"
         >
           <ArrowLeft className="w-5 h-5" />
+          Back
         </Button>
         
         <div className="w-full max-w-md space-y-8">
