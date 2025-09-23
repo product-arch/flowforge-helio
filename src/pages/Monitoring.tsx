@@ -1,8 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { IslandNavbar } from "@/components/navigation/IslandNavbar";
+import { PageHeader } from '@/components/common/PageHeader';
+import { 
+  PersonalInfoModal, 
+  AccountSettingsModal, 
+  BillingModal
+} from '@/components/flow/AccountModals';
+import { SupportModal } from '@/components/flow/SupportModal';
+import { ThemeProvider } from '@/contexts/ThemeContext';
 import { 
   BarChart3, 
   Activity, 
@@ -15,6 +22,12 @@ import {
 
 const Monitoring = () => {
   const navigate = useNavigate();
+  
+  // Modal states for navigation
+  const [personalInfoOpen, setPersonalInfoOpen] = useState(false);
+  const [accountSettingsOpen, setAccountSettingsOpen] = useState(false);
+  const [billingOpen, setBillingOpen] = useState(false);
+  const [supportOpen, setSupportOpen] = useState(false);
 
   const monitoringOptions = [
     {
@@ -44,19 +57,19 @@ const Monitoring = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
-      <IslandNavbar />
-      
-      <div className="container mx-auto px-6 py-8">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-foreground mb-4">
-            Monitoring & Analytics Hub
-          </h1>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            Comprehensive monitoring suite for system health, analytics, and message queue performance. 
-            Choose your monitoring focus area below.
-          </p>
-        </div>
+    <ThemeProvider>
+      <div className="min-h-screen bg-background">
+        <PageHeader
+          title="Monitoring & Analytics Hub"
+          subtitle="Comprehensive monitoring suite for system health, analytics, and message queue performance"
+          icon={<Activity className="w-5 h-5 text-white" />}
+          onPersonalInfoClick={() => setPersonalInfoOpen(true)}
+          onAccountSettingsClick={() => setAccountSettingsOpen(true)}
+          onBillingClick={() => setBillingOpen(true)}
+          onSupportClick={() => setSupportOpen(true)}
+        />
+        
+        <main className="container mx-auto px-6 py-8">
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
           {monitoringOptions.map((option, index) => {
@@ -138,8 +151,27 @@ const Monitoring = () => {
             </div>
           </div>
         </div>
+        </main>
+        
+        {/* Modals */}
+        <PersonalInfoModal 
+          isOpen={personalInfoOpen} 
+          onClose={() => setPersonalInfoOpen(false)} 
+        />
+        <AccountSettingsModal 
+          isOpen={accountSettingsOpen} 
+          onClose={() => setAccountSettingsOpen(false)} 
+        />
+        <BillingModal 
+          isOpen={billingOpen} 
+          onClose={() => setBillingOpen(false)} 
+        />
+        <SupportModal 
+          isOpen={supportOpen} 
+          onClose={() => setSupportOpen(false)} 
+        />
       </div>
-    </div>
+    </ThemeProvider>
   );
 };
 
