@@ -1,31 +1,89 @@
-import React from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
-import { ArrowLeft, BarChart3, Activity, AlertTriangle, TrendingUp, Home, HelpCircle, Settings, User, Bell, Moon, Sun, Globe, Shield, Database, Keyboard, LogOut } from 'lucide-react';
-import { ThemeProvider } from '@/contexts/ThemeContext';
-import { useTheme } from '@/contexts/ThemeContext';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { ArrowLeft, BarChart3, Home, HelpCircle, Settings, User, Bell, Moon, Sun, Globe, Shield, Database, Keyboard, LogOut } from 'lucide-react';
+import { ThemeProvider, useTheme } from '@/contexts/ThemeContext';
 import { useToast } from '@/hooks/use-toast';
 import { THEMES, Theme } from '@/constants/themes';
+import { QueueMetrics, TimeSeriesQueueData, QueueAlert, RetryReason, DLQMessage, TimeRange, FilterOptions, QueueDrilldownState } from '@/types/queue-dashboard';
+import { generateQueueMetrics, generateTimeSeriesData, generateQueueAlerts, generateRetryReasons, generateDLQMessages } from '@/utils/queueData';
+
+// Import all queue dashboard components
+import QueueHealthCards from '@/components/queue/QueueHealthCards';
+import QueueDepthChart from '@/components/queue/QueueDepthChart';
+import QueuePerformanceCharts from '@/components/queue/QueuePerformanceCharts';
+import RetryAnalysisPanel from '@/components/queue/RetryAnalysisPanel';
+import DLQTable from '@/components/queue/DLQTable';
+import QueueAlertsSidebar from '@/components/queue/QueueAlertsSidebar';
+import QueueDashboardControls from '@/components/queue/QueueDashboardControls';
+import QueueDrilldownView from '@/components/queue/QueueDrilldownView';
 
 const Monitoring: React.FC = () => {
   const navigate = useNavigate();
   const { theme, mode, setTheme, setMode } = useTheme();
   const { toast } = useToast();
-  const [helpModalOpen, setHelpModalOpen] = React.useState(false);
-  const [personalInfoOpen, setPersonalInfoOpen] = React.useState(false);
-  const [accountSettingsOpen, setAccountSettingsOpen] = React.useState(false);
-  const [billingOpen, setBillingOpen] = React.useState(false);
-  const [notificationsOpen, setNotificationsOpen] = React.useState(false);
-  const [languageOpen, setLanguageOpen] = React.useState(false);
-  const [privacyOpen, setPrivacyOpen] = React.useState(false);
-  const [dataManagementOpen, setDataManagementOpen] = React.useState(false);
-  const [keyboardShortcutsOpen, setKeyboardShortcutsOpen] = React.useState(false);
+
+  // Core dashboard state
+  const [queues, setQueues] = useState<QueueMetrics[]>([]);
+  const [timeSeriesData, setTimeSeriesData] = useState<TimeSeriesQueueData[]>([]);
+  const [alerts, setAlerts] = useState<QueueAlert[]>([]);
+  const [retryReasons, setRetryReasons] = useState<RetryReason[]>([]);
+  const [dlqMessages, setDLQMessages] = useState<DLQMessage[]>([]);
+  const [timeRange, setTimeRange] = useState<TimeRange>('1h');
+  const [filters, setFilters] = useState<FilterOptions>({});
+  const [selectedRetryFilter, setSelectedRetryFilter] = useState<string | null>(null);
+  
+  // Queue drilldown state
+  const [drilldownState, setDrilldownState] = useState<QueueDrilldownState>({
+    isOpen: false,
+    queueId: null,
+    queueName: null
+  });
+
+  // Modal states
+  const [helpModalOpen, setHelpModalOpen] = useState(false);
+
+  // Initialize data
+  useEffect(() => {
+    const initializeData = () => {
+      const queueData = generateQueueMetrics();
+      // Generate time series data for all queues
+      const allTimeData: TimeSeriesQueueData[] = [];
+      queueData.forEach(queue => {
+        const queueTimeData = generateTimeSeriesData(queue.id, timeRange);
+        allTimeData.push(...queueTimeData);
+      });
+      
+      setQueues(queueData);
+      setTimeSeriesData(allTimeData);
+      setAlerts(generateQueueAlerts());
+      setRetryReasons(generateRetryReasons());
+      setDLQMessages(generateDLQMessages());
+    };
+
+    initializeData();
+  }, [timeRange]);
+
+  // Real-time data updates every 2-3 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const queueData = generateQueueMetrics();
+      // Generate time series data for all queues
+      const allTimeData: TimeSeriesQueueData[] = [];
+      queueData.forEach(queue => {
+        const queueTimeData = generateTimeSeriesData(queue.id, timeRange);
+        allTimeData.push(...queueTimeData);
+      });
+      
+      setQueues(queueData);
+      setTimeSeriesData(allTimeData);
+      setAlerts(generateQueueAlerts());
+    }, 2500);
+
+    return () => clearInterval(interval);
+  }, [timeRange]);
 
   const handleThemeChange = (newTheme: Theme) => {
     setTheme(newTheme);
@@ -36,6 +94,138 @@ const Monitoring: React.FC = () => {
       className: "border-status-success bg-status-success/10 text-status-success"
     });
   };
+
+  const handleQueueDrilldown = (queueId: string, queueName: string) => {
+    setDrilldownState({
+      isOpen: true,
+      queueId,
+      queueName
+    });
+    
+    toast({
+      title: "Queue Drilldown",
+      description: `Viewing detailed metrics for ${queueName}`,
+    });
+  };
+
+  const handleBackToOverview = () => {
+    setDrilldownState({
+      isOpen: false,
+      queueId: null,
+      queueName: null
+    });
+  };
+
+  const handleAcknowledgeAlert = (alertId: string) => {
+    setAlerts(prev => prev.map(alert => 
+      alert.id === alertId 
+        ? { ...alert, acknowledged: true, acknowledgedAt: new Date() }
+        : alert
+    ));
+    
+    toast({
+      title: "Alert Acknowledged",
+      description: "Alert has been marked as acknowledged",
+      className: "border-status-success bg-status-success/10 text-status-success"
+    });
+  };
+
+  const handleDrillDownFromAlert = (queueId: string, queueName: string, alertId: string) => {
+    handleQueueDrilldown(queueId, queueName);
+    
+    toast({
+      title: "Drilling into Queue",
+      description: `Focused on ${queueName} from alert`,
+    });
+  };
+
+  const handleRetryFilterSelect = (reason: string | null) => {
+    setSelectedRetryFilter(reason);
+    
+    if (reason) {
+      toast({
+        title: "Filter Applied",
+        description: `Showing DLQ messages for: ${reason}`,
+      });
+    } else {
+      toast({
+        title: "Filter Cleared",
+        description: "Showing all DLQ messages",
+      });
+    }
+  };
+
+  const handleDLQReplayMessage = (messageId: string) => {
+    setDLQMessages(prev => prev.filter(msg => msg.id !== messageId));
+    
+    toast({
+      title: "Message Replayed",
+      description: "Message moved back to queue",
+      className: "border-status-success bg-status-success/10 text-status-success"
+    });
+  };
+
+  const handleDLQDiscardMessage = (messageId: string) => {
+    setDLQMessages(prev => prev.filter(msg => msg.id !== messageId));
+    
+    toast({
+      title: "Message Discarded",
+      description: "Message permanently removed",
+      className: "border-status-warning bg-status-warning/10 text-status-warning"
+    });
+  };
+
+  const handleDLQReplayAll = () => {
+    const count = filteredDLQMessages.length;
+    setDLQMessages(prev => prev.filter(msg => !filteredDLQMessages.includes(msg)));
+    
+    toast({
+      title: "All Messages Replayed",
+      description: `${count} message(s) moved back to queue`,
+      className: "border-status-success bg-status-success/10 text-status-success"
+    });
+  };
+
+  const handleDLQPurgeAll = () => {
+    const count = dlqMessages.length;
+    setDLQMessages([]);
+    
+    toast({
+      title: "Queue Purged",
+      description: `All ${count} DLQ messages have been cleared`,
+      className: "border-status-error bg-status-error/10 text-status-error"
+    });
+  };
+
+  const handleExport = (exportFormat: any) => {
+    toast({
+      title: "Export Started",
+      description: `Generating ${exportFormat.format.toUpperCase()} report...`,
+    });
+    
+    // Simulate export delay
+    setTimeout(() => {
+      toast({
+        title: "Export Complete",
+        description: `Dashboard report downloaded as ${exportFormat.format.toUpperCase()}`,
+        className: "border-status-success bg-status-success/10 text-status-success"
+      });
+    }, 2000);
+  };
+
+  // Filter DLQ messages based on selected retry reason
+  const filteredDLQMessages = selectedRetryFilter 
+    ? dlqMessages.filter(msg => msg.errorMessage.toLowerCase().includes(selectedRetryFilter.toLowerCase()))
+    : dlqMessages;
+
+  // Get current queue for drilldown
+  const currentQueue = drilldownState.queueId 
+    ? queues.find(q => q.id === drilldownState.queueId)
+    : null;
+
+  const currentTimeSeriesData = drilldownState.queueId
+    ? timeSeriesData.filter(d => d.queueId === drilldownState.queueId)
+    : timeSeriesData;
 
   return (
     <ThemeProvider>
@@ -51,19 +241,30 @@ const Monitoring: React.FC = () => {
                       <BarChart3 className="w-5 h-5 text-white" />
                     </div>
                     <h1 className="text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
-                      Monitoring Dashboard
+                      {drilldownState.isOpen ? `${drilldownState.queueName} - Queue Details` : 'Queue Monitoring Dashboard'}
                     </h1>
                   </div>
 
                   <nav className="hidden md:flex items-center gap-6">
-                    <Button
-                      variant="ghost"
-                      className="text-sm"
-                      onClick={() => navigate("/home")}
-                    >
-                      <Home className="w-4 h-4 mr-2" />
-                      Home
-                    </Button>
+                    {drilldownState.isOpen ? (
+                      <Button
+                        variant="ghost"
+                        className="text-sm"
+                        onClick={handleBackToOverview}
+                      >
+                        <ArrowLeft className="w-4 h-4 mr-2" />
+                        Back to Overview
+                      </Button>
+                    ) : (
+                      <Button
+                        variant="ghost"
+                        className="text-sm"
+                        onClick={() => navigate("/home")}
+                      >
+                        <Home className="w-4 h-4 mr-2" />
+                        Home
+                      </Button>
+                    )}
                   </nav>
                 </div>
 
@@ -84,34 +285,6 @@ const Monitoring: React.FC = () => {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-64">
-                      <DropdownMenuItem
-                        onClick={() => setNotificationsOpen(true)}
-                      >
-                        <Bell className="w-4 h-4 mr-2" />
-                        Notifications
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => setLanguageOpen(true)}>
-                        <Globe className="w-4 h-4 mr-2" />
-                        Language & Region
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => setPrivacyOpen(true)}>
-                        <Shield className="w-4 h-4 mr-2" />
-                        Privacy & Security
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => setDataManagementOpen(true)}
-                      >
-                        <Database className="w-4 h-4 mr-2" />
-                        Data Management
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => setKeyboardShortcutsOpen(true)}
-                      >
-                        <Keyboard className="w-4 h-4 mr-2" />
-                        Keyboard Shortcuts
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-
                       <div className="px-2 py-1">
                         <div className="text-xs font-medium text-muted-foreground mb-2">
                           Themes
@@ -120,12 +293,8 @@ const Monitoring: React.FC = () => {
                           {THEMES.map((themeOption) => (
                             <button
                               key={themeOption.value}
-                              onClick={() =>
-                                handleThemeChange(themeOption.value)
-                              }
-                              className={`w-6 h-6 rounded-full ${
-                                themeOption.preview
-                              } hover:scale-110 transition-transform ${
+                              onClick={() => handleThemeChange(themeOption.value)}
+                              className={`w-6 h-6 rounded-full ${themeOption.preview} hover:scale-110 transition-transform ${
                                 theme === themeOption.value
                                   ? "ring-2 ring-ring ring-offset-2 ring-offset-background"
                                   : ""
@@ -159,9 +328,7 @@ const Monitoring: React.FC = () => {
                       </div>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem
-                        onClick={() =>
-                          setMode(mode === "light" ? "dark" : "light")
-                        }
+                        onClick={() => setMode(mode === "light" ? "dark" : "light")}
                       >
                         {mode === "light" ? (
                           <Moon className="w-4 h-4 mr-2" />
@@ -181,81 +348,17 @@ const Monitoring: React.FC = () => {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-48">
-                      <DropdownMenuItem
-                        onClick={() => setPersonalInfoOpen(true)}
-                      >
+                      <DropdownMenuItem>
                         <User className="w-4 h-4 mr-2" />
                         Personal Info
                       </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => setAccountSettingsOpen(true)}
-                      >
+                      <DropdownMenuItem>
                         <Settings className="w-4 h-4 mr-2" />
                         Account Settings
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => setBillingOpen(true)}>
+                      <DropdownMenuItem>
                         <Badge className="w-4 h-4 mr-2" />
                         Billing
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-
-                      <div className="px-2 py-1">
-                        <div className="text-xs font-medium text-muted-foreground mb-2">
-                          Themes
-                        </div>
-                        <div className="grid grid-cols-3 gap-1">
-                          {THEMES.map((themeOption) => (
-                            <button
-                              key={themeOption.value}
-                              onClick={() =>
-                                handleThemeChange(themeOption.value)
-                              }
-                              className={`w-6 h-6 rounded-full ${
-                                themeOption.preview
-                              } hover:scale-110 transition-transform ${
-                                theme === themeOption.value
-                                  ? "ring-2 ring-ring ring-offset-2 ring-offset-background"
-                                  : ""
-                              }`}
-                              title={themeOption.name}
-                            />
-                          ))}
-                        </div>
-                        <div className="mt-2 flex gap-1">
-                          <button
-                            onClick={() => setMode("light")}
-                            className={`px-2 py-1 text-xs rounded ${
-                              mode === "light"
-                                ? "bg-primary text-primary-foreground"
-                                : "hover:bg-accent"
-                            }`}
-                          >
-                            Light
-                          </button>
-                          <button
-                            onClick={() => setMode("dark")}
-                            className={`px-2 py-1 text-xs rounded ${
-                              mode === "dark"
-                                ? "bg-primary text-primary-foreground"
-                                : "hover:bg-accent"
-                            }`}
-                          >
-                            Dark
-                          </button>
-                        </div>
-                      </div>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem
-                        onClick={() =>
-                          setMode(mode === "light" ? "dark" : "light")
-                        }
-                      >
-                        {mode === "light" ? (
-                          <Moon className="w-4 h-4 mr-2" />
-                        ) : (
-                          <Sun className="w-4 h-4 mr-2" />
-                        )}
-                        {mode === "light" ? "Dark Mode" : "Light Mode"}
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem className="text-destructive focus:text-destructive">
@@ -270,198 +373,80 @@ const Monitoring: React.FC = () => {
           </div>
         </header>
 
-        {/* Content */}
-        <main className="container mx-auto px-6 py-12">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="text-center"
-          >
-            <Card className="max-w-2xl mx-auto">
-              <CardHeader>
-                <div className="flex items-center justify-center mb-4">
-                  <div className="p-4 bg-emerald-500/10 rounded-full">
-                    <BarChart3 className="w-12 h-12 text-emerald-500" />
-                  </div>
-                </div>
-                <CardTitle className="text-3xl font-heading font-heading-bold mb-4">
-                  Monitoring Module
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <p className="text-lg font-body text-muted-foreground">
-                  Real-time analytics, performance tracking, and comprehensive
-                  reporting dashboards for your communication flows.
-                </p>
+        {/* Main Dashboard Content */}
+        <main className="container mx-auto px-6 py-6">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 h-[calc(100vh-200px)]">
+            {/* Main Content Area - 3 columns */}
+            <div className="lg:col-span-3 flex flex-col gap-6">
+              {/* Queue Drilldown View or Overview */}
+              {drilldownState.isOpen && currentQueue ? (
+                <QueueDrilldownView
+                  queue={currentQueue}
+                  timeSeriesData={currentTimeSeriesData}
+                  timeRange={timeRange}
+                  onBack={handleBackToOverview}
+                />
+              ) : (
+                <>
+                  {/* Top Summary Panel - Queue Health Cards */}
+                  <QueueHealthCards
+                    queues={queues}
+                    onViewDetails={handleQueueDrilldown}
+                  />
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="p-4 bg-accent/30 rounded-lg flex flex-col items-center justify-center text-center">
-                    <Activity className="w-6 h-6 text-emerald-500 mb-2" />
-                    <div className="text-sm font-body-medium">
-                      Real-time Metrics
-                    </div>
-                  </div>
-                  <div className="p-4 bg-accent/30 rounded-lg flex flex-col items-center justify-center text-center">
-                    <TrendingUp className="w-6 h-6 text-emerald-500 mb-2" />
-                    <div className="text-sm font-body-medium">
-                      Performance Analytics
-                    </div>
-                  </div>
-                  <div className="p-4 bg-accent/30 rounded-lg flex flex-col items-center justify-center text-center">
-                    <AlertTriangle className="w-6 h-6 text-emerald-500 mb-2" />
-                    <div className="text-sm font-body-medium">
-                      Alert Management
-                    </div>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <Card
-                    className="cursor-pointer transition-all duration-300 hover:shadow-lg hover:shadow-emerald-500/10 hover:border-emerald-500/50 group"
-                    onClick={() => navigate("/analytics")}
-                  >
-                    <CardContent className="p-6">
-                      <div className="flex items-center justify-center mb-4">
-                        <div className="p-3 bg-emerald-500/10 rounded-full group-hover:bg-emerald-500/20 transition-colors">
-                          <BarChart3 className="w-8 h-8 text-emerald-500" />
-                        </div>
-                      </div>
-                      <h3 className="text-xl font-heading font-heading-semibold mb-2 text-center">
-                        Live Analytics
-                      </h3>
-                      <p className="text-muted-foreground text-center font-body">
-                        Get real time updates
-                      </p>
-                    </CardContent>
-                  </Card>
-
-                  <Card
-                    className="cursor-pointer transition-all duration-300 hover:shadow-lg hover:shadow-emerald-500/10 hover:border-emerald-500/50 group"
-                    onClick={() => navigate("/dashboard")}
-                  >
-                    <CardContent className="p-6">
-                      <div className="flex items-center justify-center mb-4">
-                        <div className="p-3 bg-emerald-500/10 rounded-full group-hover:bg-emerald-500/20 transition-colors">
-                          <TrendingUp className="w-8 h-8 text-emerald-500" />
-                        </div>
-                      </div>
-                      <h3 className="text-xl font-heading font-heading-semibold mb-2 text-center">
-                        Dashboards & Reports
-                      </h3>
-                      <p className="text-muted-foreground text-center font-body">
-                        Get actionable insights
-                      </p>
-                    </CardContent>
-                  </Card>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-        </main>
-
-        {/* Help Modal - Monitoring specific content */}
-        <Dialog open={helpModalOpen} onOpenChange={setHelpModalOpen}>
-          <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
-                <HelpCircle className="w-5 h-5 text-emerald-500" />
-                About Monitoring Dashboard
-              </DialogTitle>
-            </DialogHeader>
-
-            <div className="space-y-6">
-              <div>
-                <h3 className="text-lg font-semibold mb-3">
-                  Monitoring Features
-                </h3>
-                <div className="space-y-2 text-sm text-muted-foreground">
-                  <p>
-                    <strong className="text-foreground">
-                      Real-time Analytics:
-                    </strong>{" "}
-                    Monitor your communication flows with live metrics, delivery
-                    rates, and performance tracking across all channels.
-                  </p>
-                  <p>
-                    <strong className="text-foreground">
-                      Performance Tracking:
-                    </strong>{" "}
-                    Track response times, throughput, error rates, and vendor
-                    performance to optimize your messaging workflows.
-                  </p>
-                  <p>
-                    <strong className="text-foreground">
-                      Alert Management:
-                    </strong>{" "}
-                    Configure intelligent alerts for performance issues,
-                    delivery failures, and system anomalies with automated
-                    notifications.
-                  </p>
-                </div>
-              </div>
-
-              <Separator />
-
-              <div>
-                <h3 className="text-lg font-semibold mb-3">Key Metrics</h3>
-                <div className="space-y-2 text-sm text-muted-foreground">
-                  <p>
-                    <strong className="text-foreground">Message Volume:</strong>{" "}
-                    Track total messages sent, delivered, and failed across all
-                    communication channels.
-                  </p>
-                  <p>
-                    <strong className="text-foreground">Vendor Health:</strong>{" "}
-                    Monitor the status and performance of your configured
-                    vendors with real-time health checks.
-                  </p>
-                  <p>
-                    <strong className="text-foreground">Cost Analytics:</strong>{" "}
-                    Analyze messaging costs and optimize routing strategies for
-                    better cost efficiency.
-                  </p>
-                </div>
-              </div>
-
-              <Separator />
-
-              <div>
-                <h3 className="text-lg font-semibold mb-3">Coming Features</h3>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between p-3 bg-accent/30 rounded-lg">
-                    <span className="text-sm font-medium">
-                      Dashboard Version
-                    </span>
-                    <Badge variant="secondary">v1.0.0 (In Development)</Badge>
+                  {/* Center Visualization Area */}
+                  <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                    <QueueDepthChart
+                      queues={queues}
+                      onQueueClick={handleQueueDrilldown}
+                    />
+                    <QueuePerformanceCharts
+                      data={timeSeriesData}
+                      timeRange={timeRange}
+                    />
                   </div>
 
-                  <div className="space-y-2">
-                    <h4 className="text-sm font-medium">Upcoming Features</h4>
-                    <div className="text-xs text-muted-foreground space-y-1">
-                      <div className="flex justify-between">
-                        <span>Custom Dashboard Widgets</span>
-                        <span>Q1 2025</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Advanced Analytics</span>
-                        <span>Q1 2025</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Report Generation</span>
-                        <span>Q2 2025</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>API Monitoring</span>
-                        <span>Q2 2025</span>
-                      </div>
-                    </div>
+                  {/* Bottom Panels - Retry Analysis & DLQ Management */}
+                  <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                    <RetryAnalysisPanel
+                      retryReasons={retryReasons}
+                      selectedFilter={selectedRetryFilter}
+                      onFilterSelect={handleRetryFilterSelect}
+                    />
+                    <DLQTable
+                      messages={filteredDLQMessages}
+                      selectedFilter={selectedRetryFilter}
+                      onReplayMessage={handleDLQReplayMessage}
+                      onDiscardMessage={handleDLQDiscardMessage}
+                      onReplayAll={handleDLQReplayAll}
+                      onPurgeAll={handleDLQPurgeAll}
+                    />
                   </div>
-                </div>
-              </div>
+                </>
+              )}
             </div>
-          </DialogContent>
-        </Dialog>
+
+            {/* Right Sidebar - Alerts - 1 column */}
+            <div className="lg:col-span-1">
+              <QueueAlertsSidebar
+                alerts={alerts}
+                onAcknowledge={handleAcknowledgeAlert}
+                onDrillDown={handleDrillDownFromAlert}
+              />
+            </div>
+          </div>
+
+          {/* Footer Controls */}
+          <div className="mt-6">
+            <QueueDashboardControls
+              timeRange={timeRange}
+              onTimeRangeChange={setTimeRange}
+              filters={filters}
+              onFiltersChange={setFilters}
+              onExport={handleExport}
+            />
+          </div>
+        </main>
       </div>
     </ThemeProvider>
   );
