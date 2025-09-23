@@ -11,6 +11,7 @@ import SignIn from "./pages/SignIn";
 import FlowList from "./pages/FlowList";
 import FlowBuilderPage from "./pages/FlowBuilder";
 import Monitoring from "./pages/Monitoring";
+import Queue from "./pages/Queue";
 import Integration from "./pages/Integration";
 import Templates from "./pages/Templates";
 import TemplateList from "./pages/TemplateList";
@@ -42,6 +43,7 @@ const App = () => (
             <Route path="/flows" element={<FlowList />} />
             <Route path="/flow-builder" element={<FlowBuilderPage />} />
             <Route path="/monitoring" element={<Monitoring />} />
+            <Route path="/queue" element={<Queue />} />
             <Route path="/integration" element={<Integration />} />
             <Route path="/templates" element={<Templates />} />
             <Route path="/template-list" element={<TemplateList />} />
