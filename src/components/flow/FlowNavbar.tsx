@@ -155,7 +155,7 @@ export const FlowNavbar: React.FC = () => {
             <Button 
               variant="ghost" 
               size="sm"
-              onClick={() => navigate('/dashboard')}
+              onClick={() => navigate('/home')}
               className="flex items-center gap-2"
             >
               <ArrowLeft className="w-4 h-4" />

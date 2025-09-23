@@ -659,7 +659,7 @@ const UserProfiles: React.FC = () => {
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  onClick={() => navigate('/')}
+                  onClick={() => navigate('/home')}
                   className="mr-2"
                 >
                   <ArrowLeft className="w-4 h-4 mr-2" />

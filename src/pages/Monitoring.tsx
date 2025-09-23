@@ -59,7 +59,7 @@ const Monitoring: React.FC = () => {
                     <Button
                       variant="ghost"
                       className="text-sm"
-                      onClick={() => navigate("/")}
+                      onClick={() => navigate("/home")}
                     >
                       <Home className="w-4 h-4 mr-2" />
                       Home

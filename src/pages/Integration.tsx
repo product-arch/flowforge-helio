@@ -19,7 +19,7 @@ const Integration: React.FC = () => {
             <Button 
               variant="ghost" 
               size="sm"
-              onClick={() => navigate('/')}
+              onClick={() => navigate('/home')}
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Hub
@@ -82,7 +82,7 @@ const Integration: React.FC = () => {
               </div>
 
               <Button 
-                onClick={() => navigate('/')}
+                onClick={() => navigate('/home')}
                 className="w-full font-body-medium"
               >
                 <ArrowLeft className="w-4 h-4 mr-2" />

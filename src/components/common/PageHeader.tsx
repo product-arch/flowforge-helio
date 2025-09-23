@@ -26,7 +26,7 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
   title,
   subtitle,
   icon,
-  backTo = '/',
+  backTo = '/home',
   showBackButton = true,
   showThemeSelector = true,
   showSettings = true,
