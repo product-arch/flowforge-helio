@@ -64,7 +64,8 @@ export const ErrorLogTable: React.FC<ErrorLogTableProps> = ({
     URL.revokeObjectURL(url);
   };
 
-  const truncateQuery = (query: string, maxLength: number = 60) => {
+  const truncateQuery = (query: string | undefined, maxLength: number = 60) => {
+    if (!query) return 'N/A';
     return query.length > maxLength ? `${query.substring(0, maxLength)}...` : query;
   };
 
