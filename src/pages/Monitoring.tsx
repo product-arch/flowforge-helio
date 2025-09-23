@@ -53,6 +53,14 @@ const Monitoring = () => {
       color: "text-purple-500",
       path: "/queue", 
       features: ["Queue health", "Latency tracking", "DLQ management", "Retry analysis"]
+    },
+    {
+      title: "Real-time Observability",
+      description: "Advanced database and API monitoring with real-time insights and correlation",
+      icon: Database,
+      color: "text-orange-500",
+      path: "/observability",
+      features: ["Database metrics", "API monitoring", "Real-time alerts", "Performance drilldowns"]
     }
   ];
 
@@ -71,7 +79,7 @@ const Monitoring = () => {
         
         <main className="container mx-auto px-6 py-8">
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-8 max-w-7xl mx-auto">
           {monitoringOptions.map((option, index) => {
             const IconComponent = option.icon;
             return (
