@@ -1,15 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
-import { useNavigate } from 'react-router-dom';
-import { IslandNavbar } from "@/components/navigation/IslandNavbar";
+import { QueueNavbar } from '@/components/navigation/QueueNavbar';
 import QueueHealthCards from "@/components/queue/QueueHealthCards";
 import QueueDepthChart from "@/components/queue/QueueDepthChart";
 import QueuePerformanceCharts from "@/components/queue/QueuePerformanceCharts";
 import RetryAnalysisPanel from "@/components/queue/RetryAnalysisPanel";
 import DLQTable from "@/components/queue/DLQTable";
 import QueueAlertsSidebar from "@/components/queue/QueueAlertsSidebar";
-import QueueDashboardControls from "@/components/queue/QueueDashboardControls";
+
 import QueueDrilldownView from "@/components/queue/QueueDrilldownView";
 import { useToast } from "@/hooks/use-toast";
 import { 
@@ -30,7 +27,6 @@ import type {
 } from "@/types/queue-dashboard";
 
 const Queue = () => {
-  const navigate = useNavigate();
   const { toast } = useToast();
   
   // Core state
@@ -190,23 +186,20 @@ const Queue = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <IslandNavbar />
+      <QueueNavbar
+        timeRange={timeRange}
+        onTimeRangeChange={setTimeRange}
+        filters={filters}
+        onFiltersChange={setFilters}
+        onExport={handleExport}
+      />
       
-      <div className="container mx-auto px-6 py-8">
-        <div className="flex items-center gap-4 mb-8">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => navigate('/monitoring')}
-            className="flex items-center gap-2"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Back to Monitoring
-          </Button>
-          <h1 className="text-3xl font-bold text-foreground">
-            {selectedQueue ? `Queue Details - ${currentQueue?.name}` : 'Message Queue Monitoring'}
-          </h1>
-        </div>
+      <div className="container mx-auto px-6 py-6">
+        {selectedQueue && (
+          <h2 className="text-xl font-semibold mb-6 text-foreground">
+            Queue Details - {currentQueue?.name}
+          </h2>
+        )}
 
         {selectedQueue && currentQueue ? (
           <QueueDrilldownView
@@ -266,17 +259,6 @@ const Queue = () => {
             </div>
           </div>
         )}
-
-        {/* Controls Footer */}
-        <div className="mt-8">
-          <QueueDashboardControls
-            timeRange={timeRange}
-            onTimeRangeChange={setTimeRange}
-            filters={filters}
-            onFiltersChange={setFilters}
-            onExport={handleExport}
-          />
-        </div>
       </div>
     </div>
   );
