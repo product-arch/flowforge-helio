@@ -44,14 +44,7 @@ const nodeTypes: NodeType[] = [
   { id: 'doevent', label: 'Do Event', icon: Play, color: 'text-lime-500', description: 'Execute custom events', category: 'Control Logic' },
   { id: 'fallback', label: 'Fallback', icon: RotateCcw, color: 'text-primary', description: 'Switch to backup vendor when primary fails', category: 'Control Logic' },
   
-  // Routing Strategies
-  { id: 'priority-route', label: 'Priority Routing', icon: TrendingUp, color: 'text-red-500', description: 'Route based on vendor priority', category: 'Routing Strategies' },
-  { id: 'round-robin', label: 'Round Robin', icon: RotateCcw, color: 'text-green-500', description: 'Distribute traffic evenly in rotation', category: 'Routing Strategies' },
-  { id: 'least-cost', label: 'Least Cost', icon: DollarSign, color: 'text-yellow-500', description: 'Route to lowest cost vendor', category: 'Routing Strategies' },
-  { id: 'load-balancer', label: 'Load Balancer', icon: Activity, color: 'text-blue-500', description: 'Balance load across vendors', category: 'Routing Strategies' },
-  { id: 'geolocation', label: 'Geolocation Routing', icon: MapPin, color: 'text-orange-500', description: 'Route based on user location', category: 'Routing Strategies' },
-  { id: 'failover', label: 'Failover', icon: Shield, color: 'text-purple-500', description: 'Automatic failover routing', category: 'Routing Strategies' },
-  { id: 'weighted-distribution', label: 'Weighted Distribution', icon: BarChart3, color: 'text-pink-500', description: 'Distribute based on weights', category: 'Routing Strategies' },
+  // Logic nodes only - routing strategies removed
 ];
 
 export const FloatingNodePalette: React.FC = () => {
