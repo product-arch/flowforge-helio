@@ -9,7 +9,7 @@ import {
 } from '@xyflow/react';
 import { useFlow } from '@/contexts/FlowContext';
 import { FloatingNodePalette } from './FloatingNodePalette';
-import ConfigurationModal from './ConfigurationModal';
+import { ConfigurationSidebar } from './ConfigurationSidebar';
 import { FlowNavbar } from './FlowNavbar';
 import { StartNode } from './nodes/StartNode';
 import { TerminalNode } from './nodes/TerminalNode';
@@ -179,7 +179,7 @@ export const FlowBuilder: React.FC = () => {
       </div>
       
       {configNodeId && (
-        <ConfigurationModal
+        <ConfigurationSidebar
           isOpen={configModalOpen}
           onClose={closeConfigModal}
           nodeId={configNodeId}

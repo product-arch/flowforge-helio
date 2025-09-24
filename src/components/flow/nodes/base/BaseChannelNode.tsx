@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useFlow } from '@/contexts/FlowContext';
 import { nodeBaseClasses, handleClasses } from '@/styles/nodeClasses';
-import { FloatingAddButton } from '../FloatingAddButton';
+import { FloatingAddButton } from './FloatingAddButton';
 
 export interface BaseChannelNodeProps extends NodeProps {
   icon: LucideIcon;

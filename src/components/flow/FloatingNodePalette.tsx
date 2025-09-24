@@ -53,7 +53,6 @@ export const FloatingNodePalette: React.FC = () => {
   const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({
     Channels: true,
     'Control Logic': false,
-    'Routing Strategies': false,
   });
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
 

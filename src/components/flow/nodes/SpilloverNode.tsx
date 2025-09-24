@@ -50,14 +50,7 @@ export const SpilloverNode: React.FC<NodeProps> = (props) => {
       {...props}
       icon={TrendingDown}
       title="Spillover"
-      channelType="sms" // Spillover can work with any channel type
-      getSubtitle={getSubtitle}
-      renderConfigBlocks={renderConfigBlocks}
-      badgeConfig={{
-        key: 'spilloverMode',
-        variants: badgeVariants.spilloverMode,
-        defaultVariant: 'capacity_based'
-      }}
+      channelType="sms"
     />
   );
 };
