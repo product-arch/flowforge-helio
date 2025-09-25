@@ -21,7 +21,7 @@ export const BaseChannelNode: React.FC<BaseChannelNodeProps> = ({
   title,
   channelType
 }) => {
-  const { deleteNode, addNode } = useFlow();
+  const { deleteNode, addNode, onConnect } = useFlow();
   const [showAddButtons, setShowAddButtons] = useState<{ success: boolean; failure: boolean }>({ success: false, failure: false });
   
   const onConfigClick = data.onConfigClick as ((nodeId: string) => void) | undefined;
@@ -46,9 +46,32 @@ export const BaseChannelNode: React.FC<BaseChannelNodeProps> = ({
   };
 
   const handleAddNode = (handleType: 'success' | 'failure', nodeType: string) => {
-    const position = { x: 200, y: 300 };
-    addNode(nodeType, position);
+    // Calculate position relative to current node
+    const offsetX = handleType === 'success' ? -100 : 100;
+    const offsetY = 150;
+    const currentX = (data.positionAbsoluteX as number) || 0;
+    const currentY = (data.positionAbsoluteY as number) || 0;
+    const newPosition = { 
+      x: currentX + offsetX, 
+      y: currentY + offsetY 
+    };
+    
+    // Add the new node (addNode doesn't return ID, so we generate one)
+    const newNodeId = `${nodeType}-${Date.now()}`;
+    addNode(nodeType, newPosition);
+    
+    // The connection will need to be handled by the flow builder
+    // since we can't get the actual node ID from addNode
+    
     setShowAddButtons({ success: false, failure: false });
+  };
+
+  const handleSuccessHover = (isHovering: boolean) => {
+    setShowAddButtons(prev => ({ ...prev, success: isHovering }));
+  };
+
+  const handleFailureHover = (isHovering: boolean) => {
+    setShowAddButtons(prev => ({ ...prev, failure: isHovering }));
   };
 
   return (
@@ -94,12 +117,50 @@ export const BaseChannelNode: React.FC<BaseChannelNodeProps> = ({
       
       {isConfigured && (
         <>
-          <Handle type="source" position={Position.Bottom} id="success" 
-            className={`${handleClasses.connectionDot} bg-green-500`}
-            style={{ bottom: -4, left: '30%', transform: 'translateX(-50%)' }} />
-          <Handle type="source" position={Position.Bottom} id="failure"
-            className={`${handleClasses.connectionDot} bg-red-500`}
-            style={{ bottom: -4, right: '30%', transform: 'translateX(50%)' }} />
+          {/* Success Handle with Hover Zone */}
+          <div 
+            className="absolute"
+            style={{ bottom: -12, left: '30%', transform: 'translateX(-50%)', width: 24, height: 24 }}
+            onMouseEnter={() => handleSuccessHover(true)}
+            onMouseLeave={() => handleSuccessHover(false)}
+          >
+            <Handle type="source" position={Position.Bottom} id="success" 
+              className={`${handleClasses.connectionDot} bg-green-500`}
+              style={{ bottom: 8, left: '50%', transform: 'translateX(-50%)' }} />
+          </div>
+          
+          {/* Failure Handle with Hover Zone */}
+          <div 
+            className="absolute"
+            style={{ bottom: -12, right: '30%', transform: 'translateX(50%)', width: 24, height: 24 }}
+            onMouseEnter={() => handleFailureHover(true)}
+            onMouseLeave={() => handleFailureHover(false)}
+          >
+            <Handle type="source" position={Position.Bottom} id="failure"
+              className={`${handleClasses.connectionDot} bg-red-500`}
+              style={{ bottom: 8, left: '50%', transform: 'translateX(-50%)' }} />
+          </div>
+
+          {/* Floating Add Buttons */}
+          {showAddButtons.success && (
+            <FloatingAddButton
+              sourceNodeId={id}
+              sourceHandle="success"
+              position={{ x: -80, y: 120 }}
+              onNodeSelect={(nodeType) => handleAddNode('success', nodeType)}
+              onClose={() => setShowAddButtons(prev => ({ ...prev, success: false }))}
+            />
+          )}
+          
+          {showAddButtons.failure && (
+            <FloatingAddButton
+              sourceNodeId={id}
+              sourceHandle="failure"
+              position={{ x: 80, y: 120 }}
+              onNodeSelect={(nodeType) => handleAddNode('failure', nodeType)}
+              onClose={() => setShowAddButtons(prev => ({ ...prev, failure: false }))}
+            />
+          )}
         </>
       )}
     </div>
