@@ -118,7 +118,7 @@ export const BaseChannelNode: React.FC<BaseChannelNodeProps> = ({
               <FloatingAddButton
                 sourceNodeId={id}
                 sourceHandle="success"
-                position={{ x: -40, y: 60 }}
+                position={{ x: -20, y: 50 }}
                 onNodeSelect={(nodeType) => handleAddNode('success', nodeType)}
                 onClose={() => {}}
               />
@@ -126,7 +126,7 @@ export const BaseChannelNode: React.FC<BaseChannelNodeProps> = ({
               <FloatingAddButton
                 sourceNodeId={id}
                 sourceHandle="failure"
-                position={{ x: 40, y: 60 }}
+                position={{ x: 20, y: 50 }}
                 onNodeSelect={(nodeType) => handleAddNode('failure', nodeType)}
                 onClose={() => {}}
               />
